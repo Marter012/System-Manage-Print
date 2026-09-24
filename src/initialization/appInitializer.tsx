@@ -32,6 +32,7 @@ import {
 } from "../store/slices/promotionSlice.ts";
 import { getPromotionsAPI } from "../services/promotionService.ts";
 import LoadingScreen from "../components/LoaginsScreen/LoadingScreen.tsx";
+import { startWebSocket, stopWebSocket } from "../websocket/websocketService.ts";
 
 interface LoadingState {
   server: boolean;
@@ -223,6 +224,12 @@ const AppInitializer = ({ children }: AppInitializerProps) => {
        * Todo terminó correctamente
        */
       updateLoading("server", true);
+
+      /*
+       * Una vez que la carga inicial terminó, abrimos una única conexión
+       * WebSocket para mantener todos los clientes sincronizados.
+       */
+      startWebSocket(dispatch);
     } catch (error) {
       console.error("Error inicializando la aplicación:", error);
 
@@ -232,6 +239,10 @@ const AppInitializer = ({ children }: AppInitializerProps) => {
 
   useEffect(() => {
     initializeApp();
+
+    return () => {
+      stopWebSocket();
+    };
   }, []);
 
   /*
