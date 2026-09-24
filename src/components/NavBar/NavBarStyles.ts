@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const NavBarContainer = styled.header`
   width: 100%;
-  height: 70px;
+  height: 11dvh;
 
   display: flex;
   align-items: center;
