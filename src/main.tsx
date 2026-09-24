@@ -17,7 +17,6 @@ createRoot(document.getElementById("root")!).render(
         <AppInitializer>
           <Layout />
         </AppInitializer>
-
         <GlobalStyles />
       </Provider>
     </BrowserRouter>
