@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const ContainerPage = styled.main`
   width: 100%;
-  height: calc(100vh - 70px);
+  height: calc(100dvh - 70px);
   margin: 70px 0 0;
   padding: 25px;
 
