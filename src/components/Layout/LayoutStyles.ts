@@ -15,10 +15,4 @@ export const LayoutContainer = styled.div`
   flex-direction: column;
 
   position: relative;
-  > :nth-child(1) {
-    height: 10%;
-  }
-  > :nth-child(2) {
-    height: 90%;
-  }
 `;

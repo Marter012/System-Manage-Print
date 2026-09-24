@@ -159,7 +159,7 @@ export const NavigationContainer = styled.nav`
      MOBILE
   ========================= */
 
-  @media (max-width: 700px) {
+  @media (max-width: 1400px) {
     height: 50px;
 
     .menu-toggle {

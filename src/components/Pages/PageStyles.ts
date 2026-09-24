@@ -1,49 +1,69 @@
 import styled from "styled-components";
 
-export const ContainerPage = styled.div`
+export const ContainerPage = styled.main`
   width: 100%;
-  min-height: 0;
+  height: calc(100vh - 70px);
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  gap: 22px;
-
+  margin: 70px 0 0;
   padding: 25px;
 
   box-sizing: border-box;
 
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+
   overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-width: none;
 
   /* =========================
-     TABLET
+     HOME
   ========================= */
+
+  &.home-page {
+    overflow-y: hidden;
+    justify-content: flex-start;
+
+    gap: 16px;
+
+    padding: 20px 25px;
+  }
+
+  &.home-page > section {
+    flex-shrink: 1;
+  }
 
   @media (max-width: 850px) {
     gap: 18px;
-
     padding: 20px;
-  }
 
-  /* =========================
-     CELULAR
-  ========================= */
+    &.home-page {
+      gap: 14px;
+      padding: 18px 20px;
+    }
+  }
 
   @media (max-width: 600px) {
     gap: 15px;
-
     padding: 15px 12px;
-  }
 
-  /* =========================
-     CELULAR CHICO
-  ========================= */
+    &.home-page {
+      overflow-y: auto;
+      gap: 12px;
+      padding: 15px 12px;
+    }
+  }
 
   @media (max-width: 400px) {
     gap: 12px;
-
     padding: 12px 8px;
+
+    &.home-page {
+      gap: 10px;
+      padding: 12px 8px;
+    }
   }
 `;

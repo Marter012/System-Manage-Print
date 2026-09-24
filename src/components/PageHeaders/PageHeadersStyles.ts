@@ -4,12 +4,14 @@ export const PageHeaderContainer = styled.header`
   width: 100%;
 
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 
   gap: 20px;
 
   box-sizing: border-box;
+
+  flex-shrink: 0;
 
   @media (max-width: 1000px) {
     gap: 15px;
@@ -19,15 +21,17 @@ export const PageHeaderContainer = styled.header`
     flex-direction: column;
     align-items: stretch;
 
-    gap: 15px;
+    gap: 12px;
   }
 `;
 
 export const TitleContainer = styled.div`
-  min-width: 50%;
-  height: 60px;
+  flex: 1;
+  min-width: 0;
 
-  padding-left: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   box-sizing: border-box;
 
@@ -41,18 +45,13 @@ export const TitleContainer = styled.div`
   p {
     margin: 5px 0 0;
 
-    opacity: 0.6;
-
+    font-size: 0.95rem;
     line-height: 1.4;
-  }
 
-  @media (max-width: 1100px) {
-    padding-left: 80px;
+    opacity: 0.6;
   }
 
   @media (max-width: 900px) {
-    padding-left: 30px;
-
     h2 {
       font-size: 1.6rem;
     }
@@ -60,11 +59,6 @@ export const TitleContainer = styled.div`
 
   @media (max-width: 768px) {
     width: 100%;
-    min-width: 0;
-
-    height: auto;
-
-    padding-left: 0;
 
     h2 {
       font-size: 1.5rem;
@@ -97,15 +91,14 @@ export const TitleContainer = styled.div`
 `;
 
 export const Actions = styled.div`
-  display: flex;
+  flex: 0 1 50%;
+  min-width: 320px;
 
+  display: flex;
   align-items: center;
   justify-content: center;
 
   gap: 10px;
-
-  min-width: 50%;
-  height: 100%;
 
   padding: 5px;
 
@@ -116,30 +109,26 @@ export const Actions = styled.div`
   border-radius: 10px;
 
   button {
-    width: 45%;
+    flex: 1;
+    min-width: 0;
   }
 
   @media (max-width: 1000px) {
-    min-width: 45%;
+    min-width: 280px;
 
     gap: 8px;
-
-    button {
-      width: 48%;
-    }
   }
 
   @media (max-width: 768px) {
     width: 100%;
     min-width: 0;
 
-    height: auto;
+    flex: none;
 
     flex-wrap: wrap;
 
     button {
       flex: 1;
-      width: auto;
       min-width: 0;
     }
   }
@@ -162,7 +151,7 @@ export const Actions = styled.div`
 `;
 
 export const Tab = styled.button`
-  width: 45%;
+  flex: 1;
 
   border: none;
 
@@ -191,8 +180,13 @@ export const Tab = styled.button`
     color: white;
   }
 
-  @media (max-width: 768px) {
-    width: auto;
-    flex: 1;
+  @media (max-width: 500px) {
+    padding: 9px 10px;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 400px) {
+    padding: 8px 7px;
+    font-size: 0.8rem;
   }
 `;

@@ -1,25 +1,10 @@
-import {
-  FaCashRegister,
-  FaClipboardList,
-  FaBoxOpen,
-  FaArrowRight,
-} from "react-icons/fa";
-
-import {
-  Welcome,
-  Tutorial,
-  TutorialCard,
-  StepNumber,
-  Workflow,
-  WorkflowStep,
-  WorkflowArrow,
-  Tip,
-} from "./HomeStyles.ts";
+import { FaArrowRight, FaBoxOpen, FaCashRegister, FaClipboardList } from "react-icons/fa";
 import { ContainerPage } from "../PageStyles.ts";
+import { StepNumber, Tip, Tutorial, TutorialCard, Welcome, Workflow, WorkflowArrow, WorkflowStep } from "./HomeStyles.ts";
 
 const Home = () => {
   return (
-    <ContainerPage>
+    <ContainerPage className="home-page">
       <Welcome>
         <h1>Bienvenido a Boutique de Sabores 👋</h1>
 
@@ -39,11 +24,8 @@ const Home = () => {
         <div className="cards">
           <TutorialCard>
             <StepNumber>1</StepNumber>
-
             <FaCashRegister />
-
             <h3>Abrí la caja</h3>
-
             <p>
               Iniciá el día abriendo la caja y
               registrando el dinero disponible.
@@ -52,11 +34,8 @@ const Home = () => {
 
           <TutorialCard>
             <StepNumber>2</StepNumber>
-
             <FaClipboardList />
-
             <h3>Creá una comanda</h3>
-
             <p>
               Agregá los productos o promociones
               que solicita el cliente.
@@ -65,11 +44,8 @@ const Home = () => {
 
           <TutorialCard>
             <StepNumber>3</StepNumber>
-
             <FaClipboardList />
-
             <h3>Completá la venta</h3>
-
             <p>
               Indicá los datos necesarios y
               seleccioná el método de pago.
@@ -78,11 +54,8 @@ const Home = () => {
 
           <TutorialCard>
             <StepNumber>4</StepNumber>
-
             <FaBoxOpen />
-
             <h3>Revisá tus ventas</h3>
-
             <p>
               Consultá las comandas y los
               movimientos de caja cuando quieras.

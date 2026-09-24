@@ -37,7 +37,10 @@ export const CardTable = styled.div`
 export const TableHeader = styled.div<{ $columns: number }>`
   display: grid;
 
-  grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
+  grid-template-columns: repeat(
+    ${({ $columns }) => $columns},
+    minmax(0, 1fr)
+  );
 
   gap: 16px;
 
@@ -80,15 +83,11 @@ export const TableHeader = styled.div<{ $columns: number }>`
   }
 
   @media (max-width: 600px) {
-    /*
-      En celular ocultamos la cuarta columna:
-      Nombre | Stock | Precio | Categoría | Acciones
-
-      Queda:
-      Nombre | Stock | Precio | Acciones
-    */
-
-    grid-template-columns: minmax(0, 1.6fr) 0.65fr 0.9fr 0.8fr;
+    grid-template-columns:
+      minmax(0, 1.6fr)
+      0.65fr
+      0.9fr
+      0.8fr;
 
     gap: 6px;
 
@@ -99,16 +98,17 @@ export const TableHeader = styled.div<{ $columns: number }>`
       letter-spacing: 0.02em;
     }
 
-    /*
-      Ocultamos "Categoría"
-    */
     h4:nth-child(4) {
       display: none;
     }
   }
 
   @media (max-width: 400px) {
-    grid-template-columns: minmax(0, 1.5fr) 0.6fr 0.85fr 0.7fr;
+    grid-template-columns:
+      minmax(0, 1.5fr)
+      0.6fr
+      0.85fr
+      0.7fr;
 
     gap: 4px;
 
@@ -148,7 +148,10 @@ export const ContainerRows = styled.div`
 export const TableRow = styled.div<{ $columns: number }>`
   display: grid;
 
-  grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
+  grid-template-columns: repeat(
+    ${({ $columns }) => $columns},
+    minmax(0, 1fr)
+  );
 
   gap: 16px;
 
@@ -174,10 +177,6 @@ export const TableRow = styled.div<{ $columns: number }>`
     background: #fafafa;
   }
 
-  /*
-    Evita que los textos rompan el grid
-  */
-
   span,
   p,
   strong {
@@ -200,12 +199,6 @@ export const TableRow = styled.div<{ $columns: number }>`
     font-weight: 600;
   }
 
-  /*
-    =========================================================
-    ACCIONES
-    =========================================================
-  */
-
   .actions {
     min-width: 0;
 
@@ -218,31 +211,17 @@ export const TableRow = styled.div<{ $columns: number }>`
     gap: 6px;
   }
 
-  /*
-    Última columna = monto
-  */
-
   strong:last-child {
     color: #15803d;
 
     font-size: 14px;
   }
 
-  /*
-    FILA PENDIENTE
-  */
-
   &.pending {
     background-color: #eacb75;
 
     color: #9a6b00;
   }
-
-  /*
-    =========================================================
-    TABLET
-    =========================================================
-  */
 
   @media (max-width: 850px) {
     gap: 10px;
@@ -260,21 +239,7 @@ export const TableRow = styled.div<{ $columns: number }>`
     }
   }
 
-  /*
-    =========================================================
-    CELULAR
-    =========================================================
-  */
-
   @media (max-width: 600px) {
-    /*
-      Desktop:
-      Nombre | Stock | Precio | Categoría | Acciones
-
-      Mobile:
-      Nombre | Stock | Precio | Acciones
-    */
-
     grid-template-columns:
       minmax(0, 1.6fr)
       0.65fr
@@ -287,17 +252,9 @@ export const TableRow = styled.div<{ $columns: number }>`
 
     font-size: 11px;
 
-    /*
-      Ocultamos Categoría
-    */
-
     .category {
       display: none;
     }
-
-    /*
-      Acciones
-    */
 
     .actions {
       justify-content: flex-end;
@@ -305,42 +262,21 @@ export const TableRow = styled.div<{ $columns: number }>`
       gap: 4px;
     }
 
-    /*
-      Precio
-    */
-
     .price {
       font-weight: 600;
     }
-
-    /*
-      Nombre
-    */
 
     .product-name {
       min-width: 0;
     }
 
-    /*
-      Stock
-    */
-
     .stock {
       text-align: center;
     }
 
-    /*
-      Precio
-    */
-
     .price {
       text-align: center;
     }
-
-    /*
-      El botón de modificar stock
-      se convierte en botón de solo ícono.
-    */
 
     .buttonstock {
       width: 30px;
@@ -358,11 +294,6 @@ export const TableRow = styled.div<{ $columns: number }>`
       display: none;
     }
 
-    /*
-      Botón activo/inactivo:
-      dejamos solamente el ícono de opciones.
-    */
-
     .actions button:not(.buttonstock) {
       width: 30px;
 
@@ -379,10 +310,6 @@ export const TableRow = styled.div<{ $columns: number }>`
       display: none;
     }
 
-    /*
-      Íconos
-    */
-
     .actions svg {
       width: 14px;
 
@@ -395,12 +322,6 @@ export const TableRow = styled.div<{ $columns: number }>`
       font-size: 12px;
     }
   }
-
-  /*
-    =========================================================
-    TELÉFONOS PEQUEÑOS
-    =========================================================
-  */
 
   @media (max-width: 400px) {
     grid-template-columns:
@@ -515,12 +436,6 @@ export const TableButton = styled.button`
     flex-shrink: 0;
   }
 
-  /*
-    =========================================================
-    CELULAR
-    =========================================================
-  */
-
   @media (max-width: 600px) {
     padding: 6px;
 
@@ -533,11 +448,6 @@ export const TableButton = styled.button`
     height: 30px;
 
     border-radius: 7px;
-
-    /*
-      Ocultamos el texto de los botones
-      cuando tengan la clase button-text.
-    */
 
     .button-text {
       display: none;

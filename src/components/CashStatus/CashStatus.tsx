@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { FaCalendarAlt, FaSun, FaMoon } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaSun,
+  FaMoon,
+  FaChevronDown,
+  FaCheck,
+} from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import { NavLink } from "react-router-dom";
 
 import type { RootState, AppDispatch } from "../../store/store.ts";
 
@@ -12,14 +19,19 @@ import {
 
 import {
   CashStatusContainer,
-  DataSection,
+  DateButton,
   DateInfo,
-  ShiftStatusContainer,
-  ShiftStatusSection,
+  ShiftSelector,
+  ShiftSelectorButton,
+  ShiftSelectorContent,
+  ShiftDropdown,
+  ShiftOption,
+  ShiftOptionInfo,
+  StatusDot,
+  OpenCashLink,
 } from "./CashStatusStyles";
 
-import { formatDate, getDateOnly } from "../Utils/Formats.tsx";
-import { NavLink } from "react-router-dom";
+import { getDateOnly } from "../Utils/Formats.tsx";
 
 type CashStatusType = "open" | "closed" | "not-open";
 
@@ -35,7 +47,9 @@ const CashStatus = () => {
     (state: RootState) => state.cashRegister.cashRegister,
   );
 
-  const selectedDate = useSelector((state: RootState) => state.daySelected.day);
+  const selectedDate = useSelector(
+    (state: RootState) => state.daySelected.day,
+  );
 
   const selectedShift = useSelector(
     (state: RootState) => state.daySelected.shift,
@@ -45,9 +59,11 @@ const CashStatus = () => {
     morning: "not-open",
     night: "not-open",
   });
-  const [showMobileStatus, setShowMobileStatus] = useState(false);
 
-  const dateInputRef = useRef<HTMLInputElement>(null);
+  const [showShiftMenu, setShowShiftMenu] = useState(false);
+
+  // Ref del selector completo
+  const shiftSelectorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!cashRegisters || cashRegisters.length === 0) {
@@ -64,7 +80,10 @@ const CashStatus = () => {
         ? getDateOnly(cash.date)
         : getDateOnly(cash.opened_at);
 
-      return cashDate === selectedDate && cash.shift === "morning";
+      return (
+        cashDate === selectedDate &&
+        cash.shift === "morning"
+      );
     });
 
     const nightCashRegister = cashRegisters.find((cash) => {
@@ -72,30 +91,29 @@ const CashStatus = () => {
         ? getDateOnly(cash.date)
         : getDateOnly(cash.opened_at);
 
-      return cashDate === selectedDate && cash.shift === "night";
+      return (
+        cashDate === selectedDate &&
+        cash.shift === "night"
+      );
     });
 
     let morningStatus: CashStatusType = "not-open";
 
     if (morningCashRegister) {
       morningStatus =
-        morningCashRegister.status_cash_register === "open" ? "open" : "closed";
+        morningCashRegister.status_cash_register === "open"
+          ? "open"
+          : "closed";
     }
-
-    // ---------------------------------------------------------
-    // ESTADO NOCHE
-    // ---------------------------------------------------------
 
     let nightStatus: CashStatusType = "not-open";
 
     if (nightCashRegister) {
       nightStatus =
-        nightCashRegister.status_cash_register === "open" ? "open" : "closed";
+        nightCashRegister.status_cash_register === "open"
+          ? "open"
+          : "closed";
     }
-
-    // ---------------------------------------------------------
-    // GUARDAR ESTADOS
-    // ---------------------------------------------------------
 
     setShiftStatus({
       morning: morningStatus,
@@ -103,37 +121,44 @@ const CashStatus = () => {
     });
   }, [selectedDate, cashRegisters]);
 
-  // =========================================================
-  // CAMBIO DE FECHA
-  // =========================================================
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        shiftSelectorRef.current &&
+        !shiftSelectorRef.current.contains(event.target as Node)
+      ) {
+        setShowShiftMenu(false);
+      }
+    };
 
-  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const date = event.target.value;
+    document.addEventListener("mousedown", handleClickOutside);
 
-    dispatch(selectDay(date));
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleDateChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    dispatch(selectDay(event.target.value));
   };
-
-  // =========================================================
-  // ABRIR CALENDARIO
-  // =========================================================
 
   const openCalendar = () => {
-    dateInputRef.current?.showPicker();
-  };
+    const input = document.querySelector(
+      ".cash-date-input",
+    ) as HTMLInputElement | null;
 
-  // =========================================================
-  // CAMBIO DE TURNO
-  // =========================================================
+    input?.showPicker();
+  };
 
   const handleShiftChange = (shift: ShiftType) => {
     dispatch(selectShift(shift));
+    setShowShiftMenu(false);
   };
 
-  // =========================================================
-  // TEXTO DEL ESTADO
-  // =========================================================
-
-  const getCashStatusText = (status: CashStatusType) => {
+  const getStatusText = (status: CashStatusType) => {
     switch (status) {
       case "open":
         return "Caja abierta";
@@ -141,155 +166,173 @@ const CashStatus = () => {
       case "closed":
         return "Caja cerrada";
 
-      case "not-open":
-        return "Abrir caja";
-
       default:
-        return "Abrir caja";
+        return "Sin abrir";
     }
   };
 
-  // =========================================================
-  // ESTADO GENERAL
-  // =========================================================
+  const currentStatus =
+    selectedShift === "morning"
+      ? shiftStatus.morning
+      : shiftStatus.night;
 
-  const generalStatus: CashStatusType =
-    shiftStatus.morning === "open" || shiftStatus.night === "open"
-      ? "open"
-      : shiftStatus.morning === "closed" && shiftStatus.night === "closed"
-        ? "closed"
-        : "not-open";
+  const currentShiftName =
+    selectedShift === "morning" ? "Mañana" : "Noche";
 
-  // =========================================================
-  // RENDER
-  // =========================================================
+  const currentShiftIcon =
+    selectedShift === "morning" ? <FaSun /> : <FaMoon />;
+
+  const date = new Date(`${selectedDate}T00:00:00`);
+
+  const dayNumber = date.getDate();
+
+  const month = date
+    .toLocaleDateString("es-AR", {
+      month: "short",
+    })
+    .replace(".", "")
+    .toUpperCase();
 
   return (
-    <CashStatusContainer
-      $status={generalStatus}
-      className={showMobileStatus ? "mobile-open" : ""}
-    >
-      {/* =====================================================
-        BOTÓN MOBILE
-    ===================================================== */}
-
-      <button
-        type="button"
-        className="mobile-status-toggle"
-        onClick={() => setShowMobileStatus((current) => !current)}
-        aria-label={
-          showMobileStatus ? "Ocultar estado de caja" : "Mostrar estado de caja"
-        }
-      >
-        <span className="mobile-status-icon">
+    <CashStatusContainer>
+      {/* FECHA */}
+      <DateButton type="button" onClick={openCalendar}>
+        <div className="calendar-icon">
           <FaCalendarAlt />
-        </span>
+        </div>
 
-        <span className="mobile-status-text">
-          <small>Caja</small>
-          <strong>
-            {generalStatus === "open"
-              ? "Abierta"
-              : generalStatus === "closed"
-                ? "Cerrada"
-                : "Sin abrir"}
-          </strong>
-        </span>
+        <DateInfo>
+          <span className="day-number">
+            {dayNumber}
+          </span>
 
-        <span className="mobile-status-arrow">
-          {showMobileStatus ? "▲" : "▼"}
-        </span>
-      </button>
+          <span className="month">
+            {month}
+          </span>
+        </DateInfo>
 
-      {/* =====================================================
-        CONTENIDO
-    ===================================================== */}
+        <input
+          className="cash-date-input"
+          type="date"
+          value={selectedDate}
+          onChange={handleDateChange}
+          aria-label="Seleccionar fecha"
+        />
+      </DateButton>
 
-      <div className="cash-status-content">
-        {/* ===================================================
-          FECHA
-      =================================================== */}
+      {/* SELECTOR DE TURNO */}
+      <ShiftSelector ref={shiftSelectorRef}>
+        <ShiftSelectorButton
+          type="button"
+          onClick={() =>
+            setShowShiftMenu((current) => !current)
+          }
+          $status={currentStatus}
+        >
+          <span className="shift-icon">
+            {currentShiftIcon}
+          </span>
 
-        <DataSection className="date-section" onClick={openCalendar}>
-          <div className="calendar-icon">
-            <FaCalendarAlt />
-          </div>
+          <span className="shift-content">
+            <strong>{currentShiftName}</strong>
 
-          <DateInfo>
-            <span className="date-label">Día</span>
+            <small>
+              {getStatusText(currentStatus)}
+            </small>
+          </span>
 
-            <span className="day-name">{formatDate(selectedDate)}</span>
-          </DateInfo>
+          <StatusDot $status={currentStatus} />
 
-          <input
-            ref={dateInputRef}
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            aria-label="Seleccionar fecha"
+          <FaChevronDown
+            className={`arrow ${
+              showShiftMenu ? "open" : ""
+            }`}
           />
-        </DataSection>
+        </ShiftSelectorButton>
 
-        <div className="divider" />
+        {showShiftMenu && (
+          <ShiftDropdown>
+            <ShiftSelectorContent>
+              <span>Seleccionar turno</span>
+            </ShiftSelectorContent>
 
-        {/* ===================================================
-          TURNOS
-      =================================================== */}
+            {/* MAÑANA */}
+            <ShiftOption
+              type="button"
+              $selected={selectedShift === "morning"}
+              onClick={() =>
+                handleShiftChange("morning")
+              }
+            >
+              <span className="option-icon">
+                <FaSun />
+              </span>
 
-        <ShiftStatusContainer>
-          {/* MAÑANA */}
+              <ShiftOptionInfo>
+                <strong>Mañana</strong>
 
-          <ShiftStatusSection
-            $status={shiftStatus.morning}
-            $selected={selectedShift === "morning"}
-            onClick={() => handleShiftChange("morning")}
-          >
-            <div className="shift-icon">
-              <FaSun />
-            </div>
+                <small>
+                  {getStatusText(
+                    shiftStatus.morning,
+                  )}
+                </small>
+              </ShiftOptionInfo>
 
-            <div className="shift-info">
-              <span className="shift-name">Mañana</span>
+              <StatusDot
+                $status={shiftStatus.morning}
+              />
 
-              {getCashStatusText(shiftStatus.morning) === "Abrir caja" ? (
-                <NavLink to={"cashRegister"}>
-                  <strong>{getCashStatusText(shiftStatus.morning)}</strong>
-                </NavLink>
-              ) : (
-                <strong>{getCashStatusText(shiftStatus.morning)}</strong>
+              {selectedShift === "morning" && (
+                <FaCheck className="check" />
               )}
-            </div>
+            </ShiftOption>
 
-            <span className="status-indicator" />
-          </ShiftStatusSection>
+            {/* NOCHE */}
+            <ShiftOption
+              type="button"
+              $selected={selectedShift === "night"}
+              onClick={() =>
+                handleShiftChange("night")
+              }
+            >
+              <span className="option-icon">
+                <FaMoon />
+              </span>
 
-          {/* NOCHE */}
+              <ShiftOptionInfo>
+                <strong>Noche</strong>
 
-          <ShiftStatusSection
-            $status={shiftStatus.night}
-            $selected={selectedShift === "night"}
-            onClick={() => handleShiftChange("night")}
-          >
-            <div className="shift-icon">
-              <FaMoon />
-            </div>
+                <small>
+                  {getStatusText(
+                    shiftStatus.night,
+                  )}
+                </small>
+              </ShiftOptionInfo>
 
-            <div className="shift-info">
-              <span className="shift-name">Noche</span>
+              <StatusDot
+                $status={shiftStatus.night}
+              />
 
-              {getCashStatusText(shiftStatus.night) === "Abrir caja" ? (
-                <NavLink to={"cashRegister"}>
-                  <strong>{getCashStatusText(shiftStatus.night)}</strong>
-                </NavLink>
-              ) : (
-                <strong>{getCashStatusText(shiftStatus.night)}</strong>
+              {selectedShift === "night" && (
+                <FaCheck className="check" />
               )}
-            </div>
+            </ShiftOption>
 
-            <span className="status-indicator" />
-          </ShiftStatusSection>
-        </ShiftStatusContainer>
-      </div>
+            {/* ABRIR CAJA */}
+            {currentStatus === "not-open" && (
+              <OpenCashLink
+                as={NavLink}
+                to="cashRegister"
+                onClick={() =>
+                  setShowShiftMenu(false)
+                }
+              >
+                Abrir caja de {currentShiftName.toLowerCase()}
+              </OpenCashLink>
+            )}
+          </ShiftDropdown>
+        )}
+      </ShiftSelector>
     </CashStatusContainer>
   );
 };
