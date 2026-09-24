@@ -7,6 +7,14 @@ export const FormContainer = styled.div`
   width: 100%;
 `;
 
+export const SectionTitle = styled.h3`
+  margin: 0;
+
+  color: #653007;
+  font-size: 1rem;
+  font-weight: 700;
+`;
+
 export const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -31,14 +39,20 @@ export const FormGroup = styled.div`
   textarea {
     width: 100%;
     box-sizing: border-box;
+
     padding: 10px 13px;
+
     border: 1px solid #d8c4ad;
     border-radius: 8px;
+
     background-color: #ffffff;
     color: #3f2a1d;
+
     font-family: inherit;
     font-size: 0.92rem;
+
     outline: none;
+
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease,
@@ -70,7 +84,7 @@ export const FormGroup = styled.div`
   }
 
   textarea {
-    min-height: 90px;
+    min-height: 85px;
     resize: vertical;
   }
 
@@ -89,8 +103,11 @@ export const ErrorText = styled.span`
   display: flex;
   align-items: center;
   gap: 5px;
+
   margin-top: 1px;
+
   color: #b42318;
+
   font-size: 0.78rem;
   font-weight: 500;
   line-height: 1.3;
@@ -100,6 +117,7 @@ export const ItemsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 14px;
+
   width: 100%;
 `;
 
@@ -107,12 +125,15 @@ export const PromotionItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+
   width: 100%;
   box-sizing: border-box;
 
   padding: 18px;
+
   border: 1px solid #e1d4c7;
   border-radius: 10px;
+
   background-color: #faf8f6;
 `;
 
@@ -120,9 +141,11 @@ export const ItemHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 12px;
 
   padding-bottom: 12px;
+
   border-bottom: 1px solid #e8ddd3;
 
   > div {
@@ -133,13 +156,27 @@ export const ItemHeader = styled.div`
 
   strong {
     color: #653007;
+
     font-size: 0.95rem;
     font-weight: 700;
   }
 
   span {
     color: #8b7b6e;
+
     font-size: 0.76rem;
+  }
+
+  @media (max-width: 480px) {
+    align-items: flex-start;
+
+    > div {
+      min-width: 0;
+    }
+
+    span {
+      line-height: 1.3;
+    }
   }
 `;
 
@@ -179,7 +216,9 @@ export const RemoveItemButton = styled.button`
 export const ProductToolbar = styled.div`
   display: grid;
   grid-template-columns: 1fr 220px;
+
   gap: 10px;
+
   width: 100%;
 
   @media (max-width: 650px) {
@@ -228,6 +267,7 @@ export const CategorySelect = styled.select`
   font-size: 0.86rem;
 
   outline: none;
+
   cursor: pointer;
 
   &:focus {
@@ -242,7 +282,9 @@ export const ProductSelection = styled.div`
   gap: 7px;
 
   width: 100%;
+
   max-height: 260px;
+
   overflow-y: auto;
 
   padding: 10px;
@@ -260,6 +302,7 @@ export const ProductOption = styled.button<{
 }>`
   display: flex;
   align-items: center;
+
   gap: 10px;
 
   width: 100%;
@@ -269,21 +312,19 @@ export const ProductOption = styled.button<{
 
   border: 1px solid
     ${({ $selected }) =>
-      $selected
-        ? "#c29e70"
-        : "transparent"};
+      $selected ? "#c29e70" : "transparent"};
 
   border-radius: 8px;
 
   background-color: ${({ $selected }) =>
-    $selected
-      ? "#faf1e8"
-      : "#ffffff"};
+    $selected ? "#faf1e8" : "#ffffff"};
 
   color: #3f2a1d;
 
   font-family: inherit;
+
   font-size: 0.86rem;
+
   font-weight: ${({ $selected }) =>
     $selected ? "700" : "500"};
 
@@ -320,16 +361,12 @@ export const ProductCheck = styled.span<{
 
   border: 1px solid
     ${({ $selected }) =>
-      $selected
-        ? "#653007"
-        : "#cfc2b5"};
+      $selected ? "#653007" : "#cfc2b5"};
 
   border-radius: 6px;
 
   background-color: ${({ $selected }) =>
-    $selected
-      ? "#653007"
-      : "#ffffff"};
+    $selected ? "#653007" : "#ffffff"};
 
   color: #ffffff;
 
@@ -402,6 +439,7 @@ export const FormActions = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
   gap: 10px;
 
   margin-top: 5px;
@@ -485,6 +523,7 @@ export const SubmitButton = styled.button`
   &:hover {
     background-color: #7b3d0b;
     border-color: #7b3d0b;
+
     box-shadow: 0 3px 8px rgba(101, 48, 7, 0.18);
   }
 

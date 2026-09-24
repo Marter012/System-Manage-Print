@@ -53,14 +53,13 @@ import {
   SummaryGrup,
   SummaryGroupTitle,
   SummaryGroupItems,
+  CashMobileTabs,
+  CashMobileTab,
 } from "./CashDayStyles.ts";
 
 import type { CashMovementType } from "../../interfaces/CashMovements.ts";
 
-import {
-  selectDay,
-  selectShift,
-} from "../../store/slices/daySelectedSlice.ts";
+import { selectDay, selectShift } from "../../store/slices/daySelectedSlice.ts";
 
 import { MdOutlineWarning } from "react-icons/md";
 import { getAxiosErrorMessage } from "../Utils/ErrorAxios.tsx";
@@ -88,9 +87,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
   const orders = useSelector((state: RootState) => state.orders.orders);
 
-  const selectedDay = useSelector(
-    (state: RootState) => state.daySelected.day,
-  );
+  const selectedDay = useSelector((state: RootState) => state.daySelected.day);
 
   const selectedShift = useSelector(
     (state: RootState) => state.daySelected.shift,
@@ -110,10 +107,19 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
   const [movementModalOpen, setMovementModalOpen] = useState(false);
 
-  const [movementType, setMovementType] =
-    useState<CashMovementType>("inflow");
+  const [movementType, setMovementType] = useState<CashMovementType>("inflow");
 
   const [summaryOpen, setSummaryOpen] = useState(false);
+
+  /*
+   * En dispositivos chicos permite alternar entre
+   * ventas y movimientos.
+   *
+   * En notebook/PC ambos paneles se muestran siempre.
+   */
+  const [cashMobileSection, setCashMobileSection] = useState<
+    "sales" | "movements"
+  >("sales");
 
   const [pendingCashRegister, setPendingCashRegister] = useState<
     (typeof cashRegisters)[number] | null
@@ -125,8 +131,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
   const today = getDateOnly(new Date());
 
-  const isToday =
-    formatDate(selectedDay) === formatDate(today);
+  const isToday = formatDate(selectedDay) === formatDate(today);
 
   /* =========================================================
      CAJAS DEL DÍA SELECCIONADO
@@ -152,8 +157,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
     );
   }, [dayCashRegisters, selectedShift]);
 
-  const cashStatus =
-    selectedCashRegister?.status_cash_register;
+  const cashStatus = selectedCashRegister?.status_cash_register;
 
   const canModifyCash = cashStatus === "open";
 
@@ -167,12 +171,10 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
         ? getDateOnly(cashRegister.date)
         : getDateOnly(cashRegister.opened_at);
 
-      const isOpen =
-        cashRegister.status_cash_register === "open";
+      const isOpen = cashRegister.status_cash_register === "open";
 
       const isDifferentCash =
-        cashDate !== selectedDay ||
-        cashRegister.shift !== selectedShift;
+        cashDate !== selectedDay || cashRegister.shift !== selectedShift;
 
       return isOpen && isDifferentCash;
     });
@@ -201,17 +203,12 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
   const sales = useMemo(
     () =>
-      cashRegisterMovements.filter((movement) =>
-        Boolean(movement.order_id),
-      ),
+      cashRegisterMovements.filter((movement) => Boolean(movement.order_id)),
     [cashRegisterMovements],
   );
 
   const manualMovements = useMemo(
-    () =>
-      cashRegisterMovements.filter(
-        (movement) => !movement.order_id,
-      ),
+    () => cashRegisterMovements.filter((movement) => !movement.order_id),
     [cashRegisterMovements],
   );
 
@@ -222,10 +219,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
   const salesTotal = useMemo(() => {
     return sales
       .filter((movement) => movement.type === "inflow")
-      .reduce(
-        (total, movement) => total + movement.amount,
-        0,
-      );
+      .reduce((total, movement) => total + movement.amount, 0);
   }, [sales]);
 
   /* =========================================================
@@ -236,13 +230,9 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
     return sales
       .filter(
         (movement) =>
-          movement.method_payment === method &&
-          movement.type === "inflow",
+          movement.method_payment === method && movement.type === "inflow",
       )
-      .reduce(
-        (total, movement) => total + movement.amount,
-        0,
-      );
+      .reduce((total, movement) => total + movement.amount, 0);
   };
 
   const totalCash = getSalesPaymentTotal("cash");
@@ -257,19 +247,13 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
   const manualIncome = useMemo(() => {
     return manualMovements
       .filter((movement) => movement.type === "inflow")
-      .reduce(
-        (total, movement) => total + movement.amount,
-        0,
-      );
+      .reduce((total, movement) => total + movement.amount, 0);
   }, [manualMovements]);
 
   const manualExpense = useMemo(() => {
     return manualMovements
       .filter((movement) => movement.type === "outflow")
-      .reduce(
-        (total, movement) => total + movement.amount,
-        0,
-      );
+      .reduce((total, movement) => total + movement.amount, 0);
   }, [manualMovements]);
 
   const manualBalance = manualIncome - manualExpense;
@@ -279,13 +263,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
   ========================================================= */
 
   const ordersMap = useMemo(
-    () =>
-      new Map(
-        orders.map((order) => [
-          order.id,
-          order.order_number,
-        ]),
-      ),
+    () => new Map(orders.map((order) => [order.id, order.order_number])),
     [orders],
   );
 
@@ -303,8 +281,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
   ========================================================= */
 
   const handleGoToOpenCash = () => {
-    const cashToOpen =
-      pendingCashRegister ?? anotherOpenCashRegister;
+    const cashToOpen = pendingCashRegister ?? anotherOpenCashRegister;
 
     if (!cashToOpen) {
       return;
@@ -338,19 +315,16 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
   ========================================================= */
 
   const handleCreateCash = async (openingAmount: number) => {
-    const anotherOpenCash = cashRegisters.find(
-      (cashRegister) => {
-        const cashDate = cashRegister.date
-          ? getDateOnly(cashRegister.date)
-          : getDateOnly(cashRegister.opened_at);
+    const anotherOpenCash = cashRegisters.find((cashRegister) => {
+      const cashDate = cashRegister.date
+        ? getDateOnly(cashRegister.date)
+        : getDateOnly(cashRegister.opened_at);
 
-        return (
-          cashRegister.status_cash_register === "open" &&
-          (cashDate !== selectedDay ||
-            cashRegister.shift !== selectedShift)
-        );
-      },
-    );
+      return (
+        cashRegister.status_cash_register === "open" &&
+        (cashDate !== selectedDay || cashRegister.shift !== selectedShift)
+      );
+    });
 
     if (anotherOpenCash) {
       setOpenCashModal(false);
@@ -361,8 +335,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
     }
 
     const existingCashRegister = dayCashRegisters.find(
-      (cashRegister) =>
-        cashRegister.shift === selectedShift,
+      (cashRegister) => cashRegister.shift === selectedShift,
     );
 
     if (existingCashRegister) {
@@ -370,9 +343,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
       showInfo(
         `La caja de ${
-          selectedShift === "morning"
-            ? "mañana"
-            : "noche"
+          selectedShift === "morning" ? "mañana" : "noche"
         } ya existe para este día.`,
       );
 
@@ -389,8 +360,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
         status: true,
       };
 
-      const response =
-        await createCashRegisterAPI(newCashRegister);
+      const response = await createCashRegisterAPI(newCashRegister);
 
       dispatch(addCashRegister(response));
 
@@ -398,19 +368,14 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
       showInfo(
         `La caja de ${
-          selectedShift === "morning"
-            ? "mañana"
-            : "noche"
+          selectedShift === "morning" ? "mañana" : "noche"
         } fue abierta correctamente.`,
       );
     } catch (error) {
       console.error("Error al abrir caja:", error);
 
       showInfo(
-        getAxiosErrorMessage(
-          error,
-          "Ocurrió un error al abrir la caja.",
-        ),
+        getAxiosErrorMessage(error, "Ocurrió un error al abrir la caja."),
       );
     }
   };
@@ -419,15 +384,11 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
      INGRESO / EGRESO MANUAL
   ========================================================= */
 
-  const handleOpenMovement = (
-    type: CashMovementType,
-  ) => {
+  const handleOpenMovement = (type: CashMovementType) => {
     if (!canModifyCash) {
       showInfo(
         `La caja no está disponible para registrar ${
-          type === "inflow"
-            ? "ingresos"
-            : "egresos"
+          type === "inflow" ? "ingresos" : "egresos"
         }.`,
       );
 
@@ -452,16 +413,13 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
   const handleCreateMovement = async (data: any) => {
     if (!canModifyCash) {
-      showInfo(
-        "La caja no está abierta. No se puede registrar el movimiento.",
-      );
+      showInfo("La caja no está abierta. No se puede registrar el movimiento.");
 
       return;
     }
 
     try {
-      const response =
-        await createCashMovementAPI(data);
+      const response = await createCashMovementAPI(data);
 
       dispatch(addCashMovement(response));
 
@@ -480,22 +438,13 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
           error.message ??
           "Ocurrió un error al guardar el movimiento.";
 
-        console.log(
-          "STATUS:",
-          error.response?.status,
-        );
+        console.log("STATUS:", error.response?.status);
 
-        console.log(
-          "DATA:",
-          error.response?.data,
-        );
+        console.log("DATA:", error.response?.data);
 
         console.log("ERROR:", message);
       } else {
-        console.error(
-          "Error desconocido:",
-          error,
-        );
+        console.error("Error desconocido:", error);
       }
 
       showInfo(
@@ -515,13 +464,9 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
      CERRAR CAJA
   ========================================================= */
 
-  const handleSubmitCloseCash = async (
-    closingAmount: number,
-  ) => {
+  const handleSubmitCloseCash = async (closingAmount: number) => {
     if (!selectedCashRegister) {
-      showInfo(
-        "No se encontró una caja para cerrar.",
-      );
+      showInfo("No se encontró una caja para cerrar.");
 
       return;
     }
@@ -530,42 +475,31 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
       const updateData: IUpdateCashRegister = {
         date: selectedCashRegister.date,
         shift: selectedCashRegister.shift,
-        opened_at:
-          selectedCashRegister.opened_at,
-        opening_amount:
-          selectedCashRegister.opening_amount,
+        opened_at: selectedCashRegister.opened_at,
+        opening_amount: selectedCashRegister.opening_amount,
         closed_at: getDateTime(new Date()),
         closing_amount: closingAmount,
         status_cash_register: "close",
         status: true,
       };
 
-      const response =
-        await updateCashRegisterAPI(
-          selectedCashRegister.id,
-          updateData,
-        );
+      const response = await updateCashRegisterAPI(
+        selectedCashRegister.id,
+        updateData,
+      );
 
       dispatch(updateCashRegister(response));
 
       setCloseCashModal(false);
 
-      showInfo(
-        "La caja fue cerrada correctamente.",
-      );
+      showInfo("La caja fue cerrada correctamente.");
 
       setActiveTab("history");
     } catch (error) {
-      console.error(
-        "🔴 ERROR AL CERRAR CAJA:",
-        error,
-      );
+      console.error("🔴 ERROR AL CERRAR CAJA:", error);
 
       showInfo(
-        getAxiosErrorMessage(
-          error,
-          "Ocurrió un error al cerrar la caja.",
-        ),
+        getAxiosErrorMessage(error, "Ocurrió un error al cerrar la caja."),
       );
     }
   };
@@ -575,18 +509,13 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
   ========================================================= */
 
   const showBlockedByOpenCash =
-    !selectedCashRegister &&
-    Boolean(anotherOpenCashRegister);
+    !selectedCashRegister && Boolean(anotherOpenCashRegister);
 
   const showOpenCash =
-    isToday &&
-    !selectedCashRegister &&
-    !anotherOpenCashRegister;
+    isToday && !selectedCashRegister && !anotherOpenCashRegister;
 
   const showNoCash =
-    !isToday &&
-    !selectedCashRegister &&
-    !anotherOpenCashRegister;
+    !isToday && !selectedCashRegister && !anotherOpenCashRegister;
 
   /* =========================================================
      RENDER
@@ -598,49 +527,36 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
           CAJA BLOQUEADA POR OTRA CAJA ABIERTA
       ===================================================== */}
 
-      {showBlockedByOpenCash &&
-        anotherOpenCashRegister && (
-          <OpenCashContainer>
-            <MdOutlineWarning />
+      {showBlockedByOpenCash && anotherOpenCashRegister && (
+        <OpenCashContainer>
+          <MdOutlineWarning />
 
-            <h2>
-              No se puede abrir una nueva caja
-            </h2>
+          <h2>No se puede abrir una nueva caja</h2>
 
-            <p>
-              Actualmente hay una caja abierta y debe
-              cerrarse antes de poder abrir otra.
-            </p>
+          <p>
+            Actualmente hay una caja abierta y debe cerrarse antes de poder
+            abrir otra.
+          </p>
 
-            <p>
-              <strong>Día:</strong>{" "}
-              {formatDate(
-                anotherOpenCashRegister.date
-                  ? getDateOnly(
-                      anotherOpenCashRegister.date,
-                    )
-                  : getDateOnly(
-                      anotherOpenCashRegister.opened_at,
-                    ),
-              )}
-            </p>
+          <p>
+            <strong>Día:</strong>{" "}
+            {formatDate(
+              anotherOpenCashRegister.date
+                ? getDateOnly(anotherOpenCashRegister.date)
+                : getDateOnly(anotherOpenCashRegister.opened_at),
+            )}
+          </p>
 
-            <p>
-              <strong>Turno:</strong>{" "}
-              {anotherOpenCashRegister.shift ===
-              "morning"
-                ? "Mañana"
-                : "Noche"}
-            </p>
+          <p>
+            <strong>Turno:</strong>{" "}
+            {anotherOpenCashRegister.shift === "morning" ? "Mañana" : "Noche"}
+          </p>
 
-            <OpenCashButton
-              type="button"
-              onClick={handleGoToOpenCash}
-            >
-              Ir a la caja abierta
-            </OpenCashButton>
-          </OpenCashContainer>
-        )}
+          <OpenCashButton type="button" onClick={handleGoToOpenCash}>
+            Ir a la caja abierta
+          </OpenCashButton>
+        </OpenCashContainer>
+      )}
 
       {/* =====================================================
           SIN CAJA - HOY
@@ -649,24 +565,16 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
       {showOpenCash && (
         <OpenCashContainer>
           <h2>
-            La caja del turno{" "}
-            {selectedShift === "morning"
-              ? "MAÑANA"
-              : "NOCHE"}{" "}
-            del día {formatDate(selectedDay)} todavía
-            no está abierta
+            La caja del turno {selectedShift === "morning" ? "MAÑANA" : "NOCHE"}{" "}
+            del día {formatDate(selectedDay)} todavía no está abierta
           </h2>
 
           <p>
-            Para comenzar a registrar ingresos y
-            egresos tenés que abrir la caja con el
-            monto inicial de efectivo.
+            Para comenzar a registrar ingresos y egresos tenés que abrir la caja
+            con el monto inicial de efectivo.
           </p>
 
-          <OpenCashButton
-            type="button"
-            onClick={handleOpenCashRequest}
-          >
+          <OpenCashButton type="button" onClick={handleOpenCashRequest}>
             Abrir caja
           </OpenCashButton>
         </OpenCashContainer>
@@ -681,12 +589,8 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
           <h2>Caja no disponible</h2>
 
           <p>
-            La caja del dia{" "}
-            {formatDate(selectedDay)} en el turno{" "}
-            {selectedShift === "morning"
-              ? "mañana"
-              : "noche"}{" "}
-            no fue abierta.
+            La caja del dia {formatDate(selectedDay)} en el turno{" "}
+            {selectedShift === "morning" ? "mañana" : "noche"} no fue abierta.
           </p>
         </OpenCashContainer>
       )}
@@ -697,40 +601,30 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
       {selectedCashRegister && (
         <CashDayContent>
+          {summaryOpen && (
+            <div
+              className="summary-overlay"
+              onClick={() => setSummaryOpen(false)}
+              aria-hidden="true"
+            />
+          )}
           {/* =================================================
               RESUMEN
           ================================================= */}
 
-          <SummaryBar
-            className={
-              summaryOpen ? "summary-open" : ""
-            }
-          >
+          <SummaryBar className={summaryOpen ? "summary-open" : ""}>
             <button
               type="button"
               className="summary-toggle"
-              onClick={() =>
-                setSummaryOpen(
-                  (current) => !current,
-                )
-              }
+              onClick={() => setSummaryOpen((current) => !current)}
               aria-expanded={summaryOpen}
             >
-              <span className="summary-toggle-icon">
-                📊
-              </span>
+              <span className="summary-toggle-icon">📊</span>
 
               <span className="summary-toggle-info">
-                <strong>
-                  Resumen de caja
-                </strong>
+                <strong>Resumen de caja</strong>
 
-                <small>
-                  Ventas $
-                  {salesTotal.toLocaleString(
-                    "es-AR",
-                  )}
-                </small>
+                <small>Ventas ${salesTotal.toLocaleString("es-AR")}</small>
               </span>
 
               <span className="summary-toggle-arrow">
@@ -743,20 +637,14 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
               <SummaryItem data-type="shift">
                 <SummaryIcon>
-                  {selectedCashRegister.shift ===
-                  "morning"
-                    ? "☀"
-                    : "☾"}
+                  {selectedCashRegister.shift === "morning" ? "☀" : "☾"}
                 </SummaryIcon>
 
                 <SummaryInfo>
-                  <SummaryLabel>
-                    Turno
-                  </SummaryLabel>
+                  <SummaryLabel>Turno</SummaryLabel>
 
                   <SummaryValue>
-                    {selectedCashRegister.shift ===
-                    "morning"
+                    {selectedCashRegister.shift === "morning"
                       ? "Mañana"
                       : "Noche"}
                   </SummaryValue>
@@ -767,9 +655,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
               <SummaryItem data-type="opening">
                 <SummaryInfo>
-                  <SummaryLabel>
-                    Apertura
-                  </SummaryLabel>
+                  <SummaryLabel>Apertura</SummaryLabel>
 
                   <SummaryValue>
                     $
@@ -784,69 +670,46 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
               <SummaryGrup>
                 <SummaryGroupTitle className="gain">
-                  Ventas Totales $
-                  {salesTotal.toLocaleString(
-                    "es-AR",
-                  )}
+                  Ventas Totales ${salesTotal.toLocaleString("es-AR")}
                 </SummaryGroupTitle>
 
                 <SummaryGroupItems>
                   <SummaryItem data-type="payment">
                     <SummaryInfo>
-                      <SummaryLabel>
-                        Efectivo
-                      </SummaryLabel>
+                      <SummaryLabel>Efectivo</SummaryLabel>
 
                       <SummaryValue>
-                        $
-                        {totalCash.toLocaleString(
-                          "es-AR",
-                        )}
+                        ${totalCash.toLocaleString("es-AR")}
                       </SummaryValue>
                     </SummaryInfo>
                   </SummaryItem>
 
                   <SummaryItem data-type="payment">
                     <SummaryInfo>
-                      <SummaryLabel>
-                        Transferencia
-                      </SummaryLabel>
+                      <SummaryLabel>Transferencia</SummaryLabel>
 
                       <SummaryValue>
-                        $
-                        {totalTransfer.toLocaleString(
-                          "es-AR",
-                        )}
+                        ${totalTransfer.toLocaleString("es-AR")}
                       </SummaryValue>
                     </SummaryInfo>
                   </SummaryItem>
 
                   <SummaryItem data-type="payment">
                     <SummaryInfo>
-                      <SummaryLabel>
-                        QR
-                      </SummaryLabel>
+                      <SummaryLabel>QR</SummaryLabel>
 
                       <SummaryValue>
-                        $
-                        {totalQR.toLocaleString(
-                          "es-AR",
-                        )}
+                        ${totalQR.toLocaleString("es-AR")}
                       </SummaryValue>
                     </SummaryInfo>
                   </SummaryItem>
 
                   <SummaryItem data-type="payment">
                     <SummaryInfo>
-                      <SummaryLabel>
-                        Débito
-                      </SummaryLabel>
+                      <SummaryLabel>Débito</SummaryLabel>
 
                       <SummaryValue>
-                        $
-                        {totalDebit.toLocaleString(
-                          "es-AR",
-                        )}
+                        ${totalDebit.toLocaleString("es-AR")}
                       </SummaryValue>
                     </SummaryInfo>
                   </SummaryItem>
@@ -859,45 +722,28 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
               <SummaryGrup>
                 <SummaryGroupTitle
-                  className={
-                    manualBalance < 0
-                      ? "loss"
-                      : "gain"
-                  }
+                  className={manualBalance < 0 ? "loss" : "gain"}
                 >
-                  Movimientos $
-                  {manualBalance.toLocaleString(
-                    "es-AR",
-                  )}
+                  Movimientos ${manualBalance.toLocaleString("es-AR")}
                 </SummaryGroupTitle>
 
                 <SummaryGroupItems>
                   <SummaryItem data-type="income">
                     <SummaryInfo>
-                      <SummaryLabel>
-                        Ingresos
-                      </SummaryLabel>
+                      <SummaryLabel>Ingresos</SummaryLabel>
 
                       <SummaryValue>
-                        + $
-                        {manualIncome.toLocaleString(
-                          "es-AR",
-                        )}
+                        + ${manualIncome.toLocaleString("es-AR")}
                       </SummaryValue>
                     </SummaryInfo>
                   </SummaryItem>
 
                   <SummaryItem data-type="expense">
                     <SummaryInfo>
-                      <SummaryLabel>
-                        Egresos
-                      </SummaryLabel>
+                      <SummaryLabel>Egresos</SummaryLabel>
 
                       <SummaryValue>
-                        - $
-                        {manualExpense.toLocaleString(
-                          "es-AR",
-                        )}
+                        - ${manualExpense.toLocaleString("es-AR")}
                       </SummaryValue>
                     </SummaryInfo>
                   </SummaryItem>
@@ -907,13 +753,41 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
           </SummaryBar>
 
           {/* =================================================
+              SELECTOR MOBILE / TABLET
+          ================================================= */}
+
+          <CashMobileTabs>
+            <CashMobileTab
+              type="button"
+              $active={cashMobileSection === "sales"}
+              onClick={() => setCashMobileSection("sales")}
+            >
+              🛒 Ventas
+            </CashMobileTab>
+
+            <CashMobileTab
+              type="button"
+              $active={cashMobileSection === "movements"}
+              onClick={() => setCashMobileSection("movements")}
+            >
+              💰 Movimientos
+            </CashMobileTab>
+          </CashMobileTabs>
+
+          {/* =================================================
               CONTENIDO
           ================================================= */}
 
           <CashContent>
             {/* VENTAS */}
 
-            <div className="cash-sales">
+            <div
+              className={`cash-sales ${
+                cashMobileSection === "sales"
+                  ? "cash-mobile-active"
+                  : "cash-mobile-hidden"
+              }`}
+            >
               <SalesContainer>
                 <ListTable
                   headers={[
@@ -925,46 +799,33 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
                   ]}
                 >
                   {sales.length === 0 ? (
-                    <p>
-                      No hay ventas registradas en esta
-                      caja.
-                    </p>
+                    <p>No hay ventas registradas en esta caja.</p>
                   ) : (
                     sales.map((movement) => (
                       <TableRow
-                        className={
-                          movement.amount === 0
-                            ? "pending"
-                            : ""
-                        }
+                        className={movement.amount === 0 ? "pending" : ""}
                         key={movement.id}
                         $columns={5}
                       >
                         <strong>
                           #
                           {movement.order_id
-                            ? ordersMap.get(
-                                movement.order_id,
-                              ) ?? "-"
+                            ? (ordersMap.get(movement.order_id) ?? "-")
                             : "-"}
                         </strong>
 
                         <span>
-                          {movement.category ===
-                          "sale"
+                          {movement.category === "sale"
                             ? "VENTA"
                             : movement.category}
                         </span>
 
                         <span>
-                          {movement.method_payment ===
-                          "cash"
+                          {movement.method_payment === "cash"
                             ? "Efectivo"
-                            : movement.method_payment ===
-                                "qr"
+                            : movement.method_payment === "qr"
                               ? "QR"
-                              : movement.method_payment ===
-                                  "transfer"
+                              : movement.method_payment === "transfer"
                                 ? "Transferencia"
                                 : "Debito"}
                         </span>
@@ -972,18 +833,12 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
                         <span>
                           {movement.amount === 0
                             ? "Pendiente"
-                            : movement.description ||
-                              "Sin descripción"}
+                            : movement.description || "Sin descripción"}
                         </span>
 
                         <strong>
-                          {movement.type === "outflow"
-                            ? "- "
-                            : "+ "}
-                          $
-                          {movement.amount.toLocaleString(
-                            "es-AR",
-                          )}
+                          {movement.type === "outflow" ? "- " : "+ "}$
+                          {movement.amount.toLocaleString("es-AR")}
                         </strong>
                       </TableRow>
                     ))
@@ -994,7 +849,13 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
             {/* MOVIMIENTOS MANUALES */}
 
-            <div className="cash-movements">
+            <div
+              className={`cash-movements ${
+                cashMobileSection === "movements"
+                  ? "cash-mobile-active"
+                  : "cash-mobile-hidden"
+              }`}
+            >
               <CashMovementSummary
                 movements={manualMovements}
                 canModifyCash={canModifyCash}
@@ -1006,12 +867,8 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
             {/* CERRAR CAJA */}
 
             <div className="cash-close">
-              {selectedCashRegister.status_cash_register ===
-              "open" ? (
-                <CloseCashButton
-                  type="button"
-                  onClick={handleCloseCash}
-                >
+              {selectedCashRegister.status_cash_register === "open" ? (
+                <CloseCashButton type="button" onClick={handleCloseCash}>
                   Cerrar caja
                 </CloseCashButton>
               ) : null}
@@ -1028,9 +885,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
         <ModalForm
           isOpen={openCashModal}
           title={`Abrir caja ${
-            selectedShift === "morning"
-              ? "Turno mañana"
-              : "Turno noche"
+            selectedShift === "morning" ? "Turno mañana" : "Turno noche"
           }`}
           onClose={() => setOpenCashModal(false)}
         >
@@ -1045,31 +900,21 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
           MODAL CERRAR CAJA
       ===================================================== */}
 
-      {closeCashModal &&
-        selectedCashRegister && (
-          <ModalForm
-            isOpen={closeCashModal}
-            title={`Cerrar caja ${
-              selectedCashRegister.shift ===
-              "morning"
-                ? "de mañana"
-                : "de noche"
-            }`}
-            onClose={() =>
-              setCloseCashModal(false)
-            }
-          >
-            <CloseCashForm
-              openingAmount={
-                selectedCashRegister.opening_amount
-              }
-              onSubmit={handleSubmitCloseCash}
-              onClose={() =>
-                setCloseCashModal(false)
-              }
-            />
-          </ModalForm>
-        )}
+      {closeCashModal && selectedCashRegister && (
+        <ModalForm
+          isOpen={closeCashModal}
+          title={`Cerrar caja ${
+            selectedCashRegister.shift === "morning" ? "de mañana" : "de noche"
+          }`}
+          onClose={() => setCloseCashModal(false)}
+        >
+          <CloseCashForm
+            openingAmount={selectedCashRegister.opening_amount}
+            onSubmit={handleSubmitCloseCash}
+            onClose={() => setCloseCashModal(false)}
+          />
+        </ModalForm>
+      )}
 
       {/* =====================================================
           MODAL MOVIMIENTO
@@ -1079,12 +924,8 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
         <CashMovementForm
           isOpen={movementModalOpen}
           type={movementType}
-          cashRegisterId={
-            selectedCashRegister?.id ?? ""
-          }
-          onClose={() =>
-            setMovementModalOpen(false)
-          }
+          cashRegisterId={selectedCashRegister?.id ?? ""}
+          onClose={() => setMovementModalOpen(false)}
           onSubmit={handleCreateMovement}
         />
       )}
@@ -1096,11 +937,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
       {infoModal && (
         <ModalForm
           isOpen={infoModal}
-          title={
-            pendingCashRegister
-              ? "Caja abierta"
-              : "Información"
-          }
+          title={pendingCashRegister ? "Caja abierta" : "Información"}
           onClose={() => {
             setInfoModal(false);
             setPendingCashRegister(null);
@@ -1109,41 +946,27 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
           {pendingCashRegister ? (
             <>
               <p>
-                No podés abrir una nueva caja porque
-                existe otra caja que todavía está
-                abierta.
+                No podés abrir una nueva caja porque existe otra caja que
+                todavía está abierta.
               </p>
 
-              <p>
-                Primero tenés que cerrar la caja
-                actual.
-              </p>
+              <p>Primero tenés que cerrar la caja actual.</p>
 
               <p>
                 <strong>Día:</strong>{" "}
                 {formatDate(
                   pendingCashRegister.date
-                    ? getDateOnly(
-                        pendingCashRegister.date,
-                      )
-                    : getDateOnly(
-                        pendingCashRegister.opened_at,
-                      ),
+                    ? getDateOnly(pendingCashRegister.date)
+                    : getDateOnly(pendingCashRegister.opened_at),
                 )}
               </p>
 
               <p>
                 <strong>Turno:</strong>{" "}
-                {pendingCashRegister.shift ===
-                "morning"
-                  ? "Mañana"
-                  : "Noche"}
+                {pendingCashRegister.shift === "morning" ? "Mañana" : "Noche"}
               </p>
 
-              <button
-                type="button"
-                onClick={handleGoToOpenCash}
-              >
+              <button type="button" onClick={handleGoToOpenCash}>
                 Ir a la caja abierta
               </button>
             </>

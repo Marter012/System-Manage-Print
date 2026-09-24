@@ -37,22 +37,38 @@ import {
   StatusButton,
 } from "./ManagePromotionsStyles.ts";
 
-import { TableButton, TableRow } from "../Tables/ListTableStyles";
+import {
+  TableButton,
+  TableRow,
+} from "../Tables/ListTableStyles";
 
-type ModalMode = "options" | "create" | "edit" | "delete";
+type ModalMode =
+  | "options"
+  | "create"
+  | "edit"
+  | "delete";
 
 interface ManagePromotionProps {
   showActive: boolean;
-  setShowActive: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowActive: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
 }
 
 export interface ManagePromotionRef {
   openModal: () => void;
 }
 
-export const AddPromotion = ({ onClick }: { onClick: () => void }) => {
+export const AddPromotion = ({
+  onClick,
+}: {
+  onClick: () => void;
+}) => {
   return (
-    <AddPromotionButton type="button" onClick={onClick}>
+    <AddPromotionButton
+      type="button"
+      onClick={onClick}
+    >
       <FaPlus />
       Nueva promoción
     </AddPromotionButton>
@@ -65,40 +81,55 @@ const ManagePromotions = forwardRef<
 >(({ showActive, setShowActive }, ref) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const { promotions, loading, error } = useSelector(
+  const {
+    promotions,
+    loading,
+    error,
+  } = useSelector(
     (state: RootState) => state.promotion,
   );
 
   const products = useSelector(
-    (state: RootState) => state.products.products,
+    (state: RootState) =>
+      state.products.products,
   );
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] =
+    useState(false);
 
   const [modalMode, setModalMode] =
     useState<ModalMode>("options");
 
-  const [selectedPromotion, setSelectedPromotion] =
-    useState<Promotion | null>(null);
+  const [
+    selectedPromotion,
+    setSelectedPromotion,
+  ] = useState<Promotion | null>(null);
 
   const [deleteError, setDeleteError] =
     useState<string | null>(null);
 
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, setDeleting] =
+    useState(false);
 
   const loadPromotions = async () => {
     try {
-      const data = await getPromotionsAPI();
+      const data =
+        await getPromotionsAPI();
 
       dispatch(setPromotions(data));
     } catch (error) {
-      console.error("Error cargando promociones:", error);
+      console.error(
+        "Error cargando promociones:",
+        error,
+      );
     }
   };
 
-  const filteredPromotions = promotions.filter(
-    (promotion) => promotion.status === showActive,
-  );
+  const filteredPromotions =
+    promotions.filter(
+      (promotion) =>
+        promotion.status === showActive,
+    );
 
   const openModal = (
     mode: ModalMode,
@@ -106,7 +137,9 @@ const ManagePromotions = forwardRef<
   ) => {
     setModalMode(mode);
 
-    setSelectedPromotion(promotion ?? null);
+    setSelectedPromotion(
+      promotion ?? null,
+    );
 
     setDeleteError(null);
 
@@ -143,10 +176,14 @@ const ManagePromotions = forwardRef<
     }
   };
 
-  const getProductName = (productId: string) => {
+  const getProductName = (
+    productId: string,
+  ) => {
     return (
-      products.find((product) => product.id === productId)?.name ??
-      productId
+      products.find(
+        (product) =>
+          product.id === productId,
+      )?.name ?? productId
     );
   };
 
@@ -165,27 +202,38 @@ const ManagePromotions = forwardRef<
       <Filter>
         <button
           type="button"
-          className={showActive ? "active" : ""}
-          onClick={() => setShowActive(true)}
+          className={
+            showActive ? "active" : ""
+          }
+          onClick={() =>
+            setShowActive(true)
+          }
         >
           Activas
         </button>
 
         <button
           type="button"
-          className={!showActive ? "active" : ""}
-          onClick={() => setShowActive(false)}
+          className={
+            !showActive ? "active" : ""
+          }
+          onClick={() =>
+            setShowActive(false)
+          }
         >
           Inactivas
         </button>
       </Filter>
 
-      {loading && <p>Cargando promociones...</p>}
+      {loading && (
+        <p>Cargando promociones...</p>
+      )}
 
       {error && <p>{error}</p>}
 
       {!loading && !error && (
         <ListTable
+          className="promotions-table"
           headers={[
             "Nombre",
             "Descripción",
@@ -194,57 +242,79 @@ const ManagePromotions = forwardRef<
             "Acciones",
           ]}
         >
-          {filteredPromotions.map((promotion) => (
-            <TableRow $columns={5} key={promotion.id}>
-              <div className="promotion-name">
-                <strong>{promotion.name}</strong>
-              </div>
+          {filteredPromotions.map(
+            (promotion) => (
+              <TableRow
+                $columns={5}
+                className="promotions-table-row"
+                key={promotion.id}
+              >
+                <div className="promotion-name">
+                  <strong>
+                    {promotion.name}
+                  </strong>
+                </div>
 
-              <p className="promotion-description">
-                {promotion.description}
-              </p>
+                <p className="promotion-description">
+                  {promotion.description}
+                </p>
 
-              <p className="price">
-                ${promotion.price.toLocaleString("es-AR")}
-              </p>
+                <p className="price">
+                  $
+                  {promotion.price.toLocaleString(
+                    "es-AR",
+                  )}
+                </p>
 
-              <div className="promotion-composition">
-                {promotion.items.map((item) => (
-                  <div key={item.id}>
-                    <strong>
-                      {item.quantity} {item.name}
-                    </strong>
-                  </div>
-                ))}
-              </div>
+                <div className="promotion-composition">
+                  {promotion.items.map(
+                    (item) => (
+                      <div key={item.id}>
+                        <strong>
+                          {item.quantity}{" "}
+                          {item.name}
+                        </strong>
+                      </div>
+                    ),
+                  )}
+                </div>
 
-              <div className="actions">
-                <TableButton
-                  type="button"
-                  title="Opciones"
-                  aria-label="Opciones de promoción"
-                  onClick={() =>
-                    openModal("options", promotion)
-                  }
-                  className={
-                    promotion.status ? "active" : "inactive"
-                  }
-                >
-                  <span className="status-text">
-                    {promotion.status ? "Activa" : "Inactiva"}
-                  </span>
+                <div className="actions">
+                  <TableButton
+                    type="button"
+                    title="Opciones"
+                    aria-label="Opciones de promoción"
+                    onClick={() =>
+                      openModal(
+                        "options",
+                        promotion,
+                      )
+                    }
+                    className={
+                      promotion.status
+                        ? "active"
+                        : "inactive"
+                    }
+                  >
+                    <span className="status-text">
+                      {promotion.status
+                        ? "Activa"
+                        : "Inactiva"}
+                    </span>
 
-                  <MdOutlineMoreHoriz />
-                </TableButton>
-              </div>
-            </TableRow>
-          ))}
+                    <MdOutlineMoreHoriz />
+                  </TableButton>
+                </div>
+              </TableRow>
+            ),
+          )}
         </ListTable>
       )}
 
       {!loading &&
         !error &&
-        filteredPromotions.length === 0 && (
+        filteredPromotions.length ===
+          0 && (
           <p>
             {showActive
               ? "No hay promociones activas."
@@ -257,94 +327,120 @@ const ManagePromotions = forwardRef<
         title={getModalTitle()}
         onClose={closeModal}
       >
-        {modalMode === "options" && selectedPromotion && (
-          <PromotionOptions>
-            <PromotionInfo>
-              <h3>{selectedPromotion.name}</h3>
+        {modalMode === "options" &&
+          selectedPromotion && (
+            <PromotionOptions>
+              <PromotionInfo>
+                <h3>
+                  {selectedPromotion.name}
+                </h3>
 
-              <div>
-                <span>Descripción</span>
+                <div>
+                  <span>
+                    Descripción
+                  </span>
 
-                <strong>
-                  {selectedPromotion.description}
-                </strong>
-              </div>
+                  <strong>
+                    {
+                      selectedPromotion.description
+                    }
+                  </strong>
+                </div>
 
-              <div>
-                <span>Precio</span>
+                <div>
+                  <span>Precio</span>
 
-                <strong>
-                  $
-                  {selectedPromotion.price.toLocaleString(
-                    "es-AR",
-                  )}
-                </strong>
-              </div>
-            </PromotionInfo>
+                  <strong>
+                    $
+                    {selectedPromotion.price.toLocaleString(
+                      "es-AR",
+                    )}
+                  </strong>
+                </div>
+              </PromotionInfo>
 
-            <PromotionItems>
-              <h3>Composición</h3>
+              <PromotionItems>
+                <h3>Composición</h3>
 
-              {selectedPromotion.items.map((item) => (
-                <PromotionItem key={item.id}>
-                  <div>
-                    <strong>{item.name}</strong>
+                {selectedPromotion.items.map(
+                  (item) => (
+                    <PromotionItem
+                      key={item.id}
+                    >
+                      <div>
+                        <strong>
+                          {item.name}
+                        </strong>
 
-                    <span>
-                      Cantidad: {item.quantity}
-                    </span>
-                  </div>
+                        <span>
+                          Cantidad:{" "}
+                          {item.quantity}
+                        </span>
+                      </div>
 
-                  <div>
-                    <span>Productos permitidos</span>
+                      <div>
+                        <span>
+                          Productos permitidos
+                        </span>
 
-                    {item.product_ids.map((productId) => (
-                      <p key={productId}>
-                        {getProductName(productId)}
-                      </p>
-                    ))}
-                  </div>
-                </PromotionItem>
-              ))}
-            </PromotionItems>
+                        {item.product_ids.map(
+                          (productId) => (
+                            <p
+                              key={productId}
+                            >
+                              {getProductName(
+                                productId,
+                              )}
+                            </p>
+                          ),
+                        )}
+                      </div>
+                    </PromotionItem>
+                  ),
+                )}
+              </PromotionItems>
 
-            <PromotionActions>
-              {selectedPromotion.status && (
-                <ActionButton
+              <PromotionActions>
+                {selectedPromotion.status && (
+                  <ActionButton
+                    type="button"
+                    onClick={() =>
+                      setModalMode("edit")
+                    }
+                  >
+                    Modificar promoción
+                  </ActionButton>
+                )}
+
+                <StatusButton
+                  className={
+                    selectedPromotion.status
+                      ? "active"
+                      : "inactive"
+                  }
                   type="button"
-                  onClick={() => setModalMode("edit")}
+                  onClick={() => {
+                    setDeleteError(null);
+
+                    setModalMode(
+                      "delete",
+                    );
+                  }}
                 >
-                  Modificar promoción
-                </ActionButton>
-              )}
+                  {selectedPromotion.status
+                    ? "Desactivar promoción"
+                    : "Activar promoción"}
+                </StatusButton>
 
-              <StatusButton
-                className={
-                  selectedPromotion.status
-                    ? "active"
-                    : "inactive"
-                }
-                type="button"
-                onClick={() => {
-                  setDeleteError(null);
-
-                  setModalMode("delete");
-                }}
-              >
-                {selectedPromotion.status
-                  ? "Desactivar promoción"
-                  : "Activar promoción"}
-              </StatusButton>
-
-              <CancelButton
-                type="button"
-                onClick={closeModal}
-              >
-                Cancelar
-              </CancelButton>
-            </PromotionActions>
-          </PromotionOptions>
-        )}
+                <CancelButton
+                  type="button"
+                  onClick={closeModal}
+                >
+                  Cancelar
+                </CancelButton>
+              </PromotionActions>
+            </PromotionOptions>
+          )}
 
         {modalMode === "create" && (
           <PromotionForm
@@ -356,99 +452,116 @@ const ManagePromotions = forwardRef<
           />
         )}
 
-        {modalMode === "edit" && selectedPromotion && (
-          <PromotionForm
-            mode="edit"
-            promotion={selectedPromotion}
-            onSuccess={async () => {
-              await loadPromotions();
-              closeModal();
-            }}
-          />
-        )}
+        {modalMode === "edit" &&
+          selectedPromotion && (
+            <PromotionForm
+              mode="edit"
+              promotion={selectedPromotion}
+              onSuccess={async () => {
+                await loadPromotions();
+                closeModal();
+              }}
+            />
+          )}
 
-        {modalMode === "delete" && selectedPromotion && (
-          <PromotionOptions>
-            <PromotionInfo>
-              <h3>
-                {selectedPromotion.status
-                  ? "Desactivar promoción"
-                  : "Activar promoción"}
-              </h3>
+        {modalMode === "delete" &&
+          selectedPromotion && (
+            <PromotionOptions>
+              <PromotionInfo>
+                <h3>
+                  {selectedPromotion.status
+                    ? "Desactivar promoción"
+                    : "Activar promoción"}
+                </h3>
 
-              <p>
-                {selectedPromotion.status
-                  ? "¿Estás seguro de que querés desactivar esta promoción?"
-                  : "¿Estás seguro de que querés activar esta promoción?"}
-              </p>
+                <p>
+                  {selectedPromotion.status
+                    ? "¿Estás seguro de que querés desactivar esta promoción?"
+                    : "¿Estás seguro de que querés activar esta promoción?"}
+                </p>
 
-              <strong>{selectedPromotion.name}</strong>
+                <strong>
+                  {selectedPromotion.name}
+                </strong>
 
-              {deleteError && <p>{deleteError}</p>}
-            </PromotionInfo>
+                {deleteError && (
+                  <p>{deleteError}</p>
+                )}
+              </PromotionInfo>
 
-            <PromotionActions>
-              <StatusButton
-                className={
-                  selectedPromotion.status
-                    ? "active"
-                    : "inactive"
-                }
-                type="button"
-                disabled={deleting}
-                onClick={async () => {
-                  try {
-                    setDeleting(true);
+              <PromotionActions>
+                <StatusButton
+                  className={
+                    selectedPromotion.status
+                      ? "active"
+                      : "inactive"
+                  }
+                  type="button"
+                  disabled={deleting}
+                  onClick={async () => {
+                    try {
+                      setDeleting(true);
+                      setDeleteError(null);
 
-                    const status = !selectedPromotion.status;
+                      const status =
+                        !selectedPromotion.status;
 
-                    const updated =
-                      await updatePromotionStatusAPI(
-                        selectedPromotion.id,
-                        status,
+                      const updated =
+                        await updatePromotionStatusAPI(
+                          selectedPromotion.id,
+                          status,
+                        );
+
+                      dispatch(
+                        updatePromotion(
+                          updated,
+                        ),
                       );
 
-                    dispatch(updatePromotion(updated));
+                      setShowActive(status);
 
-                    setShowActive(status);
+                      closeModal();
+                    } catch (error) {
+                      console.error(
+                        "Error actualizando promoción:",
+                        error,
+                      );
 
-                    closeModal();
-                  } catch (error) {
-                    console.error(
-                      "Error actualizando promoción:",
-                      error,
-                    );
+                      setDeleteError(
+                        "No se pudo actualizar el estado de la promoción.",
+                      );
+                    } finally {
+                      setDeleting(false);
+                    }
+                  }}
+                >
+                  {deleting
+                    ? "Procesando..."
+                    : selectedPromotion.status
+                      ? "Desactivar"
+                      : "Activar"}
+                </StatusButton>
 
-                    setDeleteError(
-                      "No se pudo actualizar el estado de la promoción.",
-                    );
-                  } finally {
-                    setDeleting(false);
+                <CancelButton
+                  type="button"
+                  disabled={deleting}
+                  onClick={() =>
+                    setModalMode(
+                      "options",
+                    )
                   }
-                }}
-              >
-                {deleting
-                  ? "Procesando..."
-                  : selectedPromotion.status
-                    ? "Desactivar"
-                    : "Activar"}
-              </StatusButton>
-
-              <CancelButton
-                type="button"
-                disabled={deleting}
-                onClick={() => setModalMode("options")}
-              >
-                Cancelar
-              </CancelButton>
-            </PromotionActions>
-          </PromotionOptions>
-        )}
+                >
+                  Cancelar
+                </CancelButton>
+              </PromotionActions>
+            </PromotionOptions>
+          )}
       </ModalForm>
     </ContainerManagePromotions>
   );
 });
 
-ManagePromotions.displayName = "ManagePromotions";
+ManagePromotions.displayName =
+  "ManagePromotions";
 
 export default ManagePromotions;

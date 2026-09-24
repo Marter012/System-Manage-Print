@@ -126,7 +126,6 @@ export const TableHeader = styled.div<{ $columns: number }>`
 
 export const ContainerRows = styled.div`
   width: 100%;
-  max-height: 350px;
 
   flex: 1;
 

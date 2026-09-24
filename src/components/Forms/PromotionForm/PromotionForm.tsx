@@ -1,5 +1,4 @@
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 
@@ -23,13 +22,12 @@ import {
   ProductCheck,
   SelectedProductsInfo,
   EmptyProductsMessage,
+  SectionTitle,
 } from "./PromotionFormStyles.ts";
 
 import type { AppDispatch, RootState } from "../../../store/store.ts";
 
-import type {
-  PromotionFormProps,
-} from "../../../interfaces/Promotion.ts";
+import type { PromotionFormProps } from "../../../interfaces/Promotion.ts";
 
 import {
   addPromotion,
@@ -45,22 +43,33 @@ import {
   getPromotionInitialValues,
   PromotionSchema,
 } from "../../Schemas/PromotionSchema.tsx";
+
 import { getAxiosErrorMessage } from "../../Utils/ErrorAxios.tsx";
 
-const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
+const PromotionForm = ({
+  mode,
+  promotion,
+  onSuccess,
+}: PromotionFormProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const products = useSelector((state: RootState) => state.products.products);
+  const products = useSelector(
+    (state: RootState) => state.products.products,
+  );
 
   const activeProducts = products.filter((product) => product.status);
 
   const categories = Array.from(
-    new Set(activeProducts.map((product) => product.category).filter(Boolean)),
+    new Set(
+      activeProducts
+        .map((product) => product.category)
+        .filter(Boolean),
+    ),
   );
 
-  const [searchByGroup, setSearchByGroup] = useState<Record<number, string>>(
-    {},
-  );
+  const [searchByGroup, setSearchByGroup] = useState<
+    Record<number, string>
+  >({});
 
   const [categoryByGroup, setCategoryByGroup] = useState<
     Record<number, string>
@@ -69,7 +78,10 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
   const toggleProduct = (
     productId: string,
     currentIds: string[],
-    setFieldValue: (field: string, value: unknown) => void,
+    setFieldValue: (
+      field: string,
+      value: unknown,
+    ) => void,
     fieldName: string,
   ) => {
     const exists = currentIds.includes(productId);
@@ -86,7 +98,10 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
       initialValues={getPromotionInitialValues(promotion)}
       enableReinitialize
       validationSchema={PromotionSchema}
-      onSubmit={async (values, { setSubmitting, setStatus }) => {
+      onSubmit={async (
+        values,
+        { setSubmitting, setStatus },
+      ) => {
         setSubmitting(true);
         setStatus(null);
 
@@ -95,46 +110,53 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
             name: values.name.trim(),
             description: values.description.trim(),
             price: Number(values.price),
-            status: values.status,
 
             items: values.items.map((item) => ({
               name: item.name.trim(),
               quantity: Number(item.quantity),
               product_ids: item.product_ids,
             })),
+
+            status: values.status,
           };
 
           if (mode === "create") {
             try {
-              const newPromotion = await createPromotionAPI(promotionData);
+              const newPromotion =
+                await createPromotionAPI(promotionData);
 
               dispatch(addPromotion(newPromotion));
             } catch (error) {
               const message = getAxiosErrorMessage(error);
 
-              console.error("Error creando promoción:", error);
+              console.error(
+                "Error creando promoción:",
+                error,
+              );
 
               setStatus(message);
-
               return;
             }
           }
 
           if (mode === "edit" && promotion) {
             try {
-              const updatedPromotion = await updatePromotionAPI(
-                promotion.id,
-                promotionData,
-              );
+              const updatedPromotion =
+                await updatePromotionAPI(
+                  promotion.id,
+                  promotionData,
+                );
 
               dispatch(updatePromotion(updatedPromotion));
             } catch (error) {
               const message = getAxiosErrorMessage(error);
 
-              console.error("Error actualizando promoción:", error);
+              console.error(
+                "Error actualizando promoción:",
+                error,
+              );
 
               setStatus(message);
-
               return;
             }
           }
@@ -143,7 +165,10 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
         } catch (error) {
           const message = getAxiosErrorMessage(error);
 
-          console.error("Error guardando promoción:", error);
+          console.error(
+            "Error guardando promoción:",
+            error,
+          );
 
           setStatus(message);
         } finally {
@@ -151,12 +176,23 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
         }
       }}
     >
-      {({ isSubmitting, status, values, setFieldValue }) => (
+      {({
+        isSubmitting,
+        status,
+        values,
+        setFieldValue,
+      }) => (
         <Form>
           <FormContainer>
-            {/* NOMBRE */}
+            {/* DATOS DE LA PROMOCIÓN */}
+            <SectionTitle>
+              Datos de la promoción
+            </SectionTitle>
+
             <FormGroup>
-              <label htmlFor="name">Nombre</label>
+              <label htmlFor="name">
+                Nombre de la promoción
+              </label>
 
               <Field
                 id="name"
@@ -165,12 +201,16 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
                 placeholder="Ej: Promo Pollo + 6 Empanadas"
               />
 
-              <ErrorMessage name="name" component={ErrorText} />
+              <ErrorMessage
+                name="name"
+                component={ErrorText}
+              />
             </FormGroup>
 
-            {/* DESCRIPCIÓN */}
             <FormGroup>
-              <label htmlFor="description">Descripción</label>
+              <label htmlFor="description">
+                Descripción
+              </label>
 
               <Field
                 as="textarea"
@@ -179,12 +219,16 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
                 placeholder="Ej: 1 pollo + 6 empanadas a elección"
               />
 
-              <ErrorMessage name="description" component={ErrorText} />
+              <ErrorMessage
+                name="description"
+                component={ErrorText}
+              />
             </FormGroup>
 
-            {/* PRECIO */}
             <FormGroup>
-              <label htmlFor="price">Precio de la promoción</label>
+              <label htmlFor="price">
+                Precio
+              </label>
 
               <Field
                 id="price"
@@ -192,62 +236,89 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
                 type="number"
                 min="0"
                 step="0.01"
+                placeholder="Ej: 35000"
               />
 
-              <ErrorMessage name="price" component={ErrorText} />
+              <ErrorMessage
+                name="price"
+                component={ErrorText}
+              />
             </FormGroup>
 
             {/* COMPOSICIÓN */}
-            <FormGroup>
-              <label>Composición de la promoción</label>
+            <div>
+              <SectionTitle>
+                ¿Qué incluye la promoción?
+              </SectionTitle>
 
+            </div>
+
+            <FormGroup>
               <FieldArray name="items">
                 {({ push, remove }) => (
                   <ItemsContainer>
                     {values.items.map((item, index) => {
-                      const search = searchByGroup[index] ?? "";
+                      const search =
+                        searchByGroup[index] ?? "";
 
-                      const category = categoryByGroup[index] ?? "";
+                      const category =
+                        categoryByGroup[index] ?? "";
 
-                      const filteredProducts = activeProducts.filter(
-                        (product) => {
-                          const matchesSearch = product.name
-                            .toLowerCase()
-                            .includes(search.toLowerCase());
+                      const filteredProducts =
+                        activeProducts.filter(
+                          (product) => {
+                            const matchesSearch =
+                              product.name
+                                .toLowerCase()
+                                .includes(
+                                  search.toLowerCase(),
+                                );
 
-                          const matchesCategory =
-                            !category || product.category === category;
+                            const matchesCategory =
+                              !category ||
+                              product.category ===
+                                category;
 
-                          return matchesSearch && matchesCategory;
-                        },
-                      );
+                            return (
+                              matchesSearch &&
+                              matchesCategory
+                            );
+                          },
+                        );
 
                       return (
                         <PromotionItem key={index}>
-                          {/* HEADER DEL GRUPO */}
+                          {/* CABECERA DEL GRUPO */}
                           <ItemHeader>
                             <div>
-                              <strong>Grupo {index + 1}</strong>
+                              <strong>
+                                Grupo {index + 1}
+                              </strong>
 
                               <span>
-                                Definí qué productos forman parte de este grupo
+                                Ejemplo: 6 empanadas
+                                para elegir
                               </span>
                             </div>
 
                             {values.items.length > 1 && (
                               <RemoveItemButton
                                 type="button"
-                                onClick={() => remove(index)}
+                                onClick={() =>
+                                  remove(index)
+                                }
                               >
                                 Eliminar
                               </RemoveItemButton>
                             )}
                           </ItemHeader>
 
-                          {/* NOMBRE DEL GRUPO */}
+                          {/* NOMBRE */}
                           <FormGroup>
-                            <label htmlFor={`items.${index}.name`}>
-                              Nombre del grupo
+                            <label
+                              htmlFor={`items.${index}.name`}
+                            >
+                              ¿Qué incluye?
                             </label>
 
                             <Field
@@ -265,8 +336,10 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
 
                           {/* CANTIDAD */}
                           <FormGroup>
-                            <label htmlFor={`items.${index}.quantity`}>
-                              Cantidad incluida
+                            <label
+                              htmlFor={`items.${index}.quantity`}
+                            >
+                              Cantidad
                             </label>
 
                             <Field
@@ -275,11 +348,12 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
                               type="number"
                               min="1"
                               step="1"
+                              placeholder="Ej: 6"
                             />
 
                             <small>
-                              Cantidad total que incluye este grupo. Por
-                              ejemplo: 6 empanadas.
+                              Cantidad de unidades que
+                              incluye este grupo.
                             </small>
 
                             <ErrorMessage
@@ -290,96 +364,138 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
 
                           {/* PRODUCTOS */}
                           <FormGroup>
-                            <label>Productos disponibles</label>
+                            <label>
+                              Productos para elegir
+                            </label>
 
-                            {activeProducts.length === 0 ? (
+                            {activeProducts.length ===
+                            0 ? (
                               <EmptyProductsMessage>
-                                No hay productos activos disponibles.
+                                No hay productos activos
+                                disponibles.
                               </EmptyProductsMessage>
                             ) : (
                               <>
-                                {/* BUSCADOR Y CATEGORÍA */}
                                 <ProductToolbar>
                                   <SearchInput
                                     type="text"
                                     placeholder="Buscar producto..."
                                     value={search}
                                     onChange={(event) =>
-                                      setSearchByGroup((previous) => ({
-                                        ...previous,
-                                        [index]: event.target.value,
-                                      }))
+                                      setSearchByGroup(
+                                        (previous) => ({
+                                          ...previous,
+                                          [index]:
+                                            event.target
+                                              .value,
+                                        }),
+                                      )
                                     }
                                   />
 
                                   <CategorySelect
                                     value={category}
                                     onChange={(event) =>
-                                      setCategoryByGroup((previous) => ({
-                                        ...previous,
-                                        [index]: event.target.value,
-                                      }))
+                                      setCategoryByGroup(
+                                        (previous) => ({
+                                          ...previous,
+                                          [index]:
+                                            event.target
+                                              .value,
+                                        }),
+                                      )
                                     }
                                   >
                                     <option value="">
                                       Todas las categorías
                                     </option>
 
-                                    {categories.map((categoryName) => (
-                                      <option
-                                        key={categoryName}
-                                        value={categoryName}
-                                      >
-                                        {categoryName}
-                                      </option>
-                                    ))}
+                                    {categories.map(
+                                      (categoryName) => (
+                                        <option
+                                          key={
+                                            categoryName
+                                          }
+                                          value={
+                                            categoryName
+                                          }
+                                        >
+                                          {categoryName}
+                                        </option>
+                                      ),
+                                    )}
                                   </CategorySelect>
                                 </ProductToolbar>
 
-                                {/* PRODUCTOS */}
                                 <ProductSelection>
-                                  {filteredProducts.length === 0 ? (
+                                  {filteredProducts.length ===
+                                  0 ? (
                                     <EmptyProductsMessage>
-                                      No se encontraron productos.
+                                      No se encontraron
+                                      productos.
                                     </EmptyProductsMessage>
                                   ) : (
-                                    filteredProducts.map((product) => {
-                                      const selected =
-                                        item.product_ids.includes(product.id);
+                                    filteredProducts.map(
+                                      (product) => {
+                                        const selected =
+                                          item.product_ids.includes(
+                                            product.id,
+                                          );
 
-                                      return (
-                                        <ProductOption
-                                          key={product.id}
-                                          $selected={selected}
-                                          type="button"
-                                          onClick={() =>
-                                            toggleProduct(
-                                              product.id,
-                                              item.product_ids,
-                                              setFieldValue,
-                                              `items.${index}.product_ids`,
-                                            )
-                                          }
-                                        >
-                                          <ProductCheck $selected={selected}>
-                                            {selected ? "✓" : ""}
-                                          </ProductCheck>
+                                        return (
+                                          <ProductOption
+                                            key={product.id}
+                                            $selected={
+                                              selected
+                                            }
+                                            type="button"
+                                            onClick={() =>
+                                              toggleProduct(
+                                                product.id,
+                                                item.product_ids,
+                                                setFieldValue,
+                                                `items.${index}.product_ids`,
+                                              )
+                                            }
+                                          >
+                                            <ProductCheck
+                                              $selected={
+                                                selected
+                                              }
+                                            >
+                                              {selected
+                                                ? "✓"
+                                                : ""}
+                                            </ProductCheck>
 
-                                          <span>{product.name}</span>
-                                        </ProductOption>
-                                      );
-                                    })
+                                            <span>
+                                              {
+                                                product.name
+                                              }
+                                            </span>
+                                          </ProductOption>
+                                        );
+                                      },
+                                    )
                                   )}
                                 </ProductSelection>
 
-                                {/* CANTIDAD DE SELECCIONADOS */}
                                 <SelectedProductsInfo>
-                                  {item.product_ids.length === 0
-                                    ? "No seleccionaste productos todavía."
+                                  {item.product_ids
+                                    .length === 0
+                                    ? "Elegí los productos que pueden formar parte de este grupo."
                                     : `${item.product_ids.length} producto${
-                                        item.product_ids.length !== 1 ? "s" : ""
+                                        item.product_ids
+                                          .length !==
+                                        1
+                                          ? "s"
+                                          : ""
                                       } seleccionado${
-                                        item.product_ids.length !== 1 ? "s" : ""
+                                        item.product_ids
+                                          .length !==
+                                        1
+                                          ? "s"
+                                          : ""
                                       }`}
                                 </SelectedProductsInfo>
                               </>
@@ -394,7 +510,6 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
                       );
                     })}
 
-                    {/* AGREGAR GRUPO */}
                     <AddItemButton
                       type="button"
                       onClick={() =>
@@ -405,7 +520,7 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
                         })
                       }
                     >
-                      + Agregar grupo de productos
+                      + Agregar otro grupo
                     </AddItemButton>
                   </ItemsContainer>
                 )}
@@ -413,15 +528,23 @@ const PromotionForm = ({ mode, promotion, onSuccess }: PromotionFormProps) => {
             </FormGroup>
 
             {/* ERROR DEL BACKEND */}
-            {status && <ErrorText>{status}</ErrorText>}
+            {status && (
+              <ErrorText>{status}</ErrorText>
+            )}
 
             {/* BOTONES */}
             <FormActions>
-              <CancelButton type="button" onClick={onSuccess}>
+              <CancelButton
+                type="button"
+                onClick={onSuccess}
+              >
                 Cancelar
               </CancelButton>
 
-              <SubmitButton type="submit" disabled={isSubmitting}>
+              <SubmitButton
+                type="submit"
+                disabled={isSubmitting}
+              >
                 {isSubmitting
                   ? "Guardando..."
                   : mode === "create"

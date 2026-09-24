@@ -6,8 +6,8 @@ import styled from "styled-components";
 
 export const HistoryContainer = styled.div`
   width: 100%;
-  height: 100%;
-
+  max-height: 80% !important;
+  min-height: 80% !important;
   display: flex;
   flex-direction: column;
 
@@ -266,8 +266,7 @@ export const HistoryRow = styled.div<{
 }>`
   min-width: 950px;
 
-  min-height: ${({ $header }) =>
-    $header ? "38px" : "55px"};
+  min-height: ${({ $header }) => ($header ? "38px" : "55px")};
 
   display: grid;
 
@@ -292,17 +291,12 @@ export const HistoryRow = styled.div<{
 
   border-radius: 9px;
 
-  background: ${({ $header }) =>
-    $header ? "#e5d0b5" : "#f7ebdd"};
+  background: ${({ $header }) => ($header ? "#e5d0b5" : "#f7ebdd")};
 
-  border: 1px solid
-    ${({ $header }) =>
-      $header ? "#d8c2a6" : "#ead9c5"};
+  border: 1px solid ${({ $header }) => ($header ? "#d8c2a6" : "#ead9c5")};
 
   box-shadow: ${({ $header }) =>
-    $header
-      ? "none"
-      : "0 2px 5px rgba(90, 64, 48, 0.05)"};
+    $header ? "none" : "0 2px 5px rgba(90, 64, 48, 0.05)"};
 
   span,
   strong {
@@ -484,8 +478,7 @@ export const HistoryRow = styled.div<{
 
     padding: 0 10px;
 
-    min-height: ${({ $header }) =>
-      $header ? "36px" : "52px"};
+    min-height: ${({ $header }) => ($header ? "36px" : "52px")};
 
     /* Ocultamos:
        3 = Apertura
@@ -550,8 +543,7 @@ export const HistoryRow = styled.div<{
 
     padding: 0 8px;
 
-    min-height: ${({ $header }) =>
-      $header ? "34px" : "50px"};
+    min-height: ${({ $header }) => ($header ? "34px" : "50px")};
 
     border-radius: 8px;
 
@@ -618,8 +610,7 @@ export const HistoryRow = styled.div<{
 
     padding: 0 6px;
 
-    min-height: ${({ $header }) =>
-      $header ? "32px" : "46px"};
+    min-height: ${({ $header }) => ($header ? "32px" : "46px")};
 
     ${({ $header }) =>
       $header

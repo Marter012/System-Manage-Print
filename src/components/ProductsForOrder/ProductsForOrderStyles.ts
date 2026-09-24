@@ -9,6 +9,7 @@ export const ProductsSection = styled.section`
 
   min-width: 0;
   min-height: 0;
+  height: 100% !important;
 
   display: flex;
   flex-direction: column;
@@ -26,9 +27,12 @@ export const ProductsSection = styled.section`
   overflow: hidden;
 
   /*
-   * Esto evita que el contenido interno
-   * empuje el componente hacia afuera.
+   * MUY IMPORTANTE
+   * Permite que el panel se adapte al espacio
+   * disponible sin agrandar el layout.
    */
+  flex: 1 1 auto;
+
   > * {
     min-width: 0;
   }
@@ -66,6 +70,7 @@ export const ProductsHeader = styled.div`
   flex-shrink: 0;
 
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -133,7 +138,9 @@ export const SearchInput = styled.input`
   }
 
   &:focus {
-    box-shadow: 0 0 0 2px rgba(194, 158, 112, 0.55);
+    box-shadow:
+      0 0 0 2px
+      rgba(194, 158, 112, 0.55);
   }
 
   @media (max-width: 700px) {
@@ -188,7 +195,8 @@ export const CategorySelect = styled.select`
 
   flex-shrink: 0;
 
-  border: 1px solid rgba(194, 158, 112, 0.45);
+  border: 1px solid
+    rgba(194, 158, 112, 0.45);
 
   border-radius: 8px;
 
@@ -273,33 +281,39 @@ export const CategorySelect = styled.select`
 
 export const ProductGrid = styled.div`
   width: 100%;
-
-  flex: 1;
+  /*
+   * La lista toma TODO el espacio que queda
+   * dentro de ProductsSection.
+   */
 
   min-width: 0;
+
   min-height: 0;
 
   display: flex;
+
   flex-direction: column;
 
   gap: 8px;
 
+  /*
+   * EL SCROLL ESTÁ ACÁ.
+   */
   overflow-y: auto;
 
   overflow-x: hidden;
 
-  padding-right: 2px;
+  padding-right: 3px;
 
   box-sizing: border-box;
 
-  scrollbar-width: thin;
+  scrollbar-width: none;
 
-  scrollbar-color:
-    rgba(255, 255, 255, 0.2)
-    transparent;
-
+  /*
+   * Chrome / Edge / Android
+   */
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 5px;
   }
 
   &::-webkit-scrollbar-track {
@@ -307,10 +321,18 @@ export const ProductGrid = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background:
+      rgba(255, 255, 255, 0.35);
 
     border-radius: 10px;
   }
+
+  /*
+   * Mejora el scroll en celular/tablet.
+   */
+  -webkit-overflow-scrolling: touch;
+
+  overscroll-behavior: contain;
 `;
 
 /* =========================================================
@@ -354,11 +376,9 @@ export const ProductCard = styled.div`
       rgba(0, 0, 0, 0.1);
   }
 
-  /*
-   * =======================================================
-   * INFORMACIÓN
-   * =======================================================
-   */
+  /* =======================================================
+     INFORMACIÓN
+  ======================================================= */
 
   .product-info {
     flex: 1;
@@ -426,11 +446,9 @@ export const ProductCard = styled.div`
     white-space: nowrap;
   }
 
-  /*
-   * =======================================================
-   * BOTÓN AGREGAR
-   * =======================================================
-   */
+  /* =======================================================
+     BOTÓN AGREGAR
+  ======================================================= */
 
   > button {
     flex-shrink: 0;
@@ -477,6 +495,10 @@ export const ProductCard = styled.div`
       opacity: 0.7;
     }
   }
+
+  /* =======================================================
+     TABLET / CELULAR
+  ======================================================= */
 
   @media (max-width: 700px) {
     min-height: 58px;

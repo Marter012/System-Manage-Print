@@ -282,10 +282,6 @@ const HistoryCash = () => {
                       event.stopPropagation();
                       handlePrint(cash);
                     }}
-                    disabled={
-                      cash.status_cash_register !== "close" ||
-                      printingCashRegisterId === cash.id
-                    }
                   >
                     <MdPrint />
 

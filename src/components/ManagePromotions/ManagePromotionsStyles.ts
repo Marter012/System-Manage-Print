@@ -1,21 +1,28 @@
 import styled from "styled-components";
 
 // =========================================================
-// CONTENEDOR
+// CONTENEDOR PRINCIPAL
 // =========================================================
 
 export const ContainerManagePromotions = styled.div`
   width: 100%;
+  height: 80%;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  gap: 20px;
-
-  padding: 20px;
+  gap: 18px;
 
   box-sizing: border-box;
+
+  flex-shrink: 0;
+
+  /*
+    =========================================================
+    ESTADOS GENERALES
+    =========================================================
+  */
 
   .active {
     background-color: green;
@@ -27,104 +34,445 @@ export const ContainerManagePromotions = styled.div`
     color: white;
   }
 
+  /*
+    =========================================================
+    TABLA DE PROMOCIONES
+    =========================================================
+
+    NOTEBOOK / DESKTOP
+
+    Nombre | Descripción | Precio | Composición | Acciones
+
+    Se mantienen las 5 columnas.
+
+    =========================================================
+    TABLET / CELULAR
+
+    Nombre | Precio | Acciones
+
+    Se ocultan:
+    - Descripción
+    - Composición
+
+    Los botones muestran solamente el ícono.
+    =========================================================
+  */
+
+  .promotions-table {
+    width: 100%;
+
+    height: 100%;
+    max-height: 90%;
+
+    min-height: 0;
+
+    /*
+      =======================================================
+      TABLET / DISPOSITIVOS PEQUEÑOS
+      =======================================================
+    */
+
+    @media (max-width: 900px) {
+      /*
+        =====================================================
+        CABECERA
+
+        Original:
+        Nombre | Descripción | Precio | Composición | Acciones
+
+        Nueva:
+        Nombre | Precio | Acciones
+        =====================================================
+      */
+
+      .table-header {
+        grid-template-columns:
+          minmax(0, 1fr)
+          80px
+          120px;
+
+        gap: 10px;
+      }
+
+      /*
+        Ocultar exactamente los headers:
+
+        0 = Nombre
+        1 = Descripción  ← ocultar
+        2 = Precio
+        3 = Composición  ← ocultar
+        4 = Acciones
+      */
+
+      .table-header-1,
+      .table-header-3 {
+        display: none;
+      }
+
+      /*
+        =====================================================
+        FILAS
+
+        Deben tener exactamente las mismas 3 columnas
+        que la cabecera.
+        =====================================================
+      */
+
+      .promotions-table-row {
+        grid-template-columns:
+          minmax(0, 1fr)
+          80px
+          120px;
+
+        gap: 10px;
+      }
+
+      /*
+        Ocultar las columnas correspondientes
+      */
+
+      .promotions-table-row
+        .promotion-description,
+      .promotions-table-row
+        .promotion-composition {
+        display: none;
+      }
+
+      /*
+        =====================================================
+        NOMBRE
+        =====================================================
+      */
+
+      .promotions-table-row
+        .promotion-name {
+        min-width: 0;
+      }
+
+      .promotions-table-row
+        .promotion-name
+        strong {
+        display: block;
+
+        min-width: 0;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+      }
+
+      /*
+        =====================================================
+        PRECIO
+        =====================================================
+      */
+
+      .promotions-table-row
+        .price {
+        text-align: center;
+
+        font-weight: 600;
+
+        white-space: nowrap;
+      }
+
+      /*
+        =====================================================
+        ACCIONES
+        =====================================================
+      */
+
+      .promotions-table-row
+        .actions {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 0;
+      }
+
+      /*
+        Ocultar "Activa / Inactiva"
+      */
+
+      .promotions-table-row
+        .actions
+        .status-text {
+        display: none;
+      }
+
+      /*
+        =====================================================
+        BOTÓN DE ACCIONES
+
+        Solamente ícono.
+        =====================================================
+      */
+
+      .promotions-table-row
+        .actions
+        button {
+        width: 32px;
+
+        min-width: 32px;
+
+        height: 32px;
+
+        padding: 6px;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 0;
+
+        flex-shrink: 0;
+      }
+
+      .promotions-table-row
+        .actions
+        button
+        svg {
+        width: 15px;
+
+        height: 15px;
+
+        flex-shrink: 0;
+      }
+    }
+
+    /*
+      =======================================================
+      CELULAR
+      =======================================================
+    */
+
+    @media (max-width: 600px) {
+      /*
+        =====================================================
+        CABECERA
+        =====================================================
+      */
+
+      .table-header {
+        grid-template-columns:
+          minmax(0, 1fr)
+          55px
+          80px;
+
+        gap: 6px;
+
+        padding: 9px 8px;
+      }
+
+      /*
+        Los headers 1 y 3 siguen ocultos.
+        Se vuelven a declarar para que quede explícito
+        dentro del breakpoint.
+      */
+
+      .table-header-1,
+      .table-header-3 {
+        display: none;
+      }
+
+      /*
+        =====================================================
+        FILAS
+        =====================================================
+      */
+
+      .promotions-table-row {
+        grid-template-columns:
+          minmax(0, 1fr)
+          55px
+          80px;
+
+        gap: 6px;
+
+        padding: 10px 8px;
+      }
+
+      /*
+        =====================================================
+        TEXTO DEL HEADER
+        =====================================================
+      */
+
+      .table-header h4 {
+        font-size: 9px;
+      }
+
+      /*
+        =====================================================
+        TEXTO DE LAS FILAS
+        =====================================================
+      */
+
+      .promotions-table-row {
+        font-size: 11px;
+      }
+
+      /*
+        =====================================================
+        ACCIONES
+        =====================================================
+      */
+
+      .promotions-table-row
+        .actions {
+        gap: 4px;
+      }
+
+      .promotions-table-row
+        .actions
+        button {
+        width: 30px;
+
+        min-width: 30px;
+
+        height: 30px;
+
+        padding: 6px;
+      }
+
+      .promotions-table-row
+        .actions
+        button
+        svg {
+        width: 14px;
+
+        height: 14px;
+      }
+    }
+
+    /*
+      =======================================================
+      CELULAR PEQUEÑO
+      =======================================================
+    */
+
+    @media (max-width: 400px) {
+      /*
+        =====================================================
+        CABECERA
+        =====================================================
+      */
+
+      .table-header {
+        grid-template-columns:
+          minmax(0, 1fr)
+          48px
+          72px;
+
+        gap: 4px;
+
+        padding: 8px 6px;
+      }
+
+      .table-header-1,
+      .table-header-3 {
+        display: none;
+      }
+
+      /*
+        =====================================================
+        FILAS
+        =====================================================
+      */
+
+      .promotions-table-row {
+        grid-template-columns:
+          minmax(0, 1fr)
+          48px
+          72px;
+
+        gap: 4px;
+
+        padding: 9px 6px;
+      }
+
+      /*
+        =====================================================
+        HEADER
+        =====================================================
+      */
+
+      .table-header h4 {
+        font-size: 8px;
+      }
+
+      /*
+        =====================================================
+        FILAS
+        =====================================================
+      */
+
+      .promotions-table-row {
+        font-size: 10px;
+      }
+
+      /*
+        =====================================================
+        ACCIONES
+        =====================================================
+      */
+
+      .promotions-table-row
+        .actions {
+        gap: 3px;
+      }
+
+      .promotions-table-row
+        .actions
+        button {
+        width: 28px;
+
+        min-width: 28px;
+
+        height: 28px;
+
+        padding: 5px;
+      }
+
+      .promotions-table-row
+        .actions
+        button
+        svg {
+        width: 13px;
+
+        height: 13px;
+      }
+    }
+  }
+
+  /*
+    =========================================================
+    ESPACIADO RESPONSIVE
+    =========================================================
+  */
+
   @media (max-width: 850px) {
-    gap: 18px;
-    padding: 18px;
+    gap: 16px;
   }
 
   @media (max-width: 600px) {
-    gap: 15px;
-    padding: 15px 10px;
-
-    /*
-     * ==================================================
-     * TABLA DE PROMOCIONES
-     * ==================================================
-     *
-     * Desktop:
-     * Nombre | Descripción | Precio | Composición | Acciones
-     *
-     * Mobile:
-     * Nombre | Precio | Acciones
-     */
-
-    /*
-     * OCULTAMOS EL CONTENIDO
-     */
-
-    .promotion-description,
-    .promotion-composition {
-      display: none;
-    }
-
-    /*
-     * NOMBRE
-     */
-
-    .promotion-name {
-      min-width: 0;
-    }
-
-    .promotion-name strong {
-      display: block;
-
-      min-width: 0;
-
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /*
-     * PRECIO
-     */
-
-    .price {
-      text-align: center;
-      font-weight: 600;
-    }
-
-    /*
-     * ACCIONES
-     */
-
-    .actions {
-      justify-content: flex-end;
-      gap: 4px;
-    }
-
-    .status-text {
-      display: none;
-    }
-
-    /*
-     * CABECERA DE LA TABLA
-     *
-     * Nombre | Descripción | Precio | Composición | Acciones
-     *
-     * Ocultamos:
-     * Descripción
-     * Composición
-     */
-
-    h4:nth-child(2),
-    h4:nth-child(4) {
-      display: none;
-    }
+    gap: 14px;
   }
 
   @media (max-width: 400px) {
     gap: 12px;
-    padding: 12px 8px;
-
-    .actions {
-      gap: 3px;
-    }
   }
 `;
 
 // =========================================================
-// AGREGAR PROMOCIÓN
+// BOTÓN NUEVA PROMOCIÓN
 // =========================================================
 
 export const AddPromotionButton = styled.button`
@@ -138,46 +486,49 @@ export const AddPromotionButton = styled.button`
   padding: 12px 18px;
 
   border: none;
+
   border-radius: 8px;
 
-  background-color: #734d2c;
+  background-color: #653007;
 
   color: white;
 
-  font-size: 0.95rem;
+  font-size: 14px;
+
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
     background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  svg {
-    font-size: 14px;
-    flex-shrink: 0;
-  }
+    transform 0.2s ease;
 
   &:hover {
-    background-color: #c29e70;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(101, 48, 7, 0.15);
+    background-color: #8a4f27;
   }
 
   &:active {
     transform: scale(0.98);
   }
 
+  svg {
+    width: 15px;
+
+    height: 15px;
+  }
+
   @media (max-width: 600px) {
     width: 100%;
-    padding: 11px 16px;
-    font-size: 0.9rem;
+
+    padding: 11px 15px;
+
+    font-size: 13px;
   }
 
   @media (max-width: 400px) {
-    padding: 10px 14px;
-    font-size: 0.85rem;
+    padding: 10px 12px;
+
+    font-size: 12px;
   }
 `;
 
@@ -190,13 +541,15 @@ export const Filter = styled.div`
 
   display: flex;
 
-  gap: 5px;
+  align-items: center;
+
+  gap: 8px;
 
   padding: 5px;
 
   box-sizing: border-box;
 
-  background-color: rgba(115, 77, 44, 0.15);
+  background-color: #eee8df;
 
   border-radius: 10px;
 
@@ -206,36 +559,57 @@ export const Filter = styled.div`
 
     min-width: 0;
 
-    height: 42px;
+    height: 38px;
 
     border: none;
 
     border-radius: 7px;
 
-    background-color: rgba(155, 122, 78, 0.3);
+    padding: 0 12px;
 
-    font-size: 0.95rem;
+    font-size: 13px;
 
-    font-weight: 500;
+    font-weight: 600;
 
     cursor: pointer;
 
-    transition: 0.2s;
+    box-sizing: border-box;
+  }
+
+  button {
+    background-color: transparent;
+
+    color: #6d6258;
+
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
 
     &:hover {
-      background-color: rgba(194, 158, 112, 0.7);
+      color: #734d2c;
     }
 
     &.active {
       background-color: #c29e70;
-      font-weight: 600;
+
+      color: white;
     }
   }
 
   select {
-    text-align: center;
+    background-color: white;
 
-    background-color: rgba(155, 122, 78) !important;
+    color: #6d6258;
+
+    border: 1px solid #ddd5cb;
+
+    outline: none;
+
+    cursor: pointer;
+
+    &:focus {
+      border-color: #c29e70;
+    }
   }
 
   @media (max-width: 1000px) {
@@ -244,41 +618,32 @@ export const Filter = styled.div`
 
   @media (max-width: 700px) {
     width: 100%;
-
-    gap: 4px;
-
-    button,
-    select {
-      height: 40px;
-      font-size: 0.85rem;
-    }
   }
 
   @media (max-width: 500px) {
     flex-wrap: wrap;
 
-    button,
-    select {
+    button {
       flex: 1 1 calc(50% - 4px);
-
-      min-width: calc(50% - 4px);
-
-      height: 40px;
-
-      font-size: 0.82rem;
     }
 
     select {
       flex: 1 1 100%;
-      min-width: 100%;
     }
   }
 
   @media (max-width: 400px) {
+    gap: 5px;
+
+    padding: 4px;
+
     button,
     select {
-      height: 38px;
-      font-size: 0.78rem;
+      height: 36px;
+
+      padding: 0 8px;
+
+      font-size: 12px;
     }
   }
 `;
@@ -291,12 +656,15 @@ export const PromotionOptions = styled.div`
   width: 100%;
 
   display: flex;
+
   flex-direction: column;
 
   gap: 18px;
 
+  box-sizing: border-box;
+
   @media (max-width: 600px) {
-    gap: 14px;
+    gap: 15px;
   }
 
   @media (max-width: 400px) {
@@ -312,154 +680,87 @@ export const PromotionInfo = styled.div`
   width: 100%;
 
   display: flex;
+
   flex-direction: column;
 
   gap: 10px;
 
+  box-sizing: border-box;
+
   h3 {
-    margin: 0 0 4px;
+    margin: 0 0 5px;
 
     color: #653007;
 
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 20px;
 
-    line-height: 1.25;
+    font-weight: 700;
   }
 
   p {
     margin: 0;
 
-    color: #665e58;
+    color: #6d6258;
 
-    font-size: 0.9rem;
+    font-size: 14px;
 
     line-height: 1.5;
   }
 
   > div {
-    min-height: 48px;
-
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
-    gap: 12px;
+    gap: 15px;
 
-    box-sizing: border-box;
+    padding: 10px 12px;
 
-    padding: 10px 14px;
+    background-color: #f7f3ee;
 
-    border: 1px solid #e8ded5;
+    border-radius: 7px;
 
-    border-radius: 9px;
+    span {
+      color: #6d6258;
 
-    background-color: #ffffff;
-  }
+      font-size: 13px;
+    }
 
-  span {
-    min-width: 0;
+    strong {
+      color: #653007;
 
-    color: #766e68;
+      font-size: 14px;
 
-    font-size: 0.82rem;
-    font-weight: 600;
-  }
-
-  strong {
-    min-width: 0;
-
-    color: #653007;
-
-    font-size: 0.95rem;
-    font-weight: 700;
-
-    text-align: right;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+      text-align: right;
+    }
   }
 
   > strong {
-    display: block;
-
-    padding: 13px 14px;
-
-    border: 1px solid #eadfd4;
-
-    border-radius: 9px;
-
-    background-color: #faf7f4;
-
     color: #653007;
 
-    font-size: 0.95rem;
-
-    text-align: left;
-
-    white-space: normal;
-
-    overflow: visible;
+    font-size: 15px;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 500px) {
     gap: 8px;
 
     h3 {
-      font-size: 1.15rem;
+      font-size: 18px;
     }
 
     p {
-      font-size: 0.85rem;
+      font-size: 13px;
     }
 
     > div {
-      min-height: 44px;
+      padding: 9px 10px;
 
-      gap: 8px;
-
-      padding: 9px 11px;
-    }
-
-    span {
-      font-size: 0.78rem;
-    }
-
-    strong {
-      font-size: 0.88rem;
-    }
-
-    > strong {
-      padding: 11px;
-      font-size: 0.88rem;
-    }
-  }
-
-  @media (max-width: 400px) {
-    h3 {
-      font-size: 1.05rem;
-    }
-
-    p {
-      font-size: 0.8rem;
-    }
-
-    > div {
-      padding: 8px 10px;
-    }
-
-    span {
-      font-size: 0.74rem;
-    }
-
-    strong {
-      font-size: 0.82rem;
-    }
-
-    > strong {
-      padding: 10px;
-      font-size: 0.82rem;
+      span,
+      strong {
+        font-size: 12px;
+      }
     }
   }
 `;
@@ -472,6 +773,7 @@ export const PromotionItems = styled.div`
   width: 100%;
 
   display: flex;
+
   flex-direction: column;
 
   gap: 10px;
@@ -482,6 +784,7 @@ export const PromotionItems = styled.div`
     color: #653007;
 
     font-size: 1.05rem;
+
     font-weight: 700;
   }
 
@@ -510,6 +813,7 @@ export const PromotionItem = styled.div`
   width: 100%;
 
   display: flex;
+
   flex-direction: column;
 
   gap: 12px;
@@ -526,6 +830,7 @@ export const PromotionItem = styled.div`
 
   > div {
     display: flex;
+
     flex-direction: column;
 
     gap: 5px;
@@ -535,6 +840,7 @@ export const PromotionItem = styled.div`
     color: #653007;
 
     font-size: 0.95rem;
+
     font-weight: 700;
 
     line-height: 1.3;
@@ -544,6 +850,7 @@ export const PromotionItem = styled.div`
     color: #766e68;
 
     font-size: 0.82rem;
+
     font-weight: 600;
   }
 
@@ -582,6 +889,7 @@ export const PromotionItem = styled.div`
 
     p {
       padding: 6px 8px;
+
       font-size: 0.78rem;
     }
   }
@@ -601,6 +909,7 @@ export const PromotionItem = styled.div`
 
     p {
       padding: 5px 7px;
+
       font-size: 0.74rem;
     }
   }
@@ -614,15 +923,14 @@ export const PromotionActions = styled.div`
   width: 100%;
 
   display: flex;
+
   flex-direction: column;
 
-  gap: 8px;
+  gap: 10px;
 
-  padding-top: 16px;
+  box-sizing: border-box;
 
-  border-top: 1px solid #e8ded5;
-
-  div {
+  > div {
     display: flex;
 
     gap: 8px;
@@ -630,13 +938,13 @@ export const PromotionActions = styled.div`
     width: 100%;
   }
 
-  @media (max-width: 600px) {
-    gap: 7px;
+  button {
+    flex: 1;
+  }
 
-    padding-top: 13px;
-
-    div {
-      gap: 6px;
+  @media (max-width: 500px) {
+    > div {
+      flex-direction: column;
     }
   }
 `;
@@ -646,149 +954,74 @@ export const PromotionActions = styled.div`
 // =========================================================
 
 export const ActionButton = styled.button`
-  width: 100%;
+  min-height: 40px;
 
-  min-height: 46px;
+  padding: 10px 15px;
 
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  border: none;
 
-  padding: 11px 15px;
+  border-radius: 7px;
 
-  border: 1px solid #e2d7cd;
+  background-color: #653007;
 
-  border-radius: 9px;
+  color: white;
 
-  background-color: #ffffff;
+  font-size: 13px;
 
-  color: #403a35;
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
-  font-weight: 600;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    background-color: #faf7f4;
-
-    border-color: #c29e70;
-
-    color: #653007;
-
-    box-shadow: 0 2px 6px rgba(101, 48, 7, 0.08);
-
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.99);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-
-    cursor: not-allowed;
-
-    transform: none;
-
-    box-shadow: none;
-  }
-
-  @media (max-width: 600px) {
-    min-height: 43px;
-
-    padding: 10px 12px;
-
-    font-size: 0.84rem;
-  }
-
-  @media (max-width: 400px) {
-    min-height: 41px;
-
-    padding: 9px 10px;
-
-    font-size: 0.8rem;
-  }
-`;
-
-// =========================================================
-// CANCELAR
-// =========================================================
-
-export const CancelButton = styled.button`
-  width: 100%;
-
-  min-height: 43px;
-
-  padding: 10px 16px;
-
-  border: 1px solid #ddd5ce;
-
-  border-radius: 8px;
-
-  background-color: #f5f3f1;
-
-  color: #5f5751;
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
     background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
+    transform 0.2s ease;
 
   &:hover {
-    background-color: #ebe7e3;
-
-    border-color: #cfc6be;
-
-    color: #403a35;
+    background-color: #8a4f27;
   }
 
   &:active {
     transform: scale(0.98);
   }
+`;
+
+// =========================================================
+// BOTÓN CANCELAR
+// =========================================================
+
+export const CancelButton = styled.button`
+  min-height: 40px;
+
+  padding: 10px 15px;
+
+  border: 1px solid #d6cec4;
+
+  border-radius: 7px;
+
+  background-color: #f7f3ee;
+
+  color: #6d6258;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background-color: #eee8df;
+
+    border-color: #c9bfb4;
+  }
 
   &:disabled {
     opacity: 0.6;
 
     cursor: not-allowed;
-
-    transform: none;
-  }
-
-  @media (max-width: 600px) {
-    min-height: 41px;
-
-    padding: 9px 12px;
-
-    font-size: 0.84rem;
-  }
-
-  @media (max-width: 400px) {
-    min-height: 40px;
-
-    padding: 8px 10px;
-
-    font-size: 0.8rem;
   }
 `;
 
@@ -797,33 +1030,36 @@ export const CancelButton = styled.button`
 // =========================================================
 
 export const StatusButton = styled.button`
-  width: 100%;
+  min-height: 40px;
 
-  min-height: 46px;
+  padding: 10px 15px;
 
-  padding: 10px 16px;
+  border: none;
 
-  border: 1px solid transparent;
+  border-radius: 7px;
 
-  border-radius: 9px;
+  font-size: 13px;
 
-  color: #ffffff;
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
   font-weight: 600;
+
+  color: white;
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.15s ease;
+    opacity 0.2s ease,
+    transform 0.2s ease;
+
+  &.active {
+    background-color: green;
+  }
+
+  &.inactive {
+    background-color: red;
+  }
 
   &:hover {
-    transform: translateY(-1px);
+    opacity: 0.85;
   }
 
   &:active {
@@ -836,49 +1072,5 @@ export const StatusButton = styled.button`
     cursor: not-allowed;
 
     transform: none;
-  }
-
-  &.active {
-    background-color: #b42318;
-
-    border-color: #b42318;
-
-    &:hover {
-      background-color: #9f1f15;
-
-      border-color: #9f1f15;
-
-      box-shadow: 0 3px 8px rgba(180, 35, 24, 0.18);
-    }
-  }
-
-  &.inactive {
-    background-color: #18a957;
-
-    border-color: #18a957;
-
-    &:hover {
-      background-color: #138c48;
-
-      border-color: #138c48;
-
-      box-shadow: 0 3px 8px rgba(24, 169, 87, 0.18);
-    }
-  }
-
-  @media (max-width: 600px) {
-    min-height: 43px;
-
-    padding: 9px 12px;
-
-    font-size: 0.84rem;
-  }
-
-  @media (max-width: 400px) {
-    min-height: 41px;
-
-    padding: 8px 10px;
-
-    font-size: 0.8rem;
   }
 `;

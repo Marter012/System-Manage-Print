@@ -195,6 +195,10 @@ export const ShiftSelectorButton = styled.button<StatusProps>`
     color: #55514b;
 
     font-size: 13px;
+
+    @media (max-width: 700px) {
+      display: none;
+    }
   }
 
   .shift-content {

@@ -6,7 +6,7 @@ import styled from "styled-components";
 
 export const ContainerManageProducts = styled.div`
   width: 100%;
-
+  height: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,19 +46,15 @@ export const ContainerManageProducts = styled.div`
 
   .products-table {
     width: 100%;
-
     /*
       Altura fija de la tabla.
 
       Las filas van a hacer scroll internamente,
       evitando que la tabla crezca indefinidamente.
     */
-
-    height: 350px;
-    max-height: 350px;
-
+    height: 100%;
+    max-height: 90%;
     min-height: 0;
-
     /*
       =======================================================
       TABLET / DISPOSITIVOS PEQUEÑOS
@@ -67,13 +63,7 @@ export const ContainerManageProducts = styled.div`
     */
 
     @media (max-width: 900px) {
-      height: 300px;
-      max-height: 300px;
-
-      /*
-        HEADER
-      */
-
+      
       .table-header {
         grid-template-columns:
           minmax(0, 1fr)
@@ -164,11 +154,7 @@ export const ContainerManageProducts = styled.div`
       CELULAR
       =======================================================
     */
-
     @media (max-width: 600px) {
-      height: 280px;
-      max-height: 280px;
-
       .table-header {
         grid-template-columns:
           minmax(0, 1fr)
@@ -224,9 +210,6 @@ export const ContainerManageProducts = styled.div`
     */
 
     @media (max-width: 400px) {
-      height: 250px;
-      max-height: 250px;
-
       .table-header {
         grid-template-columns:
           minmax(0, 1fr)

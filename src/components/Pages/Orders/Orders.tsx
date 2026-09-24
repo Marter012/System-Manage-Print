@@ -1,6 +1,12 @@
 import { useState } from "react";
 
-import { FaPlus, FaClipboardList, FaCashRegister } from "react-icons/fa";
+import {
+  FaPlus,
+  FaClipboardList,
+  FaCashRegister,
+} from "react-icons/fa";
+
+import { useSelector } from "react-redux";
 
 import ManageOrder from "../../ManageOrder/ManageOrder.tsx";
 import NewOrder from "../../NewOrder/NewOrder.tsx";
@@ -12,45 +18,72 @@ import {
   EmptyCashContainer,
 } from "./OrdersStyles.ts";
 
-import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store.ts";
 
 import { getDateOnly } from "../../Utils/Formats.tsx";
+
 import PageHeader from "../../PageHeaders/PageHeaders.tsx";
+
 import { Tab } from "../../PageHeaders/PageHeadersStyles.ts";
+
 import { ContainerPage } from "../PageStyles.ts";
 
 const Orders = () => {
-  const [selected, setSelected] = useState<"create" | "manage">("manage");
+  const [selected, setSelected] = useState<
+    "create" | "manage"
+  >("manage");
 
-  const { day, shift } = useSelector((state: RootState) => state.daySelected);
+  const { day, shift } = useSelector(
+    (state: RootState) => state.daySelected,
+  );
 
   const cashRegisters = useSelector(
-    (state: RootState) => state.cashRegister.cashRegister,
+    (state: RootState) =>
+      state.cashRegister.cashRegister,
   );
 
   const cashRegister = cashRegisters.find(
-    (item) => getDateOnly(item.date) === day && item.shift === shift,
+    (item) =>
+      getDateOnly(item.date) === day &&
+      item.shift === shift,
   );
 
+  /*
+   * CAJA CERRADA
+   *
+   * El header sigue visible y el mensaje aparece
+   * inmediatamente debajo.
+   */
   if (cashRegister?.status === false) {
     return (
       <ContainerPage>
-        <div className="cash-message">
-          <FaCashRegister />
+        <PageHeader
+          title="Comandas"
+          description="Control y gestión de comandas por día."
+        />
 
-          <h2>Caja cerrada</h2>
+        <ContainerOrder>
+          <CashMessage>
+            <FaCashRegister />
 
-          <p>
-            La caja del turno{" "}
-            <strong>{shift === "morning" ? "mañana" : "noche"}</strong> está
-            cerrada.
-          </p>
+            <h2>Caja cerrada</h2>
 
-          <span>
-            Debés abrir la caja primero para poder gestionar las comandas.
-          </span>
-        </div>
+            <p>
+              La caja del turno{" "}
+              <strong>
+                {shift === "morning"
+                  ? "mañana"
+                  : "noche"}
+              </strong>{" "}
+              está cerrada.
+            </p>
+
+            <span>
+              Debés abrir la caja primero para poder
+              gestionar las comandas.
+            </span>
+          </CashMessage>
+        </ContainerOrder>
       </ContainerPage>
     );
   }
@@ -59,11 +92,13 @@ const Orders = () => {
     <ContainerPage>
       <PageHeader
         title="Comandas"
-        description="Control y gestión de de comandas por dia."
+        description="Control y gestión de comandas por día."
       >
         <Tab
           type="button"
-          className={selected === "manage" ? "active" : ""}
+          className={
+            selected === "manage" ? "active" : ""
+          }
           onClick={() => setSelected("manage")}
         >
           <FaClipboardList />
@@ -71,20 +106,22 @@ const Orders = () => {
           <span>Gestionar comandas</span>
         </Tab>
 
-        {cashRegister?.status_cash_register === "open" ? (
+        {cashRegister?.status_cash_register ===
+        "open" ? (
           <Tab
             type="button"
-            className={selected === "create" ? "active" : ""}
+            className={
+              selected === "create" ? "active" : ""
+            }
             onClick={() => setSelected("create")}
           >
             <FaPlus />
 
             <span>Nueva comanda</span>
           </Tab>
-        ) : (
-          <></>
-        )}
+        ) : null}
       </PageHeader>
+
       {cashRegister?.status === true ? (
         <ContainerOrder>
           {selected === "create" ? (
@@ -101,9 +138,15 @@ const Orders = () => {
 
               <h2>No hay una caja disponible</h2>
 
-              <p>No existe una caja para el día y turno seleccionados.</p>
+              <p>
+                No existe una caja para el día y
+                turno seleccionados.
+              </p>
 
-              <span>Abrí una caja antes de gestionar las comandas.</span>
+              <span>
+                Abrí una caja antes de gestionar las
+                comandas.
+              </span>
             </CashMessage>
           </CashMessageLink>
         </EmptyCashContainer>

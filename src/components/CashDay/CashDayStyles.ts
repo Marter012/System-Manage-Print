@@ -6,15 +6,14 @@ import styled from "styled-components";
 
 export const CashDayContent = styled.div`
   width: 100%;
+  max-height: 100%;
   min-width: 0;
 
   display: flex;
   flex-direction: column;
-
   gap: 24px;
-
   box-sizing: border-box;
-
+  overflow: hidden;
   @media (max-width: 1050px) {
     width: 100%;
     gap: 18px;
@@ -28,12 +27,42 @@ export const CashDayContent = styled.div`
   @media (max-width: 420px) {
     gap: 12px;
   }
+  .summary-overlay {
+    display: none;
+
+    @media (max-width: 700px) {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(35, 28, 23, 0.4);
+      backdrop-filter: blur(1px);
+      -webkit-backdrop-filter: blur(1px);
+      z-index: 15;
+    }
+  }
 `;
 
 /* ============================================================
    SUMMARY BAR
 ============================================================ */
+export const SummaryBackdrop = styled.div`
+  display: none;
+  @media (max-width: 700px) {
+    display: block;
 
+    position: fixed;
+    inset: 0;
+
+    z-index: 15;
+
+    background: rgba(35, 28, 23, 0.28);
+
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+
+    cursor: pointer;
+  }
+`;
 export const SummaryBar = styled.div`
   width: 100%;
   height: 92px;
@@ -47,9 +76,8 @@ export const SummaryBar = styled.div`
   background: #ffffff;
 
   border: 1px solid #e1d8d0;
-  border-radius: 16px;
 
-  overflow: hidden;
+  overflow: hidden ;
 
   margin-bottom: 0;
 
@@ -80,13 +108,10 @@ export const SummaryBar = styled.div`
   @media (max-width: 700px) {
     width: 100%;
     height: auto;
-    min-height: 58px;
 
     display: block;
 
     overflow: visible;
-
-    border-radius: 13px;
 
     .summary-toggle {
       width: 100%;
@@ -136,7 +161,6 @@ export const SummaryBar = styled.div`
     .summary-toggle-info {
       min-width: 0;
       flex: 1;
-
       display: flex;
       flex-direction: column;
 
@@ -193,7 +217,9 @@ export const SummaryBar = styled.div`
     }
 
     &.summary-open {
-      height: auto;
+      height: 58px;
+
+      min-height: 58px;
 
       overflow: visible;
 
@@ -201,7 +227,10 @@ export const SummaryBar = styled.div`
 
       .summary-content {
         width: 100%;
+
         height: auto;
+
+        max-height: min(70vh, 560px);
 
         display: grid;
 
@@ -215,11 +244,34 @@ export const SummaryBar = styled.div`
 
         box-sizing: border-box;
 
-        overflow: visible;
+        position: absolute;
+
+        top: calc(100% + 8px);
+
+        left: 0;
+
+        overflow-y: auto;
+        overflow-x: hidden;
 
         background: #faf8f6;
 
-        border-top: 1px solid #e8e0d9;
+        border: 1px solid #e1d8d0;
+
+        border-radius: 14px;
+
+        box-shadow:
+          0 16px 40px rgba(55, 39, 28, 0.22),
+          0 4px 12px rgba(101, 48, 7, 0.08);
+
+        z-index: 30;
+
+        scrollbar-width: thin;
+
+        scrollbar-color: rgba(101, 48, 7, 0.22) transparent;
+
+        -webkit-overflow-scrolling: touch;
+
+        overscroll-behavior: contain;
       }
     }
   }
@@ -693,6 +745,109 @@ export const SummaryDivider = styled.div`
 `;
 
 /* ============================================================
+   SELECTOR MOBILE / TABLET
+============================================================ */
+
+export const CashMobileTabs = styled.div`
+  display: none;
+
+  @media (max-width: 1050px) {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    gap: 8px;
+
+    padding: 5px;
+
+    box-sizing: border-box;
+
+    background: #f4f1ee;
+
+    border: 1px solid #e1d8d0;
+
+    border-radius: 12px;
+  }
+
+  @media (max-width: 700px) {
+    gap: 6px;
+
+    padding: 4px;
+
+    border-radius: 10px;
+  }
+
+  @media (max-width: 420px) {
+    gap: 5px;
+  }
+`;
+
+export const CashMobileTab = styled.button<{
+  $active: boolean;
+}>`
+  width: 100%;
+
+  min-height: 42px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  padding: 8px 12px;
+
+  box-sizing: border-box;
+
+  cursor: pointer;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  color: ${({ $active }) => ($active ? "#ffffff" : "#6f6259")};
+
+  background: ${({ $active }) => ($active ? "#653007" : "transparent")};
+
+  box-shadow: ${({ $active }) =>
+    $active ? "0 3px 8px rgba(101, 48, 7, 0.18)" : "none"};
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    background: ${({ $active }) => ($active ? "#653007" : "#e9e2dc")};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 700px) {
+    min-height: 40px;
+
+    padding: 7px 9px;
+
+    font-size: 12px;
+
+    border-radius: 8px;
+  }
+
+  @media (max-width: 420px) {
+    min-height: 38px;
+
+    padding: 6px 7px;
+
+    font-size: 11px;
+  }
+`;
+
+/* ============================================================
    CASH CONTENT
 ============================================================ */
 
@@ -702,89 +857,125 @@ export const CashContent = styled.div`
   z-index: 1;
 
   display: grid;
+
   grid-template-columns:
     minmax(0, 2fr)
     minmax(320px, 1fr);
 
   gap: 24px;
+
   align-items: stretch;
 
   /* =========================
-     DESKTOP
+     DESKTOP / NOTEBOOK
      ========================= */
-  height: 80%;
+
+  max-height: 80%;
+
   min-height: 0;
 
   box-sizing: border-box;
 
   overflow: hidden;
 
+  .cash-sales,
+  .cash-movements {
+    min-width: 0;
+  }
+
+  .cash-mobile-hidden {
+    display: block;
+  }
+
+  .cash-close {
+    grid-column: 1 / -1;
+  }
+
   /* =========================
      TABLET
      ========================= */
+
   @media (max-width: 1050px) {
     width: 100%;
 
     display: flex;
+
     flex-direction: column;
+
     align-items: stretch;
 
     gap: 18px;
 
     height: auto;
+
     min-height: 0;
 
     overflow: visible;
 
     position: relative;
+
     z-index: 1;
 
+    .cash-sales,
     .cash-movements {
-      order: 1;
+      width: 100%;
+
+      min-width: 0;
     }
 
-    .cash-sales {
-      order: 2;
+    /*
+     * En tablet/celular solamente se muestra
+     * el panel seleccionado.
+     */
+    .cash-mobile-hidden {
+      display: none;
+    }
+
+    .cash-mobile-active {
+      display: block;
     }
 
     .cash-close {
       order: 3;
+
+      width: 100%;
     }
   }
 
   /* =========================
      MOBILE
      ========================= */
+
   @media (max-width: 700px) {
     width: 100%;
 
     display: flex;
+
     flex-direction: column;
+
     align-items: stretch;
 
     gap: 14px;
 
     height: auto;
+
     min-height: 0;
 
     overflow: visible;
 
     position: relative;
+
     z-index: 1;
 
+    .cash-sales,
     .cash-movements {
-      order: 1;
-    }
-
-    .cash-sales {
-      order: 2;
+      width: 100%;
     }
 
     .cash-close {
-      order: 3;
+      width: 100%;
     }
   }
-
 
   @media (max-width: 420px) {
     gap: 12px;
@@ -807,28 +998,29 @@ export const SalesContainer = styled.div`
   /* =========================
      DESKTOP
      ========================= */
+
   height: 350px;
+
   min-height: 0;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
 
   /* =========================
      TABLET
      ========================= */
+
   @media (max-width: 1050px) {
     height: auto;
-    min-height: 280px;
 
+    min-height: 280px;
     overflow: visible;
   }
 
   /* =========================
      MOBILE
      ========================= */
+
   @media (max-width: 700px) {
     height: auto;
+
     min-height: 250px;
 
     overflow: visible;
@@ -837,6 +1029,7 @@ export const SalesContainer = styled.div`
   /* =========================
      MOBILE PEQUEÑO
      ========================= */
+
   @media (max-width: 420px) {
     min-height: 220px;
   }

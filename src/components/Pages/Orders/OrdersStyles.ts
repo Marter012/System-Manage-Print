@@ -1,10 +1,5 @@
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
-import { ContainerPage } from "../PageStyles.ts";
-
-/* =========================================================
-   CONTENEDOR PRINCIPAL DE COMANDAS
-========================================================= */
 
 export const ContainerOrder = styled.div`
   width: 100%;
@@ -18,11 +13,8 @@ export const ContainerOrder = styled.div`
 
   box-sizing: border-box;
 
-  /*
-   * No usamos height: 90%.
-   * El contenido interno controla su propio tamaño.
-   */
   min-height: 0;
+  height: 77%;
 
   @media (max-width: 1000px) {
     margin-top: 15px;
@@ -34,30 +26,26 @@ export const ContainerOrder = styled.div`
 `;
 
 /* =========================================================
-   CAJA VACÍA
+   CONTENEDOR CUANDO NO HAY CAJA
 ========================================================= */
 
-export const EmptyCashContainer = styled(ContainerPage)`
+export const EmptyCashContainer = styled.div`
   width: 100%;
 
   display: flex;
   justify-content: center;
-  align-items: center;
-
-  min-height: 420px;
-
-  padding: 40px;
+  align-items: flex-start;
 
   box-sizing: border-box;
 
+  padding: 30px 20px 20px;
+
   @media (max-width: 700px) {
-    min-height: 350px;
-    padding: 25px 15px;
+    padding: 20px 12px;
   }
 
   @media (max-width: 400px) {
-    min-height: 300px;
-    padding: 20px 10px;
+    padding: 15px 8px;
   }
 `;
 
@@ -68,22 +56,22 @@ export const EmptyCashContainer = styled(ContainerPage)`
 export const CashMessage = styled.div`
   width: min(560px, 100%);
 
-  padding: 42px 48px;
+  padding: 35px 40px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  text-align: center;
-
   box-sizing: border-box;
+
+  text-align: center;
 
   background: #ffffff;
 
   border: 1px solid #e4ddd7;
-  border-radius: 18px;
+  border-radius: 16px;
 
-  box-shadow: 0 8px 24px rgba(101, 48, 7, 0.07);
+  box-shadow: 0 6px 20px rgba(101, 48, 7, 0.06);
 
   transition:
     border-color 0.2s ease,
@@ -93,18 +81,18 @@ export const CashMessage = styled.div`
   &:hover {
     border-color: rgba(194, 158, 112, 0.7);
 
-    box-shadow: 0 10px 28px rgba(101, 48, 7, 0.1);
+    box-shadow: 0 8px 24px rgba(101, 48, 7, 0.09);
 
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   svg {
-    width: 58px;
-    height: 58px;
+    width: 52px;
+    height: 52px;
 
-    padding: 15px;
+    padding: 13px;
 
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 
     box-sizing: border-box;
 
@@ -116,11 +104,11 @@ export const CashMessage = styled.div`
   }
 
   h2 {
-    margin: 0 0 10px;
+    margin: 0 0 9px;
 
     color: #653007;
 
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 700;
 
     line-height: 1.3;
@@ -129,36 +117,40 @@ export const CashMessage = styled.div`
   p {
     max-width: 420px;
 
-    margin: 0 0 8px;
+    margin: 0 0 7px;
 
     color: #5f5751;
 
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
 
     line-height: 1.5;
+
+    strong {
+      color: #653007;
+    }
   }
 
   span {
     color: #8a7c70;
 
-    font-size: 13px;
+    font-size: 12.5px;
 
     line-height: 1.5;
   }
 
   @media (max-width: 600px) {
-    padding: 30px 25px;
+    padding: 28px 22px;
 
     border-radius: 14px;
 
     svg {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
 
-      padding: 13px;
+      padding: 12px;
 
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     h2 {
@@ -166,7 +158,7 @@ export const CashMessage = styled.div`
     }
 
     p {
-      font-size: 14px;
+      font-size: 13.5px;
     }
 
     span {
@@ -175,11 +167,11 @@ export const CashMessage = styled.div`
   }
 
   @media (max-width: 400px) {
-    padding: 25px 18px;
+    padding: 24px 17px;
 
     svg {
-      width: 45px;
-      height: 45px;
+      width: 44px;
+      height: 44px;
 
       padding: 11px;
     }
@@ -190,6 +182,10 @@ export const CashMessage = styled.div`
 
     p {
       font-size: 13px;
+    }
+
+    span {
+      font-size: 11.5px;
     }
   }
 `;
@@ -213,6 +209,6 @@ export const CashMessageLink = styled(NavLink)`
 
     outline-offset: 5px;
 
-    border-radius: 20px;
+    border-radius: 18px;
   }
 `;

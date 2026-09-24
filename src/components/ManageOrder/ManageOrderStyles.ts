@@ -1,24 +1,21 @@
 import styled from "styled-components";
 
-/* =========================================================
-   CONTENEDOR PRINCIPAL
-========================================================= */
+// =========================================================
+// CONTENEDOR PRINCIPAL
+// =========================================================
 
 export const ContainerManageOrders = styled.div`
   width: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  gap: 15px;
-
-  padding: 15px;
+  gap: 18px;
 
   box-sizing: border-box;
+
+  flex-shrink: 0;
 
   .paid {
     background-color: #7bcf90;
@@ -35,101 +32,261 @@ export const ContainerManageOrders = styled.div`
     color: #a33a3a;
   }
 
-  > div {
+  /*
+    =========================================================
+    TABLA DE ORDERS
+    =========================================================
+  */
+
+  .orders-table {
     width: 100%;
-    max-width: 100%;
-    min-width: 0;
+
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+
+    /*
+      Evita que la tabla se reduzca verticalmente
+      por el comportamiento del contenedor flex.
+      Mantiene la misma altura visual que Products
+      y Promotions.
+    */
+    flex-shrink: 0;
+
+    box-sizing: border-box;
+
+    @media (max-width: 900px) {
+      .table-header {
+        grid-template-columns:
+          minmax(0, 1fr)
+          80px
+          120px;
+
+        gap: 10px;
+      }
+
+      .table-header-1,
+      .table-header-3 {
+        display: none;
+      }
+
+      .orders-table-row {
+        grid-template-columns:
+          minmax(0, 1fr)
+          80px
+          120px;
+
+        gap: 10px;
+      }
+
+      .orders-table-row .quantity,
+      .orders-table-row .payment-method {
+        display: none;
+      }
+
+      .orders-table-row .order-number {
+        min-width: 0;
+      }
+
+      .orders-table-row .payment-status {
+        text-align: center;
+
+        white-space: nowrap;
+      }
+
+      .orders-table-row .actions {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 0;
+      }
+
+      .orders-table-row .actions .active,
+      .orders-table-row .actions .inactive {
+        display: none;
+      }
+
+      .orders-table-row .actions button {
+        width: 32px;
+
+        min-width: 32px;
+
+        height: 32px;
+
+        padding: 6px;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 0;
+
+        flex-shrink: 0;
+      }
+
+      .orders-table-row .actions button svg {
+        width: 15px;
+
+        height: 15px;
+
+        flex-shrink: 0;
+      }
+    }
+
+    /*
+      =======================================================
+      CELULAR
+      =======================================================
+    */
+
+    @media (max-width: 600px) {
+      .table-header {
+        grid-template-columns:
+          minmax(0, 1fr)
+          55px
+          80px;
+
+        gap: 6px;
+
+        padding: 9px 8px;
+      }
+
+      .table-header-1,
+      .table-header-3 {
+        display: none;
+      }
+
+      .orders-table-row {
+        grid-template-columns:
+          minmax(0, 1fr)
+          55px
+          80px;
+
+        gap: 6px;
+
+        padding: 10px 8px;
+      }
+
+      .table-header h4 {
+        font-size: 9px;
+      }
+
+      .orders-table-row {
+        font-size: 11px;
+      }
+
+      .orders-table-row .actions {
+        gap: 4px;
+      }
+
+      .orders-table-row .actions button {
+        width: 30px;
+
+        min-width: 30px;
+
+        height: 30px;
+
+        padding: 6px;
+      }
+
+      .orders-table-row .actions button svg {
+        width: 14px;
+
+        height: 14px;
+      }
+    }
+
+    /*
+      =======================================================
+      CELULAR PEQUEÑO
+      =======================================================
+    */
+
+    @media (max-width: 400px) {
+      .table-header {
+        grid-template-columns:
+          minmax(0, 1fr)
+          48px
+          72px;
+
+        gap: 4px;
+
+        padding: 8px 6px;
+      }
+
+      .table-header-1,
+      .table-header-3 {
+        display: none;
+      }
+
+      .orders-table-row {
+        grid-template-columns:
+          minmax(0, 1fr)
+          48px
+          72px;
+
+        gap: 4px;
+
+        padding: 9px 6px;
+      }
+
+      .table-header h4 {
+        font-size: 8px;
+      }
+
+      .orders-table-row {
+        font-size: 10px;
+      }
+
+      .orders-table-row .actions {
+        gap: 3px;
+      }
+
+      .orders-table-row .actions button {
+        width: 28px;
+
+        min-width: 28px;
+
+        height: 28px;
+
+        padding: 5px;
+      }
+
+      .orders-table-row .actions button svg {
+        width: 13px;
+
+        height: 13px;
+      }
+    }
   }
 
+  /*
+    =========================================================
+    ESPACIADO RESPONSIVE
+    =========================================================
+  */
+
   @media (max-width: 850px) {
-    gap: 12px;
-    padding: 12px;
+    gap: 16px;
   }
 
   @media (max-width: 600px) {
-    gap: 10px;
-    padding: 10px 8px;
-
-    /*
-     * =====================================================
-     * HEADER DE LA TABLA
-     *
-     * En móvil tenemos:
-     *
-     * 1. Comanda
-     * 2. Nombre
-     * 3. Tipo de pago
-     * 4. Acciones
-     *
-     * ListTableStyles oculta por defecto el cuarto header,
-     * así que lo volvemos a mostrar específicamente acá.
-     * =====================================================
-     */
-
-    > div > div:first-child h4:nth-child(4) {
-      display: block;
-    }
-
-    /*
-     * Aseguramos que las 4 columnas del header
-     * tengan espacio suficiente.
-     */
-
-    > div > div:first-child {
-      grid-template-columns:
-        minmax(0, 1.4fr)
-        minmax(0, 1.8fr)
-        minmax(0, 1fr)
-        minmax(0, 0.9fr);
-
-      gap: 5px;
-    }
-
-    /*
-     * =====================================================
-     * FILAS
-     * =====================================================
-     */
-
-    .order-row {
-      grid-template-columns:
-        minmax(0, 1.4fr)
-        minmax(0, 1.8fr)
-        minmax(0, 1fr)
-        minmax(0, 0.9fr);
-
-      gap: 5px;
-    }
+    gap: 14px;
   }
 
   @media (max-width: 400px) {
-    padding: 8px 6px;
-
-    > div > div:first-child {
-      grid-template-columns:
-        minmax(0, 1.3fr)
-        minmax(0, 1.7fr)
-        minmax(0, 0.9fr)
-        minmax(0, 0.8fr);
-
-      gap: 4px;
-    }
-
-    .order-row {
-      grid-template-columns:
-        minmax(0, 1.3fr)
-        minmax(0, 1.7fr)
-        minmax(0, 0.9fr)
-        minmax(0, 0.8fr);
-
-      gap: 4px;
-    }
+    gap: 12px;
   }
 `;
 
-/* =========================================================
-   HEADER ORDERS
-========================================================= */
+// =========================================================
+// HEADER ORDERS
+// =========================================================
 
 export const HeaderOrders = styled.div`
   width: 80%;
@@ -157,9 +314,9 @@ export const HeaderOrders = styled.div`
   }
 `;
 
-/* =========================================================
-   TÍTULO
-========================================================= */
+// =========================================================
+// TÍTULO
+// =========================================================
 
 export const TitleContainer = styled.div`
   display: flex;
@@ -209,9 +366,9 @@ export const TitleContainer = styled.div`
   }
 `;
 
-/* =========================================================
-   FILTROS
-========================================================= */
+// =========================================================
+// FILTROS
+// =========================================================
 
 export const Filter = styled.div`
   width: 80%;
@@ -285,9 +442,9 @@ export const Filter = styled.div`
   }
 `;
 
-/* =========================================================
-   ACCIONES
-========================================================= */
+// =========================================================
+// ACCIONES
+// =========================================================
 
 export const Actions = styled.div`
   min-width: 0;
@@ -300,19 +457,20 @@ export const Actions = styled.div`
 
   gap: 10px;
 
-  @media (max-width: 600px) {
-    justify-content: flex-end;
+  @media (max-width: 900px) {
+    justify-content: center;
+
     gap: 3px;
   }
 
-  @media (max-width: 400px) {
+  @media (max-width: 600px) {
     gap: 2px;
   }
 `;
 
-/* =========================================================
-   BOTONES DE ACCIÓN
-========================================================= */
+// =========================================================
+// BOTONES DE ACCIÓN
+// =========================================================
 
 export const ActionButton = styled.button`
   width: 30px;
@@ -324,6 +482,8 @@ export const ActionButton = styled.button`
   justify-content: center;
 
   align-items: center;
+
+  flex-shrink: 0;
 
   padding: 0;
 
@@ -354,33 +514,56 @@ export const ActionButton = styled.button`
 
   svg {
     width: 18px;
+
     height: 18px;
+  }
+
+  @media (max-width: 900px) {
+    width: 30px;
+
+    min-width: 30px;
+
+    height: 30px;
+
+    svg {
+      width: 16px;
+
+      height: 16px;
+    }
   }
 
   @media (max-width: 600px) {
     width: 28px;
+
+    min-width: 28px;
+
     height: 28px;
 
     svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+
+      height: 15px;
     }
   }
 
   @media (max-width: 400px) {
     width: 26px;
+
+    min-width: 26px;
+
     height: 26px;
 
     svg {
-      width: 15px;
-      height: 15px;
+      width: 14px;
+
+      height: 14px;
     }
   }
 `;
 
-/* =========================================================
-   ESTADO
-========================================================= */
+// =========================================================
+// ESTADO
+// =========================================================
 
 export const Status = styled.span`
   display: inline-flex;
@@ -401,22 +584,20 @@ export const Status = styled.span`
 
   &.active {
     background-color: #d9f7e5;
+
     color: #08752f;
   }
 
   &.inactive {
     background-color: #f8d9d9;
-    color: #9b1c1c;
-  }
 
-  @media (max-width: 600px) {
-    display: none;
+    color: #9b1c1c;
   }
 `;
 
-/* =========================================================
-   OPCIONES DEL MODAL
-========================================================= */
+// =========================================================
+// OPCIONES DEL MODAL
+// =========================================================
 
 export const OrderOptions = styled.div`
   width: 100%;
@@ -434,9 +615,9 @@ export const OrderOptions = styled.div`
   }
 `;
 
-/* =========================================================
-   INFORMACIÓN DEL MODAL
-========================================================= */
+// =========================================================
+// INFORMACIÓN DEL MODAL
+// =========================================================
 
 export const OrderInfo = styled.div`
   display: flex;
@@ -508,9 +689,9 @@ export const OrderInfo = styled.div`
   }
 `;
 
-/* =========================================================
-   PRODUCTOS
-========================================================= */
+// =========================================================
+// PRODUCTOS
+// =========================================================
 
 export const OrderItems = styled.div`
   display: flex;
@@ -534,9 +715,9 @@ export const OrderItems = styled.div`
   }
 `;
 
-/* =========================================================
-   ITEM
-========================================================= */
+// =========================================================
+// ITEM
+// =========================================================
 
 export const OrderItem = styled.div`
   display: flex;
@@ -580,9 +761,9 @@ export const OrderItem = styled.div`
   }
 `;
 
-/* =========================================================
-   ACCIONES DEL MODAL
-========================================================= */
+// =========================================================
+// ACCIONES DEL MODAL
+// =========================================================
 
 export const OrderActions = styled.div`
   display: flex;
@@ -594,9 +775,9 @@ export const OrderActions = styled.div`
   margin-top: 5px;
 `;
 
-/* =========================================================
-   CANCELAR
-========================================================= */
+// =========================================================
+// CANCELAR
+// =========================================================
 
 export const CancelButton = styled.button`
   width: 100%;
@@ -636,9 +817,9 @@ export const CancelButton = styled.button`
   }
 `;
 
-/* =========================================================
-   CAMBIAR ESTADO
-========================================================= */
+// =========================================================
+// CAMBIAR ESTADO
+// =========================================================
 
 export const StatusButton = styled.button`
   width: 100%;
@@ -680,9 +861,9 @@ export const StatusButton = styled.button`
   }
 `;
 
-/* =========================================================
-   SIN COMANDAS
-========================================================= */
+// =========================================================
+// SIN COMANDAS
+// =========================================================
 
 export const EmptyMessage = styled.div`
   width: 100%;

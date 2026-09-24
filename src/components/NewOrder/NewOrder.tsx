@@ -1,7 +1,13 @@
 import { useMemo, useState } from "react";
 import { Formik } from "formik";
 
-import { ContainerNewOrder, MainOrder, OrderForm } from "./NewOrderStyles";
+import {
+  ContainerNewOrder,
+  MainOrder,
+  OrderForm,
+  MobileOrderSelector,
+  MobileOrderButton,
+} from "./NewOrderStyles";
 
 import type {
   ICreateOrder,
@@ -16,7 +22,10 @@ import type { Promotion } from "../../interfaces/Promotion";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import type { AppDispatch, RootState } from "../../store/store";
+import type {
+  AppDispatch,
+  RootState,
+} from "../../store/store";
 
 import { createOrderAPI } from "../../services/orderService.ts";
 
@@ -24,7 +33,10 @@ import { setOrders } from "../../store/slices/orderSlice.ts";
 
 import axios from "axios";
 
-import type { Dispatch, SetStateAction } from "react";
+import type {
+  Dispatch,
+  SetStateAction,
+} from "react";
 
 import ProductsForOrder from "../ProductsForOrder/ProductsForOrder.tsx";
 
@@ -39,12 +51,17 @@ import { OrderSchema } from "../Schemas/OrderSchema.tsx";
 import { getCashMovementsAPI } from "../../services/cashMovementService.ts";
 
 import { setCashMovements } from "../../store/slices/cashMovementSlice.ts";
+
 import { getAxiosErrorMessage } from "../Utils/ErrorAxios.tsx";
+
 import { buildOrderTicket } from "../Utils/OrderTicket.ts";
+
 import { printOrderAPI } from "../../services/printAgentService.ts";
 
 interface NewOrderProps {
-  $setSelected: Dispatch<SetStateAction<"create" | "manage">>;
+  $setSelected: Dispatch<
+    SetStateAction<"create" | "manage">
+  >;
 }
 
 export interface AppliedPromotion {
@@ -60,50 +77,84 @@ interface PromotionMatch {
   quantity: number;
 }
 
-const NewOrder = ({ $setSelected }: NewOrderProps) => {
+const NewOrder = ({
+  $setSelected,
+}: NewOrderProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const [mobileSection, setMobileSection] =
+    useState<"products" | "order">(
+      "products",
+    );
+
   const allProducts = useSelector(
-    (state: RootState) => state.products.products,
+    (state: RootState) =>
+      state.products.products,
   );
 
-  const products = allProducts.filter((item) => item.status === true);
+  const products = allProducts.filter(
+    (item) => item.status === true,
+  );
 
-  const allOrders = useSelector((state: RootState) => state.orders.orders);
+  const allOrders = useSelector(
+    (state: RootState) =>
+      state.orders.orders,
+  );
 
-  const selectedDay = useSelector((state: RootState) => state.daySelected.day);
+  const selectedDay = useSelector(
+    (state: RootState) =>
+      state.daySelected.day,
+  );
 
   const selectedShift = useSelector(
-    (state: RootState) => state.daySelected.shift,
+    (state: RootState) =>
+      state.daySelected.shift,
   );
 
   const cashRegisters = useSelector(
-    (state: RootState) => state.cashRegister.cashRegister,
+    (state: RootState) =>
+      state.cashRegister.cashRegister,
   );
 
   const [errors, setErrors] = useState("");
 
   const promotions = useSelector(
-    (state: RootState) => state.promotion.promotions,
+    (state: RootState) =>
+      state.promotion.promotions,
   );
 
   const selectedCashRegister = useMemo(
     () =>
       cashRegisters.find(
         (cashRegister) =>
-          cashRegister.date === selectedDay &&
-          cashRegister.shift === selectedShift,
+          cashRegister.date ===
+            selectedDay &&
+          cashRegister.shift ===
+            selectedShift,
       ),
-    [cashRegisters, selectedDay, selectedShift],
+    [
+      cashRegisters,
+      selectedDay,
+      selectedShift,
+    ],
   );
 
-  const OrdersForCash = allOrders.filter(
-    (item) => item.cash_register_id === selectedCashRegister?.id,
-  );
+  const OrdersForCash =
+    allOrders.filter(
+      (item) =>
+        item.cash_register_id ===
+        selectedCashRegister?.id,
+    );
 
-  const nextOrderNumber = OrdersForCash.length
-    ? Math.max(...OrdersForCash.map((order) => order.order_number)) + 1
-    : 1;
+  const nextOrderNumber =
+    OrdersForCash.length
+      ? Math.max(
+          ...OrdersForCash.map(
+            (order) =>
+              order.order_number,
+          ),
+        ) + 1
+      : 1;
 
   const initialValues: OrderFormValues = {
     customer_name: "",
@@ -122,64 +173,103 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
 
   const findPromotionMatch = (
     promotion: Promotion,
-    availableItems: Map<string, number>,
+    availableItems: Map<
+      string,
+      number
+    >,
   ): PromotionMatch | null => {
-    if (!promotion.status || !promotion.items.length) {
+    if (
+      !promotion.status ||
+      !promotion.items.length
+    ) {
       return null;
     }
 
-    const selections: PromotionSelection[] = [];
+    const selections: PromotionSelection[] =
+      [];
 
-    const consumed = new Map<string, number>();
+    const consumed = new Map<
+      string,
+      number
+    >();
 
     for (
       let groupIndex = 0;
-      groupIndex < promotion.items.length;
+      groupIndex <
+      promotion.items.length;
       groupIndex++
     ) {
-      const group = promotion.items[groupIndex];
+      const group =
+        promotion.items[groupIndex];
 
-      let remainingGroupQuantity = group.quantity;
+      let remainingGroupQuantity =
+        group.quantity;
 
       for (const productId of group.product_ids) {
-        if (remainingGroupQuantity <= 0) {
+        if (
+          remainingGroupQuantity <= 0
+        ) {
           break;
         }
 
-        const available = availableItems.get(productId) ?? 0;
+        const available =
+          availableItems.get(
+            productId,
+          ) ?? 0;
 
         if (available <= 0) {
           continue;
         }
 
-        const quantityToUse = Math.min(available, remainingGroupQuantity);
+        const quantityToUse =
+          Math.min(
+            available,
+            remainingGroupQuantity,
+          );
 
         if (quantityToUse > 0) {
           selections.push({
-            promotion_item_id: group.id,
-            product_id: productId,
-            quantity: quantityToUse,
+            promotion_item_id:
+              group.id,
+            product_id:
+              productId,
+            quantity:
+              quantityToUse,
           });
 
           consumed.set(
             productId,
-            (consumed.get(productId) ?? 0) + quantityToUse,
+            (consumed.get(
+              productId,
+            ) ?? 0) +
+              quantityToUse,
           );
 
-          remainingGroupQuantity -= quantityToUse;
+          remainingGroupQuantity -=
+            quantityToUse;
         }
       }
 
-      if (remainingGroupQuantity > 0) {
+      if (
+        remainingGroupQuantity > 0
+      ) {
         return null;
       }
     }
 
-    consumed.forEach((quantity, productId) => {
-      const current = availableItems.get(productId) ?? 0;
+    consumed.forEach(
+      (quantity, productId) => {
+        const current =
+          availableItems.get(
+            productId,
+          ) ?? 0;
 
-      availableItems.set(productId, current - quantity);
-    });
+        availableItems.set(
+          productId,
+          current - quantity,
+        );
+      },
+    );
 
     return {
       promotion,
@@ -197,41 +287,63 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
   const getAppliedPromotions = (
     orderItems: OrderItemForm[],
   ): AppliedPromotion[] => {
-    if (!orderItems.length || !promotions.length) {
+    if (
+      !orderItems.length ||
+      !promotions.length
+    ) {
       return [];
     }
 
-    const availableItems = new Map<string, number>();
+    const availableItems = new Map<
+      string,
+      number
+    >();
 
     orderItems.forEach((item) => {
-      availableItems.set(item.product_id, item.quantity);
+      availableItems.set(
+        item.product_id,
+        item.quantity,
+      );
     });
 
-    const result: AppliedPromotion[] = [];
+    const result: AppliedPromotion[] =
+      [];
 
     for (const promotion of promotions) {
       let promotionQuantity = 0;
 
-      const allSelections: PromotionSelection[] = [];
+      const allSelections: PromotionSelection[] =
+        [];
 
       while (true) {
-        const match = findPromotionMatch(promotion, availableItems);
+        const match =
+          findPromotionMatch(
+            promotion,
+            availableItems,
+          );
 
         if (!match) {
           break;
         }
 
-        promotionQuantity += match.quantity;
+        promotionQuantity +=
+          match.quantity;
 
-        allSelections.push(...match.selections);
+        allSelections.push(
+          ...match.selections,
+        );
       }
 
       if (promotionQuantity > 0) {
         result.push({
           promotion,
-          quantity: promotionQuantity,
-          selections: allSelections,
-          totalPrice: promotion.price * promotionQuantity,
+          quantity:
+            promotionQuantity,
+          selections:
+            allSelections,
+          totalPrice:
+            promotion.price *
+            promotionQuantity,
         });
       }
     }
@@ -249,40 +361,67 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
     orderItems: OrderItemForm[],
     appliedPromotions: AppliedPromotion[],
   ): ICreateOrderItem[] => {
-    const consumed = new Map<string, number>();
+    const consumed = new Map<
+      string,
+      number
+    >();
 
-    const result: ICreateOrderItem[] = [];
+    const result: ICreateOrderItem[] =
+      [];
 
-    appliedPromotions.forEach((applied) => {
-      applied.selections.forEach((selection) => {
-        const current = consumed.get(selection.product_id) ?? 0;
+    appliedPromotions.forEach(
+      (applied) => {
+        applied.selections.forEach(
+          (selection) => {
+            const current =
+              consumed.get(
+                selection.product_id,
+              ) ?? 0;
 
-        consumed.set(selection.product_id, current + selection.quantity);
-      });
+            consumed.set(
+              selection.product_id,
+              current +
+                selection.quantity,
+            );
+          },
+        );
 
-      result.push({
-        item_type: "promotion",
-        product_id: null,
-        promotion_id: applied.promotion.id,
-        quantity: applied.quantity,
-        promotion_selections: applied.selections,
-      });
-    });
+        result.push({
+          item_type: "promotion",
+          product_id: null,
+          promotion_id:
+            applied.promotion.id,
+          quantity:
+            applied.quantity,
+          promotion_selections:
+            applied.selections,
+        });
+      },
+    );
 
     orderItems.forEach((item) => {
-      const consumedQuantity = consumed.get(item.product_id) ?? 0;
+      const consumedQuantity =
+        consumed.get(
+          item.product_id,
+        ) ?? 0;
 
-      const remainingQuantity = item.quantity - consumedQuantity;
+      const remainingQuantity =
+        item.quantity -
+        consumedQuantity;
 
-      if (remainingQuantity <= 0) {
+      if (
+        remainingQuantity <= 0
+      ) {
         return;
       }
 
       result.push({
         item_type: "product",
-        product_id: item.product_id,
+        product_id:
+          item.product_id,
         promotion_id: null,
-        quantity: remainingQuantity,
+        quantity:
+          remainingQuantity,
         promotion_selections: [],
       });
     });
@@ -294,17 +433,25 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
     <Formik
       initialValues={initialValues}
       validationSchema={OrderSchema}
-      onSubmit={async (values, { resetForm }) => {
+      onSubmit={async (
+        values,
+        { resetForm },
+      ) => {
         try {
           setErrors("");
 
           if (!selectedCashRegister) {
-            setErrors("No existe una caja para el día y turno seleccionados.");
+            setErrors(
+              "No existe una caja para el día y turno seleccionados.",
+            );
 
             return;
           }
 
-          if (selectedCashRegister.status_cash_register !== "open") {
+          if (
+            selectedCashRegister.status_cash_register !==
+            "open"
+          ) {
             setErrors(
               "La caja seleccionada no está abierta. Abrí la caja antes de crear una comanda.",
             );
@@ -312,23 +459,45 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
             return;
           }
 
-          const appliedPromotions = getAppliedPromotions(values.items);
+          const appliedPromotions =
+            getAppliedPromotions(
+              values.items,
+            );
 
-          const orderItems = buildOrderItems(values.items, appliedPromotions);
+          const orderItems =
+            buildOrderItems(
+              values.items,
+              appliedPromotions,
+            );
 
           const order: ICreateOrder = {
-            order_number: nextOrderNumber,
-            customer_name: values.customer_name,
+            order_number:
+              nextOrderNumber,
+            customer_name:
+              values.customer_name,
             items: orderItems,
-            method_payment: values.method_payment,
-            status_payment: values.status_payment,
-            delivery_time: values.delivery_time,
-            cash_register_id: selectedCashRegister.id,
+            method_payment:
+              values.method_payment,
+            status_payment:
+              values.status_payment,
+            delivery_time:
+              values.delivery_time,
+            cash_register_id:
+              selectedCashRegister.id,
             status: true,
           };
-          const createdOrder = await createOrderAPI(order);
 
-          dispatch(setOrders([...allOrders, createdOrder]));
+          const createdOrder =
+            await createOrderAPI(
+              order,
+            );
+
+          dispatch(
+            setOrders([
+              ...allOrders,
+              createdOrder,
+            ]),
+          );
 
           /*
            * ============================================================
@@ -337,16 +506,15 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
            */
 
           try {
-            const ticket = buildOrderTicket(createdOrder);
+            const ticket =
+              buildOrderTicket(
+                createdOrder,
+              );
 
-            console.log("TICKET A IMPRIMIR:");
-            console.log(ticket);
-
-            await printOrderAPI(ticket);
-
-            console.log(
-              `Comanda #${createdOrder.order_number} enviada a impresión.`,
+            await printOrderAPI(
+              ticket,
             );
+
           } catch (printError) {
             console.error(
               "La comanda fue creada, pero no pudo imprimirse:",
@@ -359,52 +527,120 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
           }
 
           try {
-            const updatedProducts = await getProductsAPI();
+            const updatedProducts =
+              await getProductsAPI();
 
-            dispatch(setProducts(updatedProducts));
+            dispatch(
+              setProducts(
+                updatedProducts,
+              ),
+            );
           } catch (error) {
-            if (axios.isAxiosError(error)) {
-              console.log("ERROR AXIOS:", error);
-              console.log("STATUS:", error.response?.status);
-              console.log("DATA:", error.response?.data);
-              console.log("DETAIL:", error.response?.data?.detail);
-              console.log("MESSAGE:", error.response?.data?.message);
+            if (
+              axios.isAxiosError(
+                error,
+              )
+            ) {
+              console.log(
+                "ERROR AXIOS:",
+                error,
+              );
+              console.log(
+                "STATUS:",
+                error.response
+                  ?.status,
+              );
+              console.log(
+                "DATA:",
+                error.response?.data,
+              );
+              console.log(
+                "DETAIL:",
+                error.response?.data
+                  ?.detail,
+              );
+              console.log(
+                "MESSAGE:",
+                error.response?.data
+                  ?.message,
+              );
 
               setErrors(
-                error.response?.data?.detail ??
-                  error.response?.data?.message ??
+                error.response?.data
+                  ?.detail ??
+                  error.response?.data
+                    ?.message ??
                   error.message ??
                   "Ocurrió un error.",
               );
             } else {
-              console.error("ERROR DESCONOCIDO:", error);
+              console.error(
+                "ERROR DESCONOCIDO:",
+                error,
+              );
 
-              setErrors("Ocurrió un error inesperado.");
+              setErrors(
+                "Ocurrió un error inesperado.",
+              );
             }
           }
 
           try {
-            const updatedMovements = await getCashMovementsAPI();
+            const updatedMovements =
+              await getCashMovementsAPI();
 
-            dispatch(setCashMovements(updatedMovements));
+            dispatch(
+              setCashMovements(
+                updatedMovements,
+              ),
+            );
           } catch (error) {
-            if (axios.isAxiosError(error)) {
-              console.log("ERROR AXIOS:", error);
-              console.log("STATUS:", error.response?.status);
-              console.log("DATA:", error.response?.data);
-              console.log("DETAIL:", error.response?.data?.detail);
-              console.log("MESSAGE:", error.response?.data?.message);
+            if (
+              axios.isAxiosError(
+                error,
+              )
+            ) {
+              console.log(
+                "ERROR AXIOS:",
+                error,
+              );
+              console.log(
+                "STATUS:",
+                error.response
+                  ?.status,
+              );
+              console.log(
+                "DATA:",
+                error.response?.data,
+              );
+              console.log(
+                "DETAIL:",
+                error.response?.data
+                  ?.detail,
+              );
+              console.log(
+                "MESSAGE:",
+                error.response?.data
+                  ?.message,
+              );
 
               setErrors(
-                error.response?.data?.detail ??
-                  error.response?.data?.message ??
+                error.response?.data
+                  ?.detail ??
+                  error.response?.data
+                    ?.message ??
                   error.message ??
                   "Ocurrió un error.",
               );
             } else {
-              console.error("ERROR DESCONOCIDO:", error);
+              console.error(
+                "ERROR DESCONOCIDO:",
+                error,
+              );
 
-              setErrors("Ocurrió un error inesperado.");
+              setErrors(
+                "Ocurrió un error inesperado.",
+              );
             }
           }
 
@@ -412,148 +648,232 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
 
           $setSelected("manage");
         } catch (error) {
-          const message = getAxiosErrorMessage(error);
+          const message =
+            getAxiosErrorMessage(
+              error,
+            );
 
           setErrors(message);
         }
       }}
     >
-      {({ values, setFieldValue, isSubmitting }) => {
-        const getProduct = (id: string) =>
-          products.find((product) => product.id === id);
-
-        const appliedPromotions = getAppliedPromotions(values.items);
-
-        const addProduct = (product: Product) => {
-          setErrors("");
-
-          const existing = values.items.find(
-            (item) => item.product_id === product.id,
+      {({
+        values,
+        setFieldValue,
+        isSubmitting,
+      }) => {
+        const getProduct = (
+          id: string,
+        ) =>
+          products.find(
+            (product) =>
+              product.id === id,
           );
 
+        const appliedPromotions =
+          getAppliedPromotions(
+            values.items,
+          );
+
+        const addProduct = (
+          product: Product,
+        ) => {
+          setErrors("");
+
+          const existing =
+            values.items.find(
+              (item) =>
+                item.product_id ===
+                product.id,
+            );
+
           if (existing) {
-            if (existing.quantity >= product.quantity) {
+            if (
+              existing.quantity >=
+              product.quantity
+            ) {
               return;
             }
 
             setFieldValue(
               "items",
-              values.items.map((item) =>
-                item.product_id === product.id
-                  ? {
-                      ...item,
-                      quantity: item.quantity + 1,
-                    }
-                  : item,
+              values.items.map(
+                (item) =>
+                  item.product_id ===
+                  product.id
+                    ? {
+                        ...item,
+                        quantity:
+                          item.quantity +
+                          1,
+                      }
+                    : item,
               ),
             );
 
             return;
           }
 
-          if (product.quantity <= 0) {
+          if (
+            product.quantity <= 0
+          ) {
             return;
           }
 
-          setFieldValue("items", [
-            ...values.items,
-            {
-              product_id: product.id,
-              quantity: 1,
-            },
-          ]);
+          setFieldValue(
+            "items",
+            [
+              ...values.items,
+              {
+                product_id:
+                  product.id,
+                quantity: 1,
+              },
+            ],
+          );
         };
 
-        const addPromotion = (promotion: Promotion) => {
+        const addPromotion = (
+          promotion: Promotion,
+        ) => {
           setErrors("");
 
-          const availableItems = new Map<string, number>();
+          const availableItems =
+            new Map<
+              string,
+              number
+            >();
 
-          values.items.forEach((item) => {
-            availableItems.set(item.product_id, item.quantity);
-          });
+          values.items.forEach(
+            (item) => {
+              availableItems.set(
+                item.product_id,
+                item.quantity,
+              );
+            },
+          );
 
-          /*
-           * Primero intentamos construir la promoción
-           * utilizando exactamente la misma lógica
-           * que utiliza getAppliedPromotions().
-           */
-
-          const match = findPromotionMatch(promotion, new Map(availableItems));
-
-          /*
-           * Agregamos los productos necesarios para
-           * formar la promoción.
-           */
-
-          const updatedItems = [...values.items];
-
-          match?.selections.forEach((selection) => {
-            const existingIndex = updatedItems.findIndex(
-              (item) => item.product_id === selection.product_id,
+          const match =
+            findPromotionMatch(
+              promotion,
+              new Map(
+                availableItems,
+              ),
             );
 
-            if (existingIndex >= 0) {
-              updatedItems[existingIndex] = {
-                ...updatedItems[existingIndex],
-                quantity:
-                  updatedItems[existingIndex].quantity + selection.quantity,
-              };
-            } else {
-              updatedItems.push({
-                product_id: selection.product_id,
-                quantity: selection.quantity,
-              });
-            }
-          });
+          const updatedItems = [
+            ...values.items,
+          ];
 
-          setFieldValue("items", updatedItems);
+          match?.selections.forEach(
+            (selection) => {
+              const existingIndex =
+                updatedItems.findIndex(
+                  (item) =>
+                    item.product_id ===
+                    selection.product_id,
+                );
+
+              if (
+                existingIndex >= 0
+              ) {
+                updatedItems[
+                  existingIndex
+                ] = {
+                  ...updatedItems[
+                    existingIndex
+                  ],
+                  quantity:
+                    updatedItems[
+                      existingIndex
+                    ].quantity +
+                    selection.quantity,
+                };
+              } else {
+                updatedItems.push({
+                  product_id:
+                    selection.product_id,
+                  quantity:
+                    selection.quantity,
+                });
+              }
+            },
+          );
+
+          setFieldValue(
+            "items",
+            updatedItems,
+          );
         };
-        const increaseQuantity = (id: string) => {
-          const product = getProduct(id);
+
+        const increaseQuantity = (
+          id: string,
+        ) => {
+          const product =
+            getProduct(id);
 
           if (!product) {
             return;
           }
 
-          const currentItem = values.items.find(
-            (item) => item.product_id === id,
-          );
+          const currentItem =
+            values.items.find(
+              (item) =>
+                item.product_id === id,
+            );
 
           if (!currentItem) {
             return;
           }
 
-          if (currentItem.quantity >= product.quantity) {
+          if (
+            currentItem.quantity >=
+            product.quantity
+          ) {
             return;
           }
 
           setFieldValue(
             "items",
-            values.items.map((item) =>
-              item.product_id === id
-                ? {
-                    ...item,
-                    quantity: item.quantity + 1,
-                  }
-                : item,
+            values.items.map(
+              (item) =>
+                item.product_id === id
+                  ? {
+                      ...item,
+                      quantity:
+                        item.quantity +
+                        1,
+                    }
+                  : item,
             ),
           );
         };
 
-        const decreaseQuantity = (id: string) => {
+        const decreaseQuantity = (
+          id: string,
+        ) => {
           setFieldValue(
             "items",
-            values.items.map((item) => {
-              if (item.product_id !== id) {
-                return item;
-              }
+            values.items.map(
+              (item) => {
+                if (
+                  item.product_id !==
+                  id
+                ) {
+                  return item;
+                }
 
-              return {
-                ...item,
-                quantity: Math.max(0, item.quantity - 1),
-              };
-            }),
+                return {
+                  ...item,
+                  quantity:
+                    Math.max(
+                      0,
+                      item.quantity -
+                        1,
+                    ),
+                };
+              },
+            ),
           );
         };
 
@@ -561,16 +881,24 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
          * ========================================================
          * SUBTOTAL
          * ========================================================
-         *
-         * Precio de todos los productos
-         * sin aplicar promociones.
          */
 
-        const subtotal = values.items.reduce((total, item) => {
-          const product = getProduct(item.product_id);
+        const subtotal =
+          values.items.reduce(
+            (total, item) => {
+              const product =
+                getProduct(
+                  item.product_id,
+                );
 
-          return product ? total + product.price * item.quantity : total;
-        }, 0);
+              return product
+                ? total +
+                    product.price *
+                      item.quantity
+                : total;
+            },
+            0,
+          );
 
         /*
          * ========================================================
@@ -578,18 +906,30 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
          * ========================================================
          */
 
-        const promotionConsumed = new Map<string, number>();
+        const promotionConsumed =
+          new Map<
+            string,
+            number
+          >();
 
-        appliedPromotions.forEach((applied) => {
-          applied.selections.forEach((selection) => {
-            const current = promotionConsumed.get(selection.product_id) ?? 0;
+        appliedPromotions.forEach(
+          (applied) => {
+            applied.selections.forEach(
+              (selection) => {
+                const current =
+                  promotionConsumed.get(
+                    selection.product_id,
+                  ) ?? 0;
 
-            promotionConsumed.set(
-              selection.product_id,
-              current + selection.quantity,
+                promotionConsumed.set(
+                  selection.product_id,
+                  current +
+                    selection.quantity,
+                );
+              },
             );
-          });
-        });
+          },
+        );
 
         /*
          * ========================================================
@@ -597,19 +937,38 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
          * ========================================================
          */
 
-        const remainingProductsTotal = values.items.reduce((total, item) => {
-          const product = getProduct(item.product_id);
+        const remainingProductsTotal =
+          values.items.reduce(
+            (total, item) => {
+              const product =
+                getProduct(
+                  item.product_id,
+                );
 
-          if (!product) {
-            return total;
-          }
+              if (!product) {
+                return total;
+              }
 
-          const consumed = promotionConsumed.get(item.product_id) ?? 0;
+              const consumed =
+                promotionConsumed.get(
+                  item.product_id,
+                ) ?? 0;
 
-          const remaining = Math.max(0, item.quantity - consumed);
+              const remaining =
+                Math.max(
+                  0,
+                  item.quantity -
+                    consumed,
+                );
 
-          return total + product.price * remaining;
-        }, 0);
+              return (
+                total +
+                product.price *
+                  remaining
+              );
+            },
+            0,
+          );
 
         /*
          * ========================================================
@@ -617,10 +976,16 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
          * ========================================================
          */
 
-        const promotionsTotal = appliedPromotions.reduce(
-          (total, applied) => total + applied.totalPrice,
-          0,
-        );
+        const promotionsTotal =
+          appliedPromotions.reduce(
+            (
+              total,
+              applied,
+            ) =>
+              total +
+              applied.totalPrice,
+            0,
+          );
 
         /*
          * ========================================================
@@ -628,46 +993,124 @@ const NewOrder = ({ $setSelected }: NewOrderProps) => {
          * ========================================================
          */
 
-        const totalPrice = remainingProductsTotal + promotionsTotal;
+        const totalPrice =
+          remainingProductsTotal +
+          promotionsTotal;
 
         /*
          * ========================================================
          * DESCUENTO
          * ========================================================
-         *
-         * Subtotal normal
-         * -
-         * productos restantes + promociones
          */
 
-        const promotionDiscount = Math.max(0, subtotal - totalPrice);
+        const promotionDiscount =
+          Math.max(
+            0,
+            subtotal - totalPrice,
+          );
 
         return (
           <OrderForm>
             <ContainerNewOrder>
-              <MainOrder>
-                <ProductsForOrder
-                  products={products}
-                  items={values.items}
-                  addProduct={addProduct}
-                  increaseQuantity={increaseQuantity}
-                  decreaseQuantity={decreaseQuantity}
-                  addPromotion={addPromotion}
-                />
+              <MobileOrderSelector>
+                <MobileOrderButton
+                  type="button"
+                  $active={
+                    mobileSection ===
+                    "products"
+                  }
+                  onClick={() =>
+                    setMobileSection(
+                      "products",
+                    )
+                  }
+                >
+                  🛒 Productos
+                </MobileOrderButton>
 
-                <CreateOrder
-                  nextOrderNumber={nextOrderNumber}
-                  values={values}
-                  subtotal={subtotal}
-                  promotionDiscount={promotionDiscount}
-                  totalPrice={totalPrice}
-                  getProduct={getProduct}
-                  increaseQuantity={increaseQuantity}
-                  decreaseQuantity={decreaseQuantity}
-                  isSubmitting={isSubmitting}
-                  errors={errors}
-                  appliedPromotions={appliedPromotions}
-                />
+                <MobileOrderButton
+                  type="button"
+                  $active={
+                    mobileSection ===
+                    "order"
+                  }
+                  onClick={() =>
+                    setMobileSection(
+                      "order",
+                    )
+                  }
+                >
+                  🧾 Comanda
+                </MobileOrderButton>
+              </MobileOrderSelector>
+
+              <MainOrder>
+                <div
+                  className={
+                    mobileSection ===
+                    "products"
+                      ? "mobile-active"
+                      : "mobile-hidden"
+                  }
+                >
+                  <ProductsForOrder
+                    products={products}
+                    items={values.items}
+                    addProduct={
+                      addProduct
+                    }
+                    increaseQuantity={
+                      increaseQuantity
+                    }
+                    decreaseQuantity={
+                      decreaseQuantity
+                    }
+                    addPromotion={
+                      addPromotion
+                    }
+                  />
+                </div>
+
+                <div
+                  className={
+                    mobileSection ===
+                    "order"
+                      ? "mobile-active"
+                      : "mobile-hidden"
+                  }
+                >
+                  <CreateOrder
+                    nextOrderNumber={
+                      nextOrderNumber
+                    }
+                    values={values}
+                    subtotal={
+                      subtotal
+                    }
+                    promotionDiscount={
+                      promotionDiscount
+                    }
+                    totalPrice={
+                      totalPrice
+                    }
+                    getProduct={
+                      getProduct
+                    }
+                    increaseQuantity={
+                      increaseQuantity
+                    }
+                    decreaseQuantity={
+                      decreaseQuantity
+                    }
+                    isSubmitting={
+                      isSubmitting
+                    }
+                    errors={errors}
+                    appliedPromotions={
+                      appliedPromotions
+                    }
+                  />
+                </div>
               </MainOrder>
             </ContainerNewOrder>
           </OrderForm>
