@@ -4,7 +4,7 @@ export const ContainerPage = styled.main`
   width: 100%;
   height: calc(100dvh - 11dvh);
 
-  margin: 70px 0 0;
+  margin-top: 11dvh;
   padding: 25px;
 
   box-sizing: border-box;
