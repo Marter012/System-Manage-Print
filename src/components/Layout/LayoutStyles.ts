@@ -8,11 +8,12 @@ export const LayoutContainer = styled.div`
   background-color: #f0dcbc;
 
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
 
   display: flex;
   flex-direction: column;
 
   position: relative;
+  background-color: black;
 `;

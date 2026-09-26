@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const ContainerPage = styled.main`
   width: 100%;
-  height: calc(100dvh - 11dvh);
+  height: 90dvh;
 
   margin: 11dvh 0 0;
   padding: 25px;
@@ -18,6 +18,7 @@ export const ContainerPage = styled.main`
   overflow-y: auto;
 
   scrollbar-width: none;
+
 
   /* =========================
      HOME
