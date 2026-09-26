@@ -8,7 +8,6 @@ export const CashDayContent = styled.div`
   width: 100%;
   height: 100%;
   min-width: 0;
-  background-color: blue;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -876,7 +875,6 @@ export const CashContent = styled.div`
    */
   min-height: 0;
   height: 80%;
-  background-color: red;
 
   box-sizing: border-box;
 
@@ -889,7 +887,6 @@ export const CashContent = styled.div`
   .cash-movements {
     min-width: 0;
     min-height: 0;
-    background-color: black;
 
     /*
      * Ocupan exactamente el espacio que
