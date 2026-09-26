@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  MdCheckCircle,
-  MdError,
-  MdPrint,
-  MdRefresh,
-  MdWarning,
   MdCancel,
-  MdReceiptLong,
+  MdCheckCircle,
+  MdClose,
+  MdError,
   MdListAlt,
+  MdPrint,
+  MdReceiptLong,
+  MdRefresh,
+  MdSettings,
+  MdUsb,
+  MdWarning,
+  MdWifi,
+  MdWifiOff,
 } from "react-icons/md";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -16,16 +21,15 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store.ts";
 
 import {
+  cancelPrintJobAPI,
   getHealth,
   getPrintConfigAPI,
-  getPrintHistoryAPI,
   getPrintJobsAPI,
   getPrintersAPI,
   getPrinterStatusAPI,
-  cancelPrintJobAPI,
+  getOpenQueueWindows,
   printOrderAPI,
   updatePrintConfigAPI,
-  getOpenQueueWindows,
 } from "../../services/printAgentService.ts";
 
 import { buildOrderTicket } from "../Utils/OrderTicket.ts";
@@ -34,53 +38,88 @@ import {
   Overlay,
   Modal,
   Header,
+  HeaderLeft,
   Title,
+  Subtitle,
   CloseButton,
+  DashboardGrid,
+  StatusCard,
+  StatusCardHeader,
+  StatusIcon,
+  StatusCardTitle,
+  StatusCardValue,
+  StatusCardDescription,
+  StatusDot,
   Section,
+  SectionHeader,
   SectionTitle,
-  StatusRow,
-  StatusIndicator,
-  StatusText,
-  PrinterName,
-  InfoRow,
+  SectionDescription,
+  SectionIcon,
+  InfoGrid,
+  InfoCard,
   InfoLabel,
   InfoValue,
+  PrinterSelector,
+  PrinterIcon,
+  PrinterSelect,
+  ActionGrid,
+  ActionButton,
+  SecondaryButton,
+  DangerButton,
   RefreshButton,
   Loading,
   ErrorMessage,
-  ActionButton,
-  SecondaryButton,
-  Select,
-  JobList,
-  JobItem,
-  JobRadio,
-  JobInfo,
-  JobTitle,
-  JobStatus,
-  DangerButton,
-  CashOrderList,
-  CashOrderItem,
-  CashOrderInfo,
-  CashOrderTitle,
-  CashOrderCustomer,
-  CashOrderTotal,
   EmptyMessage,
-  ModalFooter,
-  SmallInfo,
+  QueueBadge,
+  QueueBadgeLabel,
+  QueueBadgeValue,
+  QueueSummary,
+  QueueSummaryItem,
+  QueueSummaryIcon,
+  StatusBanner,
+  StatusBannerIcon,
+  StatusBannerText,
+  StatusBannerTitle,
+  StatusBannerDescription,
+  SubModalOverlay,
   SubModal,
   SubModalHeader,
   SubModalTitle,
+  SubModalClose,
+  JobList,
+  JobItem,
+  JobSelection,
+  JobInfo,
+  JobTitle,
+  JobStatus,
+  JobMeta,
+  JobIcon,
+  ModalFooter,
+  OrderList,
+  OrderItem,
+  OrderIcon,
+  OrderInfo,
+  OrderTitle,
+  OrderCustomer,
+  OrderTotal,
+  SelectWrapper,
+  SelectLabel,
+  Select,
+  ResponsiveRow,
+  SmallInfo,
 } from "./PrintStatusModalStyles.ts";
 
 import type {
   PrintConfig,
-  PrintHistory,
   PrintJob,
   PrintPrinter,
   PrinterStatus,
 } from "../../interfaces/PrintAgent.ts";
+
 import { getAxiosErrorMessage } from "../Utils/ErrorAxios.tsx";
+
 import { setPrinterActive } from "../../store/slices/printAgentSlice.ts";
+
 import {
   isPrintServer,
   requestPrintFromPrintServer,
@@ -93,141 +132,145 @@ interface PrintStatusModalProps {
 
 type SubModalType = "jobs" | "orders" | null;
 
-const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
+const PrintStatusModal = ({
+  isOpen,
+  onClose,
+}: PrintStatusModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [online, setOnline] = useState(false);
 
   const [config, setConfig] = useState<PrintConfig | null>(null);
 
-  const [printerStatus, setPrinterStatus] = useState<PrinterStatus | null>(
-    null,
-  );
+  const [printerStatus, setPrinterStatus] =
+    useState<PrinterStatus | null>(null);
 
   const [jobs, setJobs] = useState<PrintJob[]>([]);
-
-  const [history, setHistory] = useState<PrintHistory[]>([]);
 
   const [printers, setPrinters] = useState<PrintPrinter[]>([]);
 
   const [selectedPrinter, setSelectedPrinter] = useState("");
 
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [selectedJobId, setSelectedJobId] =
+    useState<number | null>(null);
 
-  const [cancellingJob, setCancellingJob] = useState(false);
+  const [cancellingJob, setCancellingJob] =
+    useState(false);
 
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState(false);
 
-  const [subModal, setSubModal] = useState<SubModalType>(null);
+  const [subModal, setSubModal] =
+    useState<SubModalType>(null);
+
+  const [selectedCashRegisterId, setSelectedCashRegisterId] =
+    useState("");
+
+  const [selectedOrderId, setSelectedOrderId] =
+    useState<string | null>(null);
+
+  const [printingOrderId, setPrintingOrderId] =
+    useState<string | null>(null);
+
+  const refreshingStatusRef = useRef(false);
 
   const cashRegisters = useSelector(
-    (state: RootState) => state.cashRegister.cashRegister,
+    (state: RootState) =>
+      state.cashRegister.cashRegister,
   );
 
-  const orders = useSelector((state: RootState) => state.orders.orders);
+  const orders = useSelector(
+    (state: RootState) =>
+      state.orders.orders,
+  );
 
   const remoteAgentConnected = useSelector(
-    (state: RootState) => state.printAgent.agentConnected,
+    (state: RootState) =>
+      state.printAgent.agentConnected,
   );
 
   const remotePrinterStatus = useSelector(
-    (state: RootState) => state.printAgent.printerStatus,
+    (state: RootState) =>
+      state.printAgent.printerStatus,
   );
 
-  const [selectedCashRegisterId, setSelectedCashRegisterId] = useState("");
-
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-
-  const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
-
-  /**
+  /*
    * =========================================================
    * CARGA COMPLETA
    * =========================================================
-   *
-   * Se ejecuta al abrir el modal o cuando hacemos
-   * una actualización manual.
-   *
-   * NO se ejecuta cada 5 segundos.
    */
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
       setError(false);
 
-      // Cargamos los datos generales sin depender
-      // del estado físico de la impresora.
-      const [health, configData, jobsData, historyData, printersData] =
-        await Promise.all([
-          getHealth(),
-          getPrintConfigAPI(),
-          getPrintJobsAPI(),
-          getPrintHistoryAPI(),
-          getPrintersAPI(),
-        ]);
+      const [
+        health,
+        configData,
+        jobsData,
+        printersData,
+      ] = await Promise.all([
+        getHealth(),
+        getPrintConfigAPI(),
+        getPrintJobsAPI(),
+        getPrintersAPI(),
+      ]);
 
       setOnline(health);
       setConfig(configData);
       setJobs(jobsData);
-      setHistory(historyData);
       setPrinters(printersData);
 
-      if (configData?.printer_name && !selectedPrinter) {
-        setSelectedPrinter(configData.printer_name);
+      if (
+        configData?.printer_name &&
+        !selectedPrinter
+      ) {
+        setSelectedPrinter(
+          configData.printer_name,
+        );
       }
 
-      // El estado de la impresora se obtiene
-      // por separado.
       try {
-        const printerStatusData = await getPrinterStatusAPI();
+        const printerStatusData =
+          await getPrinterStatusAPI();
 
         setPrinterStatus(printerStatusData);
+
         dispatch(
           setPrinterActive(
-            Boolean(printerStatusData.connected && printerStatusData.online),
+            Boolean(
+              printerStatusData.connected &&
+                printerStatusData.online,
+            ),
           ),
         );
       } catch (printerError) {
         getAxiosErrorMessage(printerError);
+
         setPrinterStatus(null);
-        dispatch(setPrinterActive(false));
+
+        dispatch(
+          setPrinterActive(false),
+        );
       }
     } catch (error) {
       getAxiosErrorMessage(error);
 
       setOnline(false);
+      setPrinterStatus(null);
       setError(true);
     } finally {
       setLoading(false);
     }
   };
 
-  /**
+  /*
    * =========================================================
-   * ACTUALIZACIÓN RÁPIDA
+   * ACTUALIZAR ESTADO DE IMPRESORA
    * =========================================================
-   *
-   * Esta función se ejecuta cada 5 segundos.
-   *
-   * Solamente consulta:
-   *
-   * GET /
-   * GET /printer/status
-   *
-   * De esta manera podemos saber constantemente:
-   *
-   * - si el Agent está funcionando
-   * - si la impresora USB está conectada
-   * - si Windows la considera online
-   * - estado de la impresora
-   * - cola de Windows
-   * - trabajos de Windows
-   * - cantidad de trabajos internos del Agent
    */
-
-  const refreshingStatusRef = useRef(false);
 
   const refreshPrinterStatus = async () => {
     if (refreshingStatusRef.current) {
@@ -237,34 +280,46 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
     try {
       refreshingStatusRef.current = true;
 
-      const [health, printerStatusData] = await Promise.all([
+      const [
+        health,
+        printerStatusData,
+      ] = await Promise.all([
         getHealth(),
         getPrinterStatusAPI(),
       ]);
 
       setOnline(health);
-
       setPrinterStatus(printerStatusData);
 
       dispatch(
         setPrinterActive(
-          Boolean(printerStatusData.connected && printerStatusData.online),
+          Boolean(
+            printerStatusData.connected &&
+              printerStatusData.online,
+          ),
         ),
       );
+
       setError(false);
     } catch (error) {
       getAxiosErrorMessage(error);
+
       setOnline(false);
-      setPrinterActive(false);
+      setPrinterStatus(null);
+
+      dispatch(
+        setPrinterActive(false),
+      );
+
       setError(true);
     } finally {
       refreshingStatusRef.current = false;
     }
   };
 
-  /**
+  /*
    * =========================================================
-   * POLLING
+   * ESTADO REMOTO
    * =========================================================
    */
 
@@ -278,21 +333,41 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
 
     if (remotePrinterStatus) {
       setConfig({
-        printer_name: remotePrinterStatus.printer,
-        printer_type: remotePrinterStatus.printer_type,
+        printer_name:
+          remotePrinterStatus.printer,
+        printer_type:
+          remotePrinterStatus.printer_type,
         printer_ip: null,
         printer_port: 0,
         simulation: false,
         business_name: "",
       });
-      setSelectedPrinter(remotePrinterStatus.printer || "");
+
+      setSelectedPrinter(
+        remotePrinterStatus.printer || "",
+      );
     } else {
       setConfig(null);
     }
 
     setError(false);
     setLoading(false);
-  }, [isOpen, remoteAgentConnected, remotePrinterStatus]);
+  }, [
+    isOpen,
+    remoteAgentConnected,
+    remotePrinterStatus,
+  ]);
+
+  /*
+   * =========================================================
+   * PRINT SERVER
+   * =========================================================
+   *
+   * No hay polling acá.
+   *
+   * websocketService.ts es quien mantiene actualizado
+   * el estado del Print Agent mediante WebSocket.
+   */
 
   useEffect(() => {
     if (!isOpen || !isPrintServer()) {
@@ -300,31 +375,76 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
     }
 
     void loadInitialData();
-
-    const interval = setInterval(() => {
-      void refreshPrinterStatus();
-    }, 5000);
-
-    return () => {
-      clearInterval(interval);
-    };
   }, [isOpen]);
 
-  /**
+  /*
    * =========================================================
-   * DATOS DE WINDOWS
+   * DATOS DE IMPRESORA
    * =========================================================
    */
 
-  const windowsJobs = printerStatus?.jobs ?? [];
+  const windowsJobs =
+    printerStatus?.jobs ?? [];
 
-  const windowsQueueCount = printerStatus?.queue_count ?? 0;
+  const windowsQueueCount =
+    printerStatus?.queue_count ?? 0;
 
-  const agentQueueCount = printerStatus?.agent_queue_count ?? 0;
+  const agentQueueCount =
+    printerStatus?.agent_queue_count ?? 0;
 
-  /**
+  const printerConnected =
+    printerStatus?.connected ?? false;
+
+  const printerOnline =
+    printerStatus?.online ?? false;
+
+  const printerStatusName =
+    printerStatus?.status ?? "UNKNOWN";
+
+  const printerStatusMessage =
+    printerStatus?.status_message ??
+    "No se pudo obtener el estado de la impresora.";
+
+  /*
    * =========================================================
-   * CANCELAR TRABAJO DEL AGENT
+   * COMANDAS
+   * =========================================================
+   */
+
+  const cashOrders = useMemo(() => {
+    if (!selectedCashRegisterId) {
+      return [];
+    }
+
+    return orders
+      .filter(
+        (order) =>
+          order.cash_register_id ===
+          selectedCashRegisterId,
+      )
+      .sort(
+        (a, b) =>
+          b.order_number -
+          a.order_number,
+      );
+  }, [
+    orders,
+    selectedCashRegisterId,
+  ]);
+
+  const selectedOrder = useMemo(() => {
+    return orders.find(
+      (order) =>
+        order.id === selectedOrderId,
+    );
+  }, [
+    orders,
+    selectedOrderId,
+  ]);
+
+  /*
+   * =========================================================
+   * CANCELAR TRABAJO
    * =========================================================
    */
 
@@ -337,22 +457,17 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
       setCancellingJob(true);
       setError(false);
 
-      await cancelPrintJobAPI(selectedJobId);
+      await cancelPrintJobAPI(
+        selectedJobId,
+      );
 
       setSelectedJobId(null);
 
-      /*
-       * Actualizamos los trabajos internos
-       * porque acabamos de modificar el Agent.
-       */
-      const jobsData = await getPrintJobsAPI();
+      const jobsData =
+        await getPrintJobsAPI();
 
       setJobs(jobsData);
 
-      /*
-       * Actualizamos también el estado
-       * de Windows.
-       */
       await refreshPrinterStatus();
     } catch (error) {
       getAxiosErrorMessage(error);
@@ -362,27 +477,7 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
     }
   };
 
-  /**
-   * =========================================================
-   * COMANDAS
-   * =========================================================
-   */
-
-  const cashOrders = useMemo(() => {
-    if (!selectedCashRegisterId) {
-      return [];
-    }
-
-    return orders
-      .filter((order) => order.cash_register_id === selectedCashRegisterId)
-      .sort((a, b) => b.order_number - a.order_number);
-  }, [orders, selectedCashRegisterId]);
-
-  const selectedOrder = useMemo(() => {
-    return orders.find((order) => order.id === selectedOrderId);
-  }, [orders, selectedOrderId]);
-
-  /**
+  /*
    * =========================================================
    * REIMPRIMIR COMANDA
    * =========================================================
@@ -394,26 +489,33 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
     }
 
     try {
-      setPrintingOrderId(selectedOrder.id);
+      setPrintingOrderId(
+        selectedOrder.id,
+      );
+
       setError(false);
 
-      const ticket = buildOrderTicket(selectedOrder);
+      const ticket =
+        buildOrderTicket(
+          selectedOrder,
+        );
 
       if (isPrintServer()) {
         await printOrderAPI(ticket);
 
-        /*
-         * Esperamos un pequeño momento para
-         * permitir que Windows registre el trabajo.
-         */
-        setTimeout(() => {
+        window.setTimeout(() => {
           void refreshPrinterStatus();
         }, 500);
       } else {
-        const success = await requestPrintFromPrintServer(ticket);
+        const success =
+          await requestPrintFromPrintServer(
+            ticket,
+          );
 
         if (!success) {
-          throw new Error("La PC con el Print Agent no pudo imprimir la comanda.");
+          throw new Error(
+            "La PC con el Print Agent no pudo imprimir la comanda.",
+          );
         }
       }
 
@@ -426,35 +528,15 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
     }
   };
 
-  /**
-   * =========================================================
-   * HISTORIAL
-   * =========================================================
-   */
-
-  const completedCount = history.filter(
-    (item) => item.status?.toUpperCase() === "COMPLETED",
-  ).length;
-
-  const cancelledCount = history.filter((item) => {
-    const status = item.status?.toUpperCase();
-
-    return status === "CANCELLED" || status === "CANCELED";
-  }).length;
-
-  const errorCount = history.filter((item) => {
-    const status = item.status?.toUpperCase();
-
-    return status === "FAILED" || status === "ERROR";
-  }).length;
-
-  /**
+  /*
    * =========================================================
    * CAMBIAR IMPRESORA
    * =========================================================
    */
 
-  const handlePrinterChange = async (printerName: string) => {
+  const handlePrinterChange = async (
+    printerName: string,
+  ) => {
     if (!isPrintServer() || !config) {
       return;
     }
@@ -463,51 +545,74 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
       setError(false);
       setLoading(true);
 
-      const updatedConfig = await updatePrintConfigAPI({
-        printer_name: printerName,
-        simulation: config.simulation,
-        business_name: config.business_name,
-      });
+      const updatedConfig =
+        await updatePrintConfigAPI({
+          printer_name: printerName,
+          simulation: config.simulation,
+          business_name:
+            config.business_name,
+        });
 
-      setSelectedPrinter(updatedConfig.printer_name);
+      setSelectedPrinter(
+        updatedConfig.printer_name,
+      );
 
       setConfig(updatedConfig);
 
-      /*
-       * Solo necesitamos actualizar
-       * el estado de la nueva impresora.
-       */
-      const newPrinterStatus = await getPrinterStatusAPI();
+      const newPrinterStatus =
+        await getPrinterStatusAPI();
 
-      setPrinterStatus(newPrinterStatus);
+      setPrinterStatus(
+        newPrinterStatus,
+      );
+
+      dispatch(
+        setPrinterActive(
+          Boolean(
+            newPrinterStatus.connected &&
+              newPrinterStatus.online,
+          ),
+        ),
+      );
     } catch (error) {
       getAxiosErrorMessage(error);
+
       setError(true);
 
-      setSelectedPrinter(config.printer_name);
+      setSelectedPrinter(
+        config.printer_name,
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  /**
+  /*
    * =========================================================
    * ACTUALIZACIÓN MANUAL
    * =========================================================
-   *
-   * El botón "Actualizar" sí vuelve a cargar
-   * toda la información.
    */
 
   const handleFullRefresh = async () => {
-    try {
-      await loadInitialData();
-    } catch (error) {
-      getAxiosErrorMessage(error);
-    }
+    await loadInitialData();
   };
 
-  /**
+  /*
+   * =========================================================
+   * ABRIR COLA DE WINDOWS
+   * =========================================================
+   */
+
+  const handleOpenQueueWindows =
+    async () => {
+      try {
+        await getOpenQueueWindows();
+      } catch (error) {
+        getAxiosErrorMessage(error);
+      }
+    };
+
+  /*
    * =========================================================
    * CERRAR SUBMODAL
    * =========================================================
@@ -523,229 +628,495 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
     return null;
   }
 
-  const printerConnected = printerStatus?.connected ?? false;
+  const agentStatusText = online
+    ? "Conectado"
+    : "Desconectado";
 
-  const printerOnline = printerStatus?.online ?? false;
+  const printerConnectionText =
+    printerConnected
+      ? "Conectada"
+      : "Desconectada";
 
-  const printerStatusName = printerStatus?.status ?? "UNKNOWN";
-
-  const printerStatusMessage =
-    printerStatus?.status_message ??
-    "No se pudo obtener el estado de la impresora.";
-
-  const handleOpenQueueWindows = async () => {
-    try {
-      await getOpenQueueWindows();
-    } catch (error) {
-      getAxiosErrorMessage(error);
-    }
-  };
+  const windowsStatusText =
+    printerOnline
+      ? "Online"
+      : "Offline";
 
   return (
     <>
-      <Overlay onClick={onClose}>
-        <Modal onClick={(event) => event.stopPropagation()}>
+      <Overlay
+        onClick={onClose}
+      >
+        <Modal
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        >
           <Header>
-            <Title>
-              <MdPrint />
-              Estado de impresión
-            </Title>
+            <HeaderLeft>
+              <Title>
+                <MdPrint />
+                Centro de impresión
+              </Title>
 
-            <CloseButton onClick={onClose} type="button">
-              x
+              <Subtitle>
+                Monitor y administración de
+                impresión
+              </Subtitle>
+            </HeaderLeft>
+
+            <CloseButton
+              type="button"
+              onClick={onClose}
+              aria-label="Cerrar"
+            >
+              <MdClose />
             </CloseButton>
           </Header>
 
-          <Section>
-            <SectionTitle>Estado</SectionTitle>
-
-            <StatusRow>
-              <StatusIndicator $online={online} />
-
-              <StatusText $online={online}>
-                {online
-                  ? "Programa de impresión conectado"
-                  : "Programa de impresión desconectado"}
-              </StatusText>
-            </StatusRow>
-
-            <StatusRow>
-              <StatusIndicator $online={printerConnected} />
-
-              <StatusText $online={printerConnected}>
-                {printerConnected
-                  ? "Impresora conectada"
-                  : "Impresora desconectada"}
-              </StatusText>
-            </StatusRow>
-
-            {printerStatus && (
-              <>
-                <InfoRow>
-                  <InfoLabel>Estado</InfoLabel>
-
-                  <InfoValue>{printerStatusName}</InfoValue>
-                </InfoRow>
-
-                <SmallInfo>{printerStatusMessage}</SmallInfo>
-              </>
-            )}
-          </Section>
-
           {loading && !config ? (
-            <Loading>Cargando estado...</Loading>
-          ) : printerConnected && printerStatus ? (
+            <Loading>
+              <MdRefresh />
+              <span>
+                Conectando con el sistema de
+                impresión...
+              </span>
+            </Loading>
+          ) : (
             <>
               {/* ================================================= */}
-              {/* ESTADO */}
+              {/* ESTADO GENERAL */}
               {/* ================================================= */}
+
+              <DashboardGrid>
+                <StatusCard
+                  $active={online}
+                >
+                  <StatusCardHeader>
+                    <StatusIcon $active={online}>
+                      {online ? (
+                        <MdWifi />
+                      ) : (
+                        <MdWifiOff />
+                      )}
+                    </StatusIcon>
+
+                    <StatusDot
+                      $active={online}
+                    />
+                  </StatusCardHeader>
+
+                  <StatusCardTitle>
+                    Print Agent
+                  </StatusCardTitle>
+
+                  <StatusCardValue
+                    $active={online}
+                  >
+                    {agentStatusText}
+                  </StatusCardValue>
+
+                  <StatusCardDescription>
+                    Comunicación con el
+                    programa de impresión
+                  </StatusCardDescription>
+                </StatusCard>
+
+                <StatusCard
+                  $active={printerConnected}
+                >
+                  <StatusCardHeader>
+                    <StatusIcon
+                      $active={
+                        printerConnected
+                      }
+                    >
+                      <MdUsb />
+                    </StatusIcon>
+
+                    <StatusDot
+                      $active={
+                        printerConnected
+                      }
+                    />
+                  </StatusCardHeader>
+
+                  <StatusCardTitle>
+                    Conexión USB
+                  </StatusCardTitle>
+
+                  <StatusCardValue
+                    $active={
+                      printerConnected
+                    }
+                  >
+                    {printerConnectionText}
+                  </StatusCardValue>
+
+                  <StatusCardDescription>
+                    Conexión física de la
+                    impresora
+                  </StatusCardDescription>
+                </StatusCard>
+
+                <StatusCard
+                  $active={printerOnline}
+                >
+                  <StatusCardHeader>
+                    <StatusIcon
+                      $active={printerOnline}
+                    >
+                      {printerOnline ? (
+                        <MdCheckCircle />
+                      ) : (
+                        <MdWarning />
+                      )}
+                    </StatusIcon>
+
+                    <StatusDot
+                      $active={printerOnline}
+                    />
+                  </StatusCardHeader>
+
+                  <StatusCardTitle>
+                    Windows
+                  </StatusCardTitle>
+
+                  <StatusCardValue
+                    $active={printerOnline}
+                  >
+                    {windowsStatusText}
+                  </StatusCardValue>
+
+                  <StatusCardDescription>
+                    Estado de la impresora en
+                    Windows
+                  </StatusCardDescription>
+                </StatusCard>
+              </DashboardGrid>
+
+              {/* ================================================= */}
+              {/* BANNER DE ESTADO */}
+              {/* ================================================= */}
+
+              <StatusBanner
+                $success={
+                  online &&
+                  printerConnected &&
+                  printerOnline
+                }
+              >
+                <StatusBannerIcon
+                  $success={
+                    online &&
+                    printerConnected &&
+                    printerOnline
+                  }
+                >
+                  {online &&
+                  printerConnected &&
+                  printerOnline ? (
+                    <MdCheckCircle />
+                  ) : (
+                    <MdWarning />
+                  )}
+                </StatusBannerIcon>
+
+                <StatusBannerText>
+                  <StatusBannerTitle>
+                    {online &&
+                    printerConnected &&
+                    printerOnline
+                      ? "Sistema listo para imprimir"
+                      : "Revisar estado de impresión"}
+                  </StatusBannerTitle>
+
+                  <StatusBannerDescription>
+                    {printerStatusMessage}
+                  </StatusBannerDescription>
+                </StatusBannerText>
+              </StatusBanner>
 
               {/* ================================================= */}
               {/* IMPRESORA */}
               {/* ================================================= */}
+
               <Section>
-                <SectionTitle>Impresora</SectionTitle>
+                <SectionHeader>
+                  <div>
+                    <SectionTitle>
+                      <SectionIcon>
+                        <MdPrint />
+                      </SectionIcon>
+
+                      Impresora
+                    </SectionTitle>
+
+                    <SectionDescription>
+                      Configuración y estado de la
+                      impresora actualmente seleccionada.
+                    </SectionDescription>
+                  </div>
+
+                  <MdSettings />
+                </SectionHeader>
 
                 {config ? (
                   <>
-                    {printerStatus?.printer ? (
-                      <PrinterName>
+                    <PrinterSelector>
+                      <PrinterIcon>
                         <MdPrint />
+                      </PrinterIcon>
 
-                        <select
-                          value={selectedPrinter || printerStatus.printer}
-                          onChange={(
-                            event: React.ChangeEvent<HTMLSelectElement>,
-                          ) => handlePrinterChange(event.target.value)}
-                          style={{
-                            border: "none",
-                            outline: "none",
-                            background: "transparent",
-                            font: "inherit",
-                            color: "inherit",
-                            fontWeight: "inherit",
-                            cursor: "pointer",
-                            width: "100%",
-                          }}
-                        >
-                          {printers.length > 0 ? (
-                            printers.map((printer) => (
-                              <option key={printer.name} value={printer.name}>
-                                {printer.name}
-                              </option>
-                            ))
-                          ) : (
-                            <option value={printerStatus.printer}>
-                              {printerStatus.printer}
-                            </option>
-                          )}
-                        </select>
-                      </PrinterName>
-                    ) : (
-                      <PrinterName>
-                        <MdPrint />
-                        No hay impresoras disponibles
-                      </PrinterName>
-                    )}
+                      <div>
+                        <InfoLabel>
+                          Impresora seleccionada
+                        </InfoLabel>
 
-                    <InfoRow>
-                      <InfoLabel>Tipo</InfoLabel>
-
-                      <InfoValue>{config.printer_type}</InfoValue>
-                    </InfoRow>
-
-                    <InfoRow>
-                      <InfoLabel>Simulación</InfoLabel>
-
-                      <InfoValue>{config.simulation ? "Sí" : "No"}</InfoValue>
-                    </InfoRow>
-
-                    {printerStatus && (
-                      <>
-                        <InfoRow>
-                          <InfoLabel>Conexión</InfoLabel>
-
-                          <InfoValue
-                            $success={printerConnected}
-                            $error={!printerConnected}
+                        {printerStatus?.printer ? (
+                          <PrinterSelect
+                            value={
+                              selectedPrinter ||
+                              printerStatus.printer
+                            }
+                            onChange={(event) =>
+                              handlePrinterChange(
+                                event.target.value,
+                              )
+                            }
+                            disabled={
+                              !isPrintServer() ||
+                              loading
+                            }
                           >
-                            {printerConnected
-                              ? "USB conectada"
-                              : "USB desconectada"}
+                            {printers.length > 0 ? (
+                              printers.map(
+                                (printer) => (
+                                  <option
+                                    key={
+                                      printer.name
+                                    }
+                                    value={
+                                      printer.name
+                                    }
+                                  >
+                                    {
+                                      printer.name
+                                    }
+                                  </option>
+                                ),
+                              )
+                            ) : (
+                              <option
+                                value={
+                                  printerStatus.printer
+                                }
+                              >
+                                {
+                                  printerStatus.printer
+                                }
+                              </option>
+                            )}
+                          </PrinterSelect>
+                        ) : (
+                          <InfoValue>
+                            No hay impresora
+                            disponible
                           </InfoValue>
-                        </InfoRow>
+                        )}
+                      </div>
+                    </PrinterSelector>
 
-                        <InfoRow>
-                          <InfoLabel>Estado Windows</InfoLabel>
+                    <InfoGrid>
+                      <InfoCard>
+                        <InfoLabel>
+                          Tipo
+                        </InfoLabel>
+
+                        <InfoValue>
+                          {config.printer_type ||
+                            "No especificado"}
+                        </InfoValue>
+                      </InfoCard>
+
+                      <InfoCard>
+                        <InfoLabel>
+                          Simulación
+                        </InfoLabel>
+
+                        <InfoValue>
+                          {config.simulation
+                            ? "Activada"
+                            : "Desactivada"}
+                        </InfoValue>
+                      </InfoCard>
+
+                      <InfoCard>
+                        <InfoLabel>
+                          Conexión
+                        </InfoLabel>
+
+                        <InfoValue
+                          $success={
+                            printerConnected
+                          }
+                          $error={
+                            !printerConnected
+                          }
+                        >
+                          {printerConnected
+                            ? "USB conectada"
+                            : "USB desconectada"}
+                        </InfoValue>
+                      </InfoCard>
+
+                      <InfoCard>
+                        <InfoLabel>
+                          Estado Windows
+                        </InfoLabel>
+
+                        <InfoValue
+                          $success={
+                            printerOnline
+                          }
+                          $error={
+                            !printerOnline
+                          }
+                        >
+                          {printerOnline
+                            ? "Online"
+                            : "Offline"}
+                        </InfoValue>
+                      </InfoCard>
+
+                      {printerStatus?.driver && (
+                        <InfoCard>
+                          <InfoLabel>
+                            Driver
+                          </InfoLabel>
 
                           <InfoValue>
-                            {printerOnline ? "Online" : "Offline"}
+                            {
+                              printerStatus.driver
+                            }
                           </InfoValue>
-                        </InfoRow>
+                        </InfoCard>
+                      )}
 
-                        {printerStatus.driver && (
-                          <InfoRow>
-                            <InfoLabel>Driver</InfoLabel>
+                      <InfoCard>
+                        <InfoLabel>
+                          Estado interno
+                        </InfoLabel>
 
-                            <InfoValue>{printerStatus.driver}</InfoValue>
-                          </InfoRow>
-                        )}
-                      </>
-                    )}
+                        <InfoValue>
+                          {printerStatusName}
+                        </InfoValue>
+                      </InfoCard>
+                    </InfoGrid>
                   </>
                 ) : (
-                  <ErrorMessage>
-                    No se pudo obtener la configuración.
-                  </ErrorMessage>
+                  <EmptyMessage>
+                    No se pudo obtener la
+                    configuración de la impresora.
+                  </EmptyMessage>
                 )}
               </Section>
 
               {/* ================================================= */}
-              {/* COLA */}
+              {/* COLAS */}
               {/* ================================================= */}
 
               <Section>
-                <SectionTitle>Cola de impresión</SectionTitle>
+                <SectionHeader>
+                  <div>
+                    <SectionTitle>
+                      <SectionIcon>
+                        <MdListAlt />
+                      </SectionIcon>
 
-                <InfoRow>
-                  <InfoLabel>Trabajos en Windows</InfoLabel>
+                      Colas de impresión
+                    </SectionTitle>
 
-                  <InfoValue>{windowsQueueCount}</InfoValue>
-                </InfoRow>
+                    <SectionDescription>
+                      Trabajos pendientes tanto en
+                      Windows como dentro del Agent.
+                    </SectionDescription>
+                  </div>
+                </SectionHeader>
 
-                <InfoRow>
-                  <InfoLabel>Trabajos del Agent</InfoLabel>
+                <QueueSummary>
+                  <QueueSummaryItem>
+                    <QueueSummaryIcon>
+                      <MdPrint />
+                    </QueueSummaryIcon>
 
-                  <InfoValue>{agentQueueCount}</InfoValue>
-                </InfoRow>
+                    <div>
+                      <QueueBadgeLabel>
+                        Windows
+                      </QueueBadgeLabel>
 
-                {windowsQueueCount > 0 && (
-                  <StatusRow>
-                    <MdWarning />
+                      <QueueBadgeValue>
+                        {windowsQueueCount}
+                      </QueueBadgeValue>
+                    </div>
+                  </QueueSummaryItem>
 
-                    <StatusText $online={false}>
-                      Hay trabajos en la cola de Windows
-                    </StatusText>
-                  </StatusRow>
-                )}
+                  <QueueSummaryItem>
+                    <QueueSummaryIcon>
+                      <MdListAlt />
+                    </QueueSummaryIcon>
 
-                {!printerConnected && (
-                  <StatusRow>
-                    <MdError />
+                    <div>
+                      <QueueBadgeLabel>
+                        Print Agent
+                      </QueueBadgeLabel>
 
-                    <StatusText $online={false}>
-                      La impresora no está conectada por USB
-                    </StatusText>
-                  </StatusRow>
-                )}
+                      <QueueBadgeValue>
+                        {agentQueueCount}
+                      </QueueBadgeValue>
+                    </div>
+                  </QueueSummaryItem>
 
-                <SecondaryButton
-                  type="button"
-                  onClick={() => setSubModal("jobs")}
-                >
-                  <MdListAlt />
-                  Ver trabajos
-                </SecondaryButton>
+                  <QueueBadge
+                    $warning={
+                      windowsQueueCount > 0
+                    }
+                  >
+                    {windowsQueueCount > 0 ? (
+                      <>
+                        <MdWarning />
+                        Hay trabajos pendientes
+                      </>
+                    ) : (
+                      <>
+                        <MdCheckCircle />
+                        Cola de Windows vacía
+                      </>
+                    )}
+                  </QueueBadge>
+                </QueueSummary>
+
+                <ActionGrid>
+                  <SecondaryButton
+                    type="button"
+                    onClick={() =>
+                      setSubModal("jobs")
+                    }
+                  >
+                    <MdListAlt />
+                    Ver trabajos
+                  </SecondaryButton>
+
+                  <SecondaryButton
+                    type="button"
+                    onClick={
+                      handleOpenQueueWindows
+                    }
+                  >
+                    <MdPrint />
+                    Abrir cola de Windows
+                  </SecondaryButton>
+                </ActionGrid>
               </Section>
 
               {/* ================================================= */}
@@ -753,11 +1124,28 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
               {/* ================================================= */}
 
               <Section>
-                <SectionTitle>Comandas</SectionTitle>
+                <SectionHeader>
+                  <div>
+                    <SectionTitle>
+                      <SectionIcon>
+                        <MdReceiptLong />
+                      </SectionIcon>
+
+                      Comandas
+                    </SectionTitle>
+
+                    <SectionDescription>
+                      Seleccioná una caja para consultar
+                      y reimprimir sus comandas.
+                    </SectionDescription>
+                  </div>
+                </SectionHeader>
 
                 <ActionButton
                   type="button"
-                  onClick={() => setSubModal("orders")}
+                  onClick={() =>
+                    setSubModal("orders")
+                  }
                 >
                   <MdReceiptLong />
                   Ver comandas por caja
@@ -765,291 +1153,327 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
               </Section>
 
               {/* ================================================= */}
-              {/* HISTORIAL */}
+              {/* ERROR */}
               {/* ================================================= */}
-
-              <Section>
-                <SectionTitle>Historial</SectionTitle>
-
-                <InfoRow>
-                  <InfoLabel>Completados</InfoLabel>
-
-                  <InfoValue $success>
-                    <MdCheckCircle />
-                    {completedCount}
-                  </InfoValue>
-                </InfoRow>
-
-                <InfoRow>
-                  <InfoLabel>Con error</InfoLabel>
-
-                  <InfoValue $error>
-                    <MdError />
-                    {errorCount}
-                  </InfoValue>
-                </InfoRow>
-
-                <InfoRow>
-                  <InfoLabel>Cancelados</InfoLabel>
-
-                  <InfoValue>{cancelledCount}</InfoValue>
-                </InfoRow>
-              </Section>
 
               {error && (
                 <ErrorMessage>
-                  No se pudo actualizar el estado del Print Agent.
+                  <MdError />
+
+                  <span>
+                    No se pudo actualizar correctamente
+                    el estado del Print Agent.
+                  </span>
                 </ErrorMessage>
               )}
 
-              <RefreshButton
-                type="button"
-                onClick={handleFullRefresh}
-                disabled={loading}
-              >
-                <MdRefresh />
+              {/* ================================================= */}
+              {/* FOOTER */}
+              {/* ================================================= */}
 
-                {loading ? "Actualizando..." : "Actualizar"}
-              </RefreshButton>
+              <ResponsiveRow>
+                <SmallInfo>
+                  Estado: {printerStatusName}
+                </SmallInfo>
+
+                <RefreshButton
+                  type="button"
+                  onClick={handleFullRefresh}
+                  disabled={loading}
+                >
+                  <MdRefresh />
+
+                  {loading
+                    ? "Actualizando..."
+                    : "Actualizar estado"}
+                </RefreshButton>
+              </ResponsiveRow>
             </>
-          ) : (
-            <></>
           )}
         </Modal>
       </Overlay>
 
-      {/* ======================================================= */}
-      {/* SUBMODAL - TRABAJOS */}
-      {/* ======================================================= */}
+      {/* =======================================================
+          SUBMODAL - TRABAJOS
+      ======================================================= */}
 
       {subModal === "jobs" && (
-        <Overlay $above onClick={handleCloseSubModal}>
-          <SubModal onClick={(event) => event.stopPropagation()}>
+        <SubModalOverlay
+          onClick={handleCloseSubModal}
+        >
+          <SubModal
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
             <SubModalHeader>
               <SubModalTitle>
-                <MdPrint />
+                <MdListAlt />
                 Trabajos de impresión
               </SubModalTitle>
 
-              <CloseButton type="button" onClick={handleCloseSubModal}>
-                ×
-              </CloseButton>
+              <SubModalClose
+                type="button"
+                onClick={
+                  handleCloseSubModal
+                }
+              >
+                <MdClose />
+              </SubModalClose>
             </SubModalHeader>
 
-            {/* ================================================= */}
-            {/* WINDOWS */}
-            {/* ================================================= */}
-
             <Section>
-              <SectionTitle>Cola de Windows</SectionTitle>
+              <SectionHeader>
+                <div>
+                  <SectionTitle>
+                    <SectionIcon>
+                      <MdPrint />
+                    </SectionIcon>
+
+                    Cola de Windows
+                  </SectionTitle>
+                </div>
+              </SectionHeader>
 
               {windowsJobs.length === 0 ? (
                 <EmptyMessage>
-                  No hay trabajos en la cola de Windows.
+                  <MdCheckCircle />
+                  No hay trabajos en la cola de
+                  Windows.
                 </EmptyMessage>
               ) : (
                 <JobList>
-                  {windowsJobs.map((job, index) => (
-                    <JobItem
-                      onClick={handleOpenQueueWindows}
-                      key={`windows-${job.id ?? index}-${job.document}`}
-                      $selected={false}
-                    >
-                      <MdPrint />
+                  {windowsJobs.map(
+                    (job, index) => (
+                      <JobItem
+                        key={`windows-${job.id ?? index}-${job.document}`}
+                        onClick={
+                          handleOpenQueueWindows
+                        }
+                      >
+                        <JobIcon>
+                          <MdPrint />
+                        </JobIcon>
 
-                      <JobInfo>
-                        <JobTitle>{job.document || "Documento"}</JobTitle>
+                        <JobInfo>
+                          <JobTitle>
+                            {job.document ||
+                              "Documento"}
+                          </JobTitle>
 
-                        <JobStatus>
-                          Estado: {job.status || "Desconocido"}
-                        </JobStatus>
+                          <JobStatus>
+                            Estado:{" "}
+                            {job.status ||
+                              "Desconocido"}
+                          </JobStatus>
 
-                        {job.status_message && (
-                          <JobStatus>{job.status_message}</JobStatus>
-                        )}
+                          {job.status_message && (
+                            <JobMeta>
+                              {
+                                job.status_message
+                              }
+                            </JobMeta>
+                          )}
 
-                        {job.position !== undefined && (
-                          <JobStatus>Posición: {job.position}</JobStatus>
-                        )}
+                          {job.position !==
+                            undefined && (
+                            <JobMeta>
+                              Posición:{" "}
+                              {job.position}
+                            </JobMeta>
+                          )}
 
-                        {job.id !== undefined && (
-                          <JobStatus>ID Windows: {job.id}</JobStatus>
-                        )}
-                      </JobInfo>
-                    </JobItem>
-                  ))}
+                          {job.id !==
+                            undefined && (
+                            <JobMeta>
+                              ID Windows:{" "}
+                              {job.id}
+                            </JobMeta>
+                          )}
+                        </JobInfo>
+                      </JobItem>
+                    ),
+                  )}
                 </JobList>
               )}
             </Section>
-
-            {/* ================================================= */}
-            {/* AGENT */}
-            {/* ================================================= */}
-
-            <Section>
-              <SectionTitle>Trabajos del Print Agent</SectionTitle>
-
-              {jobs.length === 0 ? (
-                <EmptyMessage>No hay trabajos internos del Agent.</EmptyMessage>
-              ) : (
-                <>
-                  <JobList>
-                    {jobs.map((job) => {
-                      const selected = selectedJobId === job.id;
-
-                      return (
-                        <JobItem
-                          key={job.id}
-                          $selected={selected}
-                          onClick={() => setSelectedJobId(job.id)}
-                        >
-                          <JobRadio
-                            type="radio"
-                            name="print-job"
-                            checked={selected}
-                            onChange={() => setSelectedJobId(job.id)}
-                          />
-
-                          <JobInfo>
-                            <JobTitle>Trabajo #{job.id}</JobTitle>
-
-                            <JobStatus>
-                              Estado: {job.status ?? "Desconocido"}
-                            </JobStatus>
-
-                            {job.attempts !== undefined && (
-                              <JobStatus>Intentos: {job.attempts}</JobStatus>
-                            )}
-                          </JobInfo>
-                        </JobItem>
-                      );
-                    })}
-                  </JobList>
-
-                  <ModalFooter>
-                    <DangerButton
-                      type="button"
-                      disabled={selectedJobId === null || cancellingJob}
-                      onClick={handleCancelJob}
-                    >
-                      <MdCancel />
-
-                      {cancellingJob
-                        ? "Cancelando..."
-                        : "Cancelar seleccionado"}
-                    </DangerButton>
-                  </ModalFooter>
-                </>
-              )}
-            </Section>
           </SubModal>
-        </Overlay>
+        </SubModalOverlay>
       )}
 
-      {/* ======================================================= */}
-      {/* SUBMODAL - COMANDAS */}
-      {/* ======================================================= */}
+      {/* =======================================================
+          SUBMODAL - COMANDAS
+      ======================================================= */}
 
       {subModal === "orders" && (
-        <Overlay $above onClick={handleCloseSubModal}>
-          <SubModal onClick={(event) => event.stopPropagation()}>
+        <SubModalOverlay
+          onClick={handleCloseSubModal}
+        >
+          <SubModal
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
             <SubModalHeader>
               <SubModalTitle>
                 <MdReceiptLong />
-                Comandas por caja
+                Comandas
               </SubModalTitle>
 
-              <CloseButton type="button" onClick={handleCloseSubModal}>
-                ×
-              </CloseButton>
+              <SubModalClose
+                type="button"
+                onClick={
+                  handleCloseSubModal
+                }
+              >
+                <MdClose />
+              </SubModalClose>
             </SubModalHeader>
 
             <Section>
-              <InfoLabel>Caja</InfoLabel>
+              <SelectWrapper>
+                <SelectLabel>
+                  Seleccionar caja
+                </SelectLabel>
 
-              <Select
-                value={selectedCashRegisterId}
-                onChange={(event) => {
-                  setSelectedCashRegisterId(event.target.value);
+                <Select
+                  value={
+                    selectedCashRegisterId
+                  }
+                  onChange={(event) => {
+                    setSelectedCashRegisterId(
+                      event.target.value,
+                    );
 
-                  setSelectedOrderId(null);
-                }}
-              >
-                <option value="">Seleccionar caja...</option>
+                    setSelectedOrderId(null);
+                  }}
+                >
+                  <option value="">
+                    Seleccionar caja...
+                  </option>
 
-                {cashRegisters
-                  .slice()
-                  .sort(
-                    (a, b) =>
-                      new Date(b.opened_at).getTime() -
-                      new Date(a.opened_at).getTime(),
-                  )
-                  .map((cash) => (
-                    <option key={cash.id} value={cash.id}>
-                      {cash.date} —{" "}
-                      {cash.shift === "morning" ? "Mañana" : "Noche"} —{" "}
-                      {cash.status_cash_register === "open"
-                        ? "ABIERTA"
-                        : "CERRADA"}
-                    </option>
-                  ))}
-              </Select>
+                  {cashRegisters
+                    .slice()
+                    .sort(
+                      (a, b) =>
+                        new Date(
+                          b.opened_at,
+                        ).getTime() -
+                        new Date(
+                          a.opened_at,
+                        ).getTime(),
+                    )
+                    .map((cash) => (
+                      <option
+                        key={cash.id}
+                        value={cash.id}
+                      >
+                        {cash.date} —{" "}
+                        {cash.shift ===
+                        "morning"
+                          ? "Mañana"
+                          : "Noche"}{" "}
+                        —{" "}
+                        {cash.status_cash_register ===
+                        "open"
+                          ? "ABIERTA"
+                          : "CERRADA"}
+                      </option>
+                    ))}
+                </Select>
+              </SelectWrapper>
             </Section>
 
             {selectedCashRegisterId && (
               <>
-                <InfoRow>
-                  <InfoLabel>Comandas</InfoLabel>
+                <QueueSummary>
+                  <QueueSummaryItem>
+                    <QueueSummaryIcon>
+                      <MdReceiptLong />
+                    </QueueSummaryIcon>
 
-                  <InfoValue>{cashOrders.length}</InfoValue>
-                </InfoRow>
+                    <div>
+                      <QueueBadgeLabel>
+                        Comandas encontradas
+                      </QueueBadgeLabel>
+
+                      <QueueBadgeValue>
+                        {cashOrders.length}
+                      </QueueBadgeValue>
+                    </div>
+                  </QueueSummaryItem>
+                </QueueSummary>
 
                 {cashOrders.length === 0 ? (
                   <EmptyMessage>
-                    No hay comandas asociadas a esta caja.
+                    No hay comandas asociadas a
+                    esta caja.
                   </EmptyMessage>
                 ) : (
-                  <CashOrderList>
-                    {cashOrders.map((order) => {
-                      const selected = selectedOrderId === order.id;
+                  <OrderList>
+                    {cashOrders.map(
+                      (order) => {
+                        const selected =
+                          selectedOrderId ===
+                          order.id;
 
-                      return (
-                        <CashOrderItem
-                          key={order.id}
-                          $selected={selected}
-                          onClick={() => setSelectedOrderId(order.id)}
-                        >
-                          <MdReceiptLong />
+                        return (
+                          <OrderItem
+                            key={order.id}
+                            $selected={selected}
+                            onClick={() =>
+                              setSelectedOrderId(
+                                order.id,
+                              )
+                            }
+                          >
+                            <OrderIcon>
+                              <MdReceiptLong />
+                            </OrderIcon>
 
-                          <CashOrderInfo>
-                            <CashOrderTitle>
-                              Comanda #{order.order_number}
-                            </CashOrderTitle>
+                            <OrderInfo>
+                              <OrderTitle>
+                                Comanda #
+                                {
+                                  order.order_number
+                                }
+                              </OrderTitle>
 
-                            <CashOrderCustomer>
-                              {order.customer_name || "Sin cliente"}
-                            </CashOrderCustomer>
-                          </CashOrderInfo>
+                              <OrderCustomer>
+                                {order.customer_name ||
+                                  "Sin cliente"}
+                              </OrderCustomer>
+                            </OrderInfo>
 
-                          <CashOrderTotal>
-                            ${order.total_price.toLocaleString("es-AR")}
-                          </CashOrderTotal>
-                        </CashOrderItem>
-                      );
-                    })}
-                  </CashOrderList>
+                            <OrderTotal>
+                              $
+                              {order.total_price.toLocaleString(
+                                "es-AR",
+                              )}
+                            </OrderTotal>
+                          </OrderItem>
+                        );
+                      },
+                    )}
+                  </OrderList>
                 )}
 
                 {selectedOrder && (
                   <ModalFooter>
                     <ActionButton
                       type="button"
-                      disabled={printingOrderId === selectedOrder.id}
-                      onClick={handleReprintOrder}
+                      disabled={
+                        printingOrderId ===
+                        selectedOrder.id
+                      }
+                      onClick={
+                        handleReprintOrder
+                      }
                     >
                       <MdPrint />
 
-                      {printingOrderId === selectedOrder.id
+                      {printingOrderId ===
+                      selectedOrder.id
                         ? "Enviando..."
                         : `Reimprimir comanda #${selectedOrder.order_number}`}
                     </ActionButton>
@@ -1058,7 +1482,7 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
               </>
             )}
           </SubModal>
-        </Overlay>
+        </SubModalOverlay>
       )}
     </>
   );

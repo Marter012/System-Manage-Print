@@ -6,558 +6,700 @@ export const Overlay = styled.div<{
   position: fixed;
   inset: 0;
 
-  z-index: ${({ $above }) => ($above ? 2000 : 1000)};
-
-  background: rgba(0, 0, 0, 0.35);
+  z-index: ${({ $above }) =>
+    $above ? 1002 : 1000};
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  padding: 20px;
+  padding: 24px;
+
+  background: rgba(25, 17, 12, 0.62);
+
+  backdrop-filter: blur(7px);
+
+  animation: fadeIn 0.18s ease;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
 
   @media (max-width: 600px) {
-    padding: 10px;
+    padding: 0;
+    align-items: flex-end;
   }
 `;
 
 export const Modal = styled.div`
-  width: 100%;
-  max-width: 425px;
+  width: min(980px, 100%);
 
-  max-height: calc(100vh - 40px);
-
-  overflow-y: auto;
-
-  background: #fffaf4;
-
-  border-radius: 18px;
-
-  padding: 24px;
-
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-
-  &&::-webkit-scrollbar {
-    display: none;
-  }
-
-  position: absolute;
-  right: 0;
-
-  @media (max-width: 600px) {
-    width: calc(100% - 20px);
-    max-width: none;
-
-    max-height: calc(100vh - 20px);
-
-    right: 10px;
-
-    padding: 18px;
-
-    border-radius: 16px;
-  }
-
-  @media (max-width: 400px) {
-    width: calc(100% - 12px);
-
-    right: 6px;
-
-    padding: 15px;
-
-    border-radius: 14px;
-  }
-`;
-
-export const SubModal = styled.div`
-  width: 100%;
-  max-width: 520px;
-
-  max-height: calc(100vh - 60px);
+  max-height: calc(100vh - 48px);
 
   overflow-y: auto;
 
-  background: #fffaf4;
+  background: #faf8f5;
 
-  border-radius: 18px;
+  border: 1px solid rgba(101, 48, 7, 0.12);
 
-  padding: 24px;
+  border-radius: 24px;
 
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 28px 70px rgba(48, 27, 14, 0.28),
+    0 8px 24px rgba(48, 27, 14, 0.12);
+
+  color: #321b0d;
 
   scrollbar-width: thin;
 
-  @media (max-width: 600px) {
-    width: 100%;
+  scrollbar-color:
+    rgba(101, 48, 7, 0.3)
+    transparent;
 
-    max-width: none;
-
-    max-height: calc(100vh - 20px);
-
-    padding: 18px;
-
-    border-radius: 16px;
+  &::-webkit-scrollbar {
+    width: 6px;
   }
 
-  @media (max-width: 400px) {
-    max-height: calc(100vh - 12px);
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-    padding: 15px;
+  &::-webkit-scrollbar-thumb {
+    background: rgba(101, 48, 7, 0.28);
+    border-radius: 20px;
+  }
 
-    border-radius: 14px;
+  @media (max-width: 600px) {
+    width: 100%;
+    max-height: 94vh;
+
+    border-radius: 24px 24px 0 0;
   }
 `;
 
 export const Header = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 5;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding-bottom: 18px;
+  gap: 16px;
 
-  border-bottom: 1px solid #e5d8c9;
+  padding: 22px 24px;
 
-  @media (max-width: 400px) {
-    padding-bottom: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      #653007 0%,
+      #7c421c 55%,
+      #9a6338 100%
+    );
+
+  color: white;
+
+  border-radius: 24px 24px 0 0;
+
+  box-shadow:
+    0 8px 24px rgba(75, 38, 12, 0.18);
+
+  @media (max-width: 600px) {
+    padding: 18px;
+    border-radius: 24px 24px 0 0;
   }
 `;
 
-export const SubModalHeader = styled.div`
+export const HeaderLeft = styled.div`
+  min-width: 0;
+
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding-bottom: 18px;
-
-  margin-bottom: 5px;
-
-  border-bottom: 1px solid #e5d8c9;
-
-  @media (max-width: 400px) {
-    padding-bottom: 14px;
-  }
+  flex-direction: column;
+  gap: 4px;
 `;
 
 export const Title = styled.h2`
+  margin: 0;
+
   display: flex;
   align-items: center;
   gap: 10px;
 
-  margin: 0;
-
-  color: #704016;
-
-  font-size: 21px;
+  font-size: 1.35rem;
   font-weight: 800;
 
-  @media (max-width: 400px) {
-    gap: 7px;
+  letter-spacing: -0.02em;
 
-    font-size: 18px;
+  svg {
+    flex-shrink: 0;
+    font-size: 1.6rem;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
   }
 `;
 
-export const SubModalTitle = styled.h2`
-  display: flex;
-  align-items: center;
-  gap: 9px;
+export const Subtitle = styled.span`
+  color: rgba(255, 255, 255, 0.72);
 
-  margin: 0;
-
-  color: #704016;
-
-  font-size: 20px;
-  font-weight: 800;
-
-  @media (max-width: 400px) {
-    gap: 7px;
-
-    font-size: 17px;
-  }
+  font-size: 0.82rem;
 `;
 
 export const CloseButton = styled.button`
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
 
   flex-shrink: 0;
 
-  border: none;
-  background: transparent;
+  display: grid;
+  place-items: center;
 
-  color: #704016;
+  border: 1px solid
+    rgba(255, 255, 255, 0.22);
 
-  font-size: 28px;
-  font-weight: 800;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  color: white;
 
   cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
 
-  transition: 0.2s;
-
-  &:hover {
-    transform: scale(1.08);
+  svg {
+    font-size: 1.3rem;
   }
 
-  @media (max-width: 400px) {
-    width: 30px;
-    height: 30px;
-
-    font-size: 24px;
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.04);
   }
 `;
 
-export const Section = styled.section`
-  padding: 18px 0;
+export const DashboardGrid = styled.div`
+  display: grid;
 
-  border-bottom: 1px solid #e5d8c9;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 
-  &:last-of-type {
-    border-bottom: none;
+  gap: 14px;
+
+  padding: 22px 24px 0;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
   }
 
-  @media (max-width: 400px) {
-    padding: 14px 0;
+  @media (max-width: 600px) {
+    padding: 16px 16px 0;
+  }
+`;
+
+export const StatusCard = styled.div<{
+  $active?: boolean;
+}>`
+  position: relative;
+
+  overflow: hidden;
+
+  min-width: 0;
+
+  padding: 18px;
+
+  border-radius: 18px;
+
+  border: 1px solid
+    ${({ $active }) =>
+      $active
+        ? "rgba(42, 125, 72, 0.18)"
+        : "rgba(101, 48, 7, 0.12)"};
+
+  background: ${({ $active }) =>
+    $active
+      ? "linear-gradient(145deg, #f5fbf6, #ffffff)"
+      : "linear-gradient(145deg, #f8f3ee, #ffffff)"};
+
+  box-shadow:
+    0 8px 22px
+      rgba(60, 35, 20, 0.06);
+
+  &::after {
+    content: "";
+
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    right: -35px;
+    bottom: -40px;
+
+    border-radius: 50%;
+
+    background: ${({ $active }) =>
+      $active
+        ? "rgba(63, 145, 83, 0.08)"
+        : "rgba(101, 48, 7, 0.05)"};
+  }
+`;
+
+export const StatusCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+`;
+
+export const StatusIcon = styled.div<{
+  $active?: boolean;
+}>`
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 12px;
+
+  background: ${({ $active }) =>
+    $active
+      ? "rgba(50, 142, 77, 0.11)"
+      : "rgba(101, 48, 7, 0.08)"};
+
+  color: ${({ $active }) =>
+    $active ? "#328e4d" : "#8b6243"};
+
+  svg {
+    font-size: 1.35rem;
+  }
+`;
+
+export const StatusDot = styled.span<{
+  $active?: boolean;
+}>`
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: ${({ $active }) =>
+    $active ? "#38a45a" : "#b8a99d"};
+
+  box-shadow: ${({ $active }) =>
+    $active
+      ? "0 0 0 4px rgba(56, 164, 90, 0.1)"
+      : "none"};
+`;
+
+export const StatusCardTitle = styled.div`
+  color: #75573f;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+`;
+
+export const StatusCardValue = styled.div<{
+  $active?: boolean;
+}>`
+  margin-top: 3px;
+
+  color: ${({ $active }) =>
+    $active ? "#277440" : "#78583f"};
+
+  font-size: 1.12rem;
+  font-weight: 800;
+`;
+
+export const StatusCardDescription = styled.div`
+  margin-top: 5px;
+
+  color: #8d7b6c;
+
+  font-size: 0.75rem;
+
+  line-height: 1.4;
+`;
+
+export const StatusBanner = styled.div<{
+  $success?: boolean;
+}>`
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  margin: 18px 24px 0;
+
+  padding: 14px 16px;
+
+  border: 1px solid
+    ${({ $success }) =>
+      $success
+        ? "rgba(47, 143, 76, 0.18)"
+        : "rgba(190, 128, 47, 0.2)"};
+
+  border-radius: 16px;
+
+  background: ${({ $success }) =>
+    $success
+      ? "#f1faf3"
+      : "#fff9ed"};
+
+  @media (max-width: 600px) {
+    margin: 16px 16px 0;
+  }
+`;
+
+export const StatusBannerIcon = styled.div<{
+  $success?: boolean;
+}>`
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  background: ${({ $success }) =>
+    $success
+      ? "rgba(47, 143, 76, 0.11)"
+      : "rgba(190, 128, 47, 0.1)"};
+
+  color: ${({ $success }) =>
+    $success ? "#2f8f4c" : "#b47a2f"};
+
+  svg {
+    font-size: 1.35rem;
+  }
+`;
+
+export const StatusBannerText = styled.div`
+  min-width: 0;
+`;
+
+export const StatusBannerTitle = styled.div`
+  color: #4d3423;
+
+  font-size: 0.9rem;
+  font-weight: 800;
+`;
+
+export const StatusBannerDescription = styled.div`
+  margin-top: 2px;
+
+  color: #806e60;
+
+  font-size: 0.76rem;
+
+  line-height: 1.4;
+`;
+
+export const Section = styled.section`
+  margin: 18px 24px 0;
+
+  padding: 19px;
+
+  border: 1px solid
+    rgba(101, 48, 7, 0.1);
+
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+      rgba(50, 29, 17, 0.045);
+
+  @media (max-width: 600px) {
+    margin: 14px 16px 0;
+
+    padding: 16px;
+  }
+`;
+
+export const SectionHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+
+  > svg {
+    color: #a4876b;
+    font-size: 1.25rem;
   }
 `;
 
 export const SectionTitle = styled.h3`
-  margin: 0 0 12px;
+  margin: 0;
 
-  color: #704016;
-
-  font-size: 16px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.4px;
-
-  @media (max-width: 400px) {
-    margin-bottom: 10px;
-
-    font-size: 14px;
-  }
-`;
-
-export const StatusRow = styled.div`
   display: flex;
   align-items: center;
   gap: 9px;
 
-  min-height: 26px;
+  color: #4b2c19;
 
-  color: #704016;
+  font-size: 1rem;
+  font-weight: 800;
+`;
 
-  @media (max-width: 400px) {
-    gap: 7px;
+export const SectionIcon = styled.span`
+  width: 30px;
+  height: 30px;
 
-    font-size: 13px;
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+
+  background: rgba(101, 48, 7, 0.08);
+
+  color: #653007;
+
+  svg {
+    font-size: 1rem;
   }
 `;
 
-export const StatusIndicator = styled.span<{
-  $online: boolean;
-}>`
-  width: 13px;
-  height: 13px;
+export const SectionDescription = styled.p`
+  margin: 5px 0 0 39px;
+
+  color: #927f70;
+
+  font-size: 0.76rem;
+
+  line-height: 1.45;
+
+  @media (max-width: 600px) {
+    margin-left: 0;
+    margin-top: 7px;
+  }
+`;
+
+export const PrinterSelector = styled.div`
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 15px;
+
+  border-radius: 14px;
+
+  background: #faf7f3;
+
+  border: 1px solid
+    rgba(101, 48, 7, 0.08);
+`;
+
+export const PrinterIcon = styled.div`
+  width: 44px;
+  height: 44px;
 
   flex-shrink: 0;
 
-  border-radius: 50%;
+  display: grid;
+  place-items: center;
 
-  background: ${({ $online }) => ($online ? "#38a957" : "#c64d4d")};
+  border-radius: 12px;
 
-  box-shadow: 0 0 0 5px
-    ${({ $online }) =>
-      $online ? "rgba(56, 169, 87, 0.12)" : "rgba(198, 77, 77, 0.12)"};
-
-  @media (max-width: 400px) {
-    width: 11px;
-    height: 11px;
-  }
-`;
-
-export const StatusText = styled.span<{
-  $online: boolean;
-}>`
-  color: ${({ $online }) => ($online ? "#2e7f3e" : "#b64b4b")};
-
-  font-weight: 800;
-
-  min-width: 0;
-
-  overflow-wrap: anywhere;
-
-  @media (max-width: 400px) {
-    font-size: 13px;
-  }
-`;
-
-export const PrinterName = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 13px 14px;
-
-  margin-bottom: 10px;
-
-  background: #f5ecdf;
-
-  border-radius: 10px;
-
-  color: #704016;
-
-  font-weight: 800;
-
-  min-width: 0;
-
-  @media (max-width: 400px) {
-    padding: 11px 10px;
-
-    gap: 7px;
-
-    font-size: 13px;
-  }
-
-  select {
-    min-width: 0;
-
-    width: 100%;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-  }
-`;
-
-export const InfoRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 15px;
-
-  min-height: 35px;
-
-  @media (max-width: 400px) {
-    gap: 8px;
-
-    min-height: 32px;
-  }
-`;
-
-export const InfoLabel = styled.span`
-  color: #777;
-
-  font-weight: 800;
-
-  min-width: 0;
-
-  @media (max-width: 400px) {
-    font-size: 13px;
-  }
-`;
-
-export const InfoValue = styled.span<{
-  $success?: boolean;
-  $error?: boolean;
-}>`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-
-  color: ${({ $success, $error }) =>
-    $success ? "#2f8240" : $error ? "#b64242" : "#704016"};
-
-  font-weight: 800;
-
-  text-align: right;
-
-  min-width: 0;
-
-  overflow-wrap: anywhere;
-
-  @media (max-width: 400px) {
-    font-size: 13px;
-  }
-`;
-
-export const SmallInfo = styled.div`
-  margin-top: 12px;
-  margin-bottom: 7px;
-
-  color: #777;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  overflow-wrap: anywhere;
-
-  @media (max-width: 400px) {
-    margin-top: 9px;
-
-    font-size: 12px;
-  }
-`;
-
-export const Select = styled.select`
-  width: 100%;
-
-  padding: 11px 12px;
-
-  border: 1px solid #dfd0bf;
-
-  border-radius: 9px;
-
-  background: #fffdf9;
-
-  color: #704016;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  outline: none;
-
-  cursor: pointer;
-
-  &:focus {
-    border-color: #c6a16e;
-  }
-
-  @media (max-width: 400px) {
-    padding: 10px;
-
-    font-size: 13px;
-  }
-`;
-
-export const ActionButton = styled.button`
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  margin-top: 12px;
-
-  padding: 11px 14px;
-
-  border: none;
-  border-radius: 9px;
-
-  background: #c6a16e;
+  background: #653007;
 
   color: white;
 
-  font-size: 14px;
-  font-weight: 800;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-
-  &:hover:not(:disabled) {
-    filter: brightness(0.96);
-  }
-
-  &:disabled {
-    background: #ddd0c2;
-    color: #999;
-
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 400px) {
-    padding: 10px 11px;
-
-    font-size: 13px;
+  svg {
+    font-size: 1.25rem;
   }
 `;
 
-export const SecondaryButton = styled.button`
+export const PrinterSelect = styled.select`
+  display: block;
+
   width: 100%;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-top: 4px;
 
-  gap: 8px;
+  padding: 0;
 
-  margin-top: 12px;
+  border: 0;
 
-  padding: 10px 14px;
-
-  border: 1px solid #c6a16e;
-
-  border-radius: 9px;
+  outline: 0;
 
   background: transparent;
 
-  color: #704016;
+  color: #3f2819;
 
-  font-size: 14px;
+  font-size: 0.95rem;
   font-weight: 800;
 
   cursor: pointer;
+`;
 
-  transition: 0.2s;
+export const InfoGrid = styled.div`
+  display: grid;
 
-  &:hover {
-    background: #f5ecdf;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 12px;
+
+  @media (max-width: 760px) {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
-  @media (max-width: 400px) {
-    padding: 9px 10px;
-
-    font-size: 13px;
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
   }
 `;
 
-export const DangerButton = styled.button`
-  width: 100%;
+export const InfoCard = styled.div`
+  min-width: 0;
+
+  padding: 13px;
+
+  border-radius: 13px;
+
+  background: #fbf9f7;
+
+  border: 1px solid
+    rgba(101, 48, 7, 0.07);
+`;
+
+export const InfoLabel = styled.div`
+  color: #9a8777;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.045em;
+`;
+
+export const InfoValue = styled.div<{
+  $success?: boolean;
+  $error?: boolean;
+}>`
+  margin-top: 4px;
 
   display: flex;
   align-items: center;
-  justify-content: center;
 
-  gap: 8px;
+  gap: 5px;
 
-  padding: 11px 14px;
+  min-width: 0;
 
-  border: none;
-  border-radius: 9px;
+  color: ${({ $success, $error }) => {
+    if ($success) {
+      return "#2d8a4b";
+    }
 
-  background: #b85c5c;
+    if ($error) {
+      return "#b54b3c";
+    }
 
-  color: white;
+    return "#4d3523";
+  }};
 
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 0.85rem;
+  font-weight: 750;
 
-  cursor: pointer;
+  word-break: break-word;
+`;
 
-  &:disabled {
-    background: #ddd0c2;
-    color: #999;
+export const QueueSummary = styled.div`
+  display: grid;
 
-    cursor: not-allowed;
-  }
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 
-  @media (max-width: 400px) {
-    padding: 10px 11px;
+  gap: 10px;
 
-    font-size: 13px;
+  @media (max-width: 620px) {
+    grid-template-columns: 1fr;
   }
 `;
 
-export const RefreshButton = styled.button`
-  width: 100%;
+export const QueueSummaryItem = styled.div`
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background: #faf7f3;
+
+  border: 1px solid
+    rgba(101, 48, 7, 0.08);
+`;
+
+export const QueueSummaryIcon = styled.div`
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  background: rgba(101, 48, 7, 0.08);
+
+  color: #653007;
+
+  svg {
+    font-size: 1.15rem;
+  }
+`;
+
+export const QueueBadgeLabel = styled.div`
+  color: #8d7868;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+`;
+
+export const QueueBadgeValue = styled.div`
+  margin-top: 1px;
+
+  color: #4a2b18;
+
+  font-size: 1.2rem;
+  font-weight: 850;
+`;
+
+export const QueueBadge = styled.div<{
+  $warning?: boolean;
+}>`
+  grid-column: 1 / -1;
 
   display: flex;
   align-items: center;
@@ -565,316 +707,703 @@ export const RefreshButton = styled.button`
 
   gap: 7px;
 
-  margin-top: 15px;
+  padding: 9px 12px;
 
-  padding: 12px;
+  border-radius: 11px;
 
-  border: none;
+  background: ${({ $warning }) =>
+    $warning
+      ? "#fff5df"
+      : "#eef9f1"};
 
-  border-radius: 9px;
+  color: ${({ $warning }) =>
+    $warning ? "#a86c20" : "#347849"};
 
-  background: #c6a16e;
+  font-size: 0.77rem;
+  font-weight: 750;
 
-  color: white;
-
-  font-size: 14px;
-  font-weight: 800;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-
-  &:hover:not(:disabled) {
-    filter: brightness(0.96);
-  }
-
-  &:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 400px) {
-    margin-top: 12px;
-
-    padding: 10px;
-
-    font-size: 13px;
+  svg {
+    font-size: 1rem;
   }
 `;
 
+export const ActionGrid = styled.div`
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 12px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const ActionButton = styled.button`
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 10px 14px;
+
+  border: 0;
+  border-radius: 12px;
+
+  background: #653007;
+
+  color: white;
+
+  font-size: 0.82rem;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:hover:not(:disabled) {
+    background: #7b3d10;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+      0 7px 18px
+        rgba(101, 48, 7, 0.18);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    font-size: 1.1rem;
+  }
+`;
+
+export const SecondaryButton = styled.button`
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 10px 14px;
+
+  border: 1px solid
+    rgba(101, 48, 7, 0.15);
+
+  border-radius: 12px;
+
+  background: white;
+
+  color: #653007;
+
+  font-size: 0.82rem;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+
+  &:hover {
+    background: #faf5f0;
+
+    border-color:
+      rgba(101, 48, 7, 0.28);
+
+    transform: translateY(-1px);
+  }
+
+  svg {
+    font-size: 1.1rem;
+  }
+`;
+
+export const DangerButton = styled.button`
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 10px 15px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background: #b64d3d;
+
+  color: white;
+
+  font-size: 0.82rem;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #9f3e31;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    font-size: 1.05rem;
+  }
+`;
+
+export const RefreshButton = styled.button`
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 9px 15px;
+
+  border: 1px solid
+    rgba(101, 48, 7, 0.16);
+
+  border-radius: 12px;
+
+  background: white;
+
+  color: #653007;
+
+  font-size: 0.8rem;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+
+  &:hover:not(:disabled) {
+    background: #faf5f0;
+
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    font-size: 1.1rem;
+  }
+`;
+
+export const ResponsiveRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin: 18px 24px 22px;
+
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+
+    margin: 14px 16px 18px;
+  }
+`;
+
+export const SmallInfo = styled.span`
+  color: #9a8777;
+
+  font-size: 0.74rem;
+`;
+
 export const Loading = styled.div`
-  padding: 35px 10px;
+  min-height: 360px;
 
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  color: #704016;
+  flex-direction: column;
 
+  gap: 12px;
+
+  color: #765b45;
+
+  font-size: 0.9rem;
   font-weight: 700;
 
-  @media (max-width: 400px) {
-    padding: 25px 8px;
+  svg {
+    font-size: 1.8rem;
 
-    font-size: 13px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
 export const ErrorMessage = styled.div`
-  margin-top: 12px;
+  display: flex;
+  align-items: center;
 
-  padding: 10px 12px;
+  gap: 9px;
 
-  border-radius: 8px;
+  margin: 14px 24px 0;
 
-  background: #f9e4e4;
+  padding: 12px 14px;
 
-  color: #a83f3f;
+  border: 1px solid
+    rgba(182, 77, 61, 0.16);
 
-  font-size: 13px;
-  font-weight: 700;
+  border-radius: 12px;
 
-  overflow-wrap: anywhere;
+  background: #fff2f0;
 
-  @media (max-width: 400px) {
-    padding: 9px 10px;
+  color: #a44032;
 
-    font-size: 12px;
+  font-size: 0.8rem;
+  font-weight: 650;
+
+  svg {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 600px) {
+    margin: 14px 16px 0;
+  }
+`;
+
+export const EmptyMessage = styled.div`
+  min-height: 90px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 20px;
+
+  border-radius: 13px;
+
+  background: #faf8f6;
+
+  color: #927f70;
+
+  font-size: 0.8rem;
+
+  text-align: center;
+
+  svg {
+    color: #579267;
+    font-size: 1.15rem;
+  }
+`;
+
+export const SubModalOverlay = styled(Overlay)`
+  z-index: 1010;
+
+  background: rgba(25, 17, 12, 0.72);
+`;
+
+export const SubModal = styled.div`
+  width: min(720px, 100%);
+
+  max-height: calc(100vh - 48px);
+
+  overflow-y: auto;
+
+  padding-bottom: 20px;
+
+  border-radius: 22px;
+
+  background: #faf8f5;
+
+  box-shadow:
+    0 30px 80px
+      rgba(30, 18, 10, 0.35);
+
+  scrollbar-width: thin;
+
+  @media (max-width: 600px) {
+    width: 100%;
+
+    max-height: 94vh;
+
+    border-radius: 22px 22px 0 0;
+  }
+`;
+
+export const SubModalHeader = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 3;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 17px 20px;
+
+  background: #653007;
+
+  color: white;
+
+  border-radius: 22px 22px 0 0;
+
+  @media (max-width: 600px) {
+    border-radius: 22px 22px 0 0;
+  }
+`;
+
+export const SubModalTitle = styled.h3`
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  font-size: 1rem;
+
+  svg {
+    font-size: 1.2rem;
+  }
+`;
+
+export const SubModalClose = styled.button`
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.2);
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: white;
+
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.17);
+  }
+
+  svg {
+    font-size: 1.2rem;
   }
 `;
 
 export const JobList = styled.div`
   display: flex;
+
   flex-direction: column;
 
   gap: 8px;
-
-  max-height: 330px;
-
-  overflow-y: auto;
-
-  padding-right: 3px;
-
-  @media (max-width: 400px) {
-    max-height: 280px;
-  }
 `;
 
 export const JobItem = styled.div<{
-  $selected: boolean;
+  $selected?: boolean;
 }>`
   display: flex;
   align-items: center;
 
-  gap: 10px;
+  gap: 11px;
 
   padding: 12px;
 
-  border: 1px solid ${({ $selected }) => ($selected ? "#c6a16e" : "#e5d8c9")};
+  border: 1px solid
+    ${({ $selected }) =>
+      $selected
+        ? "rgba(101, 48, 7, 0.3)"
+        : "rgba(101, 48, 7, 0.08)"};
 
-  border-radius: 10px;
+  border-radius: 13px;
 
-  background: ${({ $selected }) => ($selected ? "#f5e8d8" : "#fffdf9")};
+  background: ${({ $selected }) =>
+    $selected ? "#f7eee7" : "#ffffff"};
 
   cursor: pointer;
 
-  transition: 0.2s;
-
-  min-width: 0;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease;
 
   &:hover {
-    background: #f8eee3;
-  }
+    transform: translateY(-1px);
 
-  @media (max-width: 400px) {
-    gap: 7px;
+    background: #fbf6f1;
 
-    padding: 10px;
+    border-color:
+      rgba(101, 48, 7, 0.18);
   }
 `;
 
-export const JobRadio = styled.input`
-  width: 17px;
-  height: 17px;
+export const JobSelection = styled.div`
+  width: 22px;
+
+  display: grid;
+  place-items: center;
+
+  input {
+    accent-color: #653007;
+
+    width: 16px;
+    height: 16px;
+
+    cursor: pointer;
+  }
+`;
+
+export const JobIcon = styled.div`
+  width: 38px;
+  height: 38px;
 
   flex-shrink: 0;
 
-  accent-color: #c6a16e;
+  display: grid;
+  place-items: center;
 
-  cursor: pointer;
+  border-radius: 10px;
 
-  @media (max-width: 400px) {
-    width: 15px;
-    height: 15px;
+  background: rgba(101, 48, 7, 0.08);
+
+  color: #653007;
+
+  svg {
+    font-size: 1.15rem;
   }
 `;
 
 export const JobInfo = styled.div`
-  flex: 1;
-
   min-width: 0;
+
+  flex: 1;
 `;
 
 export const JobTitle = styled.div`
-  color: #704016;
+  overflow: hidden;
 
-  font-size: 14px;
+  color: #4b2c19;
+
+  font-size: 0.84rem;
   font-weight: 800;
 
-  overflow-wrap: anywhere;
-
-  @media (max-width: 400px) {
-    font-size: 13px;
-  }
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const JobStatus = styled.div`
   margin-top: 3px;
 
-  color: #777;
+  color: #806e60;
 
-  font-size: 12px;
+  font-size: 0.74rem;
+`;
 
-  overflow-wrap: anywhere;
+export const JobMeta = styled.div`
+  margin-top: 2px;
 
-  @media (max-width: 400px) {
-    font-size: 11px;
+  color: #9a8777;
+
+  font-size: 0.7rem;
+`;
+
+export const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 12px;
+
+  @media (max-width: 560px) {
+    button {
+      width: 100%;
+    }
   }
 `;
 
-export const CashOrderList = styled.div`
+export const SelectWrapper = styled.div`
   display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+`;
+
+export const SelectLabel = styled.label`
+  color: #765b45;
+
+  font-size: 0.74rem;
+  font-weight: 750;
+`;
+
+export const Select = styled.select`
+  width: 100%;
+
+  min-height: 44px;
+
+  padding: 0 13px;
+
+  border: 1px solid
+    rgba(101, 48, 7, 0.14);
+
+  border-radius: 12px;
+
+  outline: none;
+
+  background: white;
+
+  color: #4d3523;
+
+  font-size: 0.82rem;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  &:focus {
+    border-color: #8b542a;
+
+    box-shadow:
+      0 0 0 3px
+        rgba(101, 48, 7, 0.08);
+  }
+`;
+
+export const OrderList = styled.div`
+  display: flex;
+
   flex-direction: column;
 
   gap: 8px;
 
-  max-height: 360px;
-
-  overflow-y: auto;
-
   margin-top: 12px;
-
-  padding-right: 3px;
-
-  @media (max-width: 400px) {
-    max-height: 300px;
-
-    margin-top: 10px;
-  }
 `;
 
-export const CashOrderItem = styled.div<{
-  $selected: boolean;
+export const OrderItem = styled.div<{
+  $selected?: boolean;
 }>`
   display: flex;
   align-items: center;
 
-  gap: 10px;
+  gap: 11px;
 
-  padding: 12px;
+  padding: 13px;
 
-  border: 1px solid ${({ $selected }) => ($selected ? "#c6a16e" : "#e5d8c9")};
+  border: 1px solid
+    ${({ $selected }) =>
+      $selected
+        ? "rgba(101, 48, 7, 0.3)"
+        : "rgba(101, 48, 7, 0.08)"};
 
-  border-radius: 10px;
+  border-radius: 13px;
 
-  background: ${({ $selected }) => ($selected ? "#f5e8d8" : "#fffdf9")};
+  background: ${({ $selected }) =>
+    $selected ? "#f7eee7" : "#ffffff"};
 
   cursor: pointer;
 
-  transition: 0.2s;
-
-  min-width: 0;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease;
 
   &:hover {
-    background: #f8eee3;
-  }
+    transform: translateY(-1px);
 
-  @media (max-width: 400px) {
-    gap: 7px;
-
-    padding: 10px;
+    background: #fbf6f1;
   }
 `;
 
-export const CashOrderInfo = styled.div`
-  flex: 1;
-
-  min-width: 0;
-`;
-
-export const CashOrderTitle = styled.div`
-  color: #704016;
-
-  font-size: 15px;
-  font-weight: 800;
-
-  @media (max-width: 400px) {
-    font-size: 13px;
-  }
-`;
-
-export const CashOrderCustomer = styled.div`
-  margin-top: 3px;
-
-  overflow: hidden;
-
-  color: #777;
-
-  font-size: 12px;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-
-  @media (max-width: 400px) {
-    font-size: 11px;
-  }
-`;
-
-export const CashOrderTotal = styled.div`
-  color: #704016;
-
-  font-size: 14px;
-  font-weight: 800;
-
-  white-space: nowrap;
+export const OrderIcon = styled.div`
+  width: 40px;
+  height: 40px;
 
   flex-shrink: 0;
 
-  @media (max-width: 400px) {
-    font-size: 12px;
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  background: rgba(101, 48, 7, 0.08);
+
+  color: #653007;
+
+  svg {
+    font-size: 1.2rem;
   }
 `;
 
-export const EmptyMessage = styled.div`
-  padding: 25px 15px;
+export const OrderInfo = styled.div`
+  min-width: 0;
 
-  border-radius: 10px;
-
-  background: #f5ecdf;
-
-  color: #777;
-
-  text-align: center;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  @media (max-width: 400px) {
-    padding: 20px 10px;
-
-    font-size: 12px;
-  }
+  flex: 1;
 `;
 
-export const ModalFooter = styled.div`
-  margin-top: 16px;
+export const OrderTitle = styled.div`
+  color: #4b2c19;
 
-  padding-top: 14px;
+  font-size: 0.84rem;
+  font-weight: 800;
+`;
 
-  border-top: 1px solid #e5d8c9;
+export const OrderCustomer = styled.div`
+  overflow: hidden;
 
-  @media (max-width: 400px) {
-    margin-top: 12px;
+  margin-top: 3px;
 
-    padding-top: 11px;
+  color: #8a7666;
+
+  font-size: 0.74rem;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const OrderTotal = styled.div`
+  flex-shrink: 0;
+
+  color: #653007;
+
+  font-size: 0.85rem;
+  font-weight: 850;
+
+  @media (max-width: 420px) {
+    font-size: 0.78rem;
   }
 `;

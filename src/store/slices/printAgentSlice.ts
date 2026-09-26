@@ -23,6 +23,7 @@ const PrintAgentSlice = createSlice({
 
   reducers: {
     setPrinterActive: (state, action: PayloadAction<boolean>) => {
+      console.log("🔵 setPrinterActive:", action.payload);
       state.printerActive = action.payload;
     },
 
@@ -34,13 +35,26 @@ const PrintAgentSlice = createSlice({
         timestamp?: string;
       }>,
     ) => {
-      state.agentConnected = action.payload.connected;
-      state.printerStatus = action.payload.status;
-      state.printerActive = Boolean(
-        action.payload.connected &&
+      console.log("🟢 setPrintAgentStatus:", {
+        connected: action.payload.connected,
+        statusConnected: action.payload.status?.connected,
+        statusOnline: action.payload.status?.online,
+        printerActive: Boolean(
+          action.payload.connected &&
           action.payload.status?.connected &&
           action.payload.status?.online,
+        ),
+      });
+
+      state.agentConnected = action.payload.connected;
+      state.printerStatus = action.payload.status;
+
+      state.printerActive = Boolean(
+        action.payload.connected &&
+        action.payload.status?.connected &&
+        action.payload.status?.online,
       );
+
       state.lastStatusUpdate = action.payload.timestamp ?? null;
     },
   },

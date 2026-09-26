@@ -54,9 +54,17 @@ let reconnectTimer: number | null = null;
 let heartbeatTimer: number | null = null;
 let printStatusTimer: number | null = null;
 let refreshTimer: number | null = null;
+
 let reconnectDelay = 1000;
 let stopped = false;
+
 let currentDispatch: AppDispatch | null = null;
+
+/**
+ * Evita que dos consultas al Print Agent
+ * se ejecuten simultáneamente.
+ */
+let printStatusRefreshing = false;
 
 const pendingPrintRequests = new Map<
   string,
@@ -159,9 +167,7 @@ const buildDisconnectedStatus = (): PrinterStatus => ({
 });
 
 const publishPrintStatus = async () => {
-  if (!isPrintServer() || socket?.readyState !== WebSocket.OPEN) {
-    return;
-  }
+  if (!isPrintServer() || socket?.readyState !== WebSocket.OPEN) return;
 
   try {
     const [health, printerStatus] = await Promise.all([
@@ -183,7 +189,7 @@ const publishPrintStatus = async () => {
 
     currentDispatch?.(
       setPrintAgentStatus({
-        connected: true,
+        connected: health,
         status,
         timestamp: new Date().toISOString(),
       }),
@@ -214,7 +220,6 @@ const publishPrintStatus = async () => {
     );
   }
 };
-
 const startPrintStatusPolling = () => {
   if (!isPrintServer()) {
     return;
@@ -224,8 +229,14 @@ const startPrintStatusPolling = () => {
     window.clearInterval(printStatusTimer);
   }
 
+  /**
+   * Primera consulta inmediatamente.
+   */
   void publishPrintStatus();
 
+  /**
+   * Después solamente una consulta cada 5 segundos.
+   */
   printStatusTimer = window.setInterval(() => {
     void publishPrintStatus();
   }, 5000);
@@ -236,6 +247,8 @@ const stopPrintStatusPolling = () => {
     window.clearInterval(printStatusTimer);
     printStatusTimer = null;
   }
+
+  printStatusRefreshing = false;
 };
 
 const printRemoteOrder = async (event: WebSocketChangeEvent) => {
@@ -439,6 +452,7 @@ const connectWebSocket = () => {
 
       if (isPrintServer()) {
         socket?.send(JSON.stringify({ type: "REGISTER_PRINT_SERVER" }));
+
         startPrintStatusPolling();
       } else {
         currentDispatch?.(
@@ -460,7 +474,9 @@ const connectWebSocket = () => {
 
           currentDispatch?.(
             setPrintAgentStatus({
-              connected: Boolean(status?.agent_connected ?? status?.connected),
+              connected: Boolean(
+                status?.agent_connected ?? status?.connected,
+              ),
               status,
               timestamp: event.timestamp,
             }),
@@ -545,6 +561,7 @@ export const startWebSocket = (dispatch: AppDispatch) => {
 export const stopWebSocket = () => {
   stopped = true;
   currentDispatch = null;
+
   clearTimers();
   rejectPendingPrintRequests();
 
