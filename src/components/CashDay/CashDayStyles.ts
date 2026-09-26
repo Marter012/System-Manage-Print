@@ -77,7 +77,7 @@ export const SummaryBar = styled.div`
 
   border: 1px solid #e1d8d0;
 
-  overflow: hidden ;
+  overflow: hidden;
 
   margin-bottom: 0;
 
@@ -862,33 +862,60 @@ export const CashContent = styled.div`
     minmax(0, 2fr)
     minmax(320px, 1fr);
 
+  /*
+   * Primera fila = ocupa todo el espacio disponible
+   * Segunda fila = ocupa solamente lo que necesita
+   */
+  grid-template-rows: minmax(0, 1fr) auto;
+
   gap: 24px;
 
-  align-items: stretch;
-
-  /* =========================
-     DESKTOP / NOTEBOOK
-     ========================= */
-
-  max-height: 80%;
+  /*
+   * ESTA es la altura que controla todo el contenido.
+   * Podés cambiar 80% por 75%, 70%, etc.
+   */
+  height: 80%;
 
   min-height: 0;
 
   box-sizing: border-box;
 
+  /*
+   * El padre NO hace scroll.
+   */
   overflow: hidden;
 
   .cash-sales,
   .cash-movements {
     min-width: 0;
+    min-height: 0;
+
+    /*
+     * Ocupan exactamente el espacio que
+     * les asigna el grid.
+     */
+    height: 100%;
+
+
+    /*
+     * Importante: permite que el contenido
+     * pueda achicarse junto con el grid.
+     */
+    overflow: hidden;
   }
 
   .cash-mobile-hidden {
     display: block;
   }
 
+  /*
+   * Cash close ocupa su propia fila
+   * y no modifica la altura de la primera.
+   */
   .cash-close {
     grid-column: 1 / -1;
+
+    min-height: 0;
   }
 
   /* =========================
@@ -899,7 +926,6 @@ export const CashContent = styled.div`
     width: 100%;
 
     display: flex;
-
     flex-direction: column;
 
     align-items: stretch;
@@ -907,26 +933,13 @@ export const CashContent = styled.div`
     gap: 18px;
 
     height: auto;
-
     min-height: 0;
 
     overflow: visible;
 
     position: relative;
-
     z-index: 1;
 
-    .cash-sales,
-    .cash-movements {
-      width: 100%;
-
-      min-width: 0;
-    }
-
-    /*
-     * En tablet/celular solamente se muestra
-     * el panel seleccionado.
-     */
     .cash-mobile-hidden {
       display: none;
     }
@@ -935,9 +948,13 @@ export const CashContent = styled.div`
       display: block;
     }
 
+    .cash-movements,
+    .cash-sales {
+      height: 80%;
+    }
+
     .cash-close {
       order: 3;
-
       width: 100%;
     }
   }
@@ -950,7 +967,6 @@ export const CashContent = styled.div`
     width: 100%;
 
     display: flex;
-
     flex-direction: column;
 
     align-items: stretch;
@@ -958,19 +974,12 @@ export const CashContent = styled.div`
     gap: 14px;
 
     height: auto;
-
     min-height: 0;
 
     overflow: visible;
 
     position: relative;
-
     z-index: 1;
-
-    .cash-sales,
-    .cash-movements {
-      width: 100%;
-    }
 
     .cash-close {
       width: 100%;
@@ -999,40 +1008,9 @@ export const SalesContainer = styled.div`
      DESKTOP
      ========================= */
 
-  height: 350px;
+  height: 100%;
 
   min-height: 0;
-
-  /* =========================
-     TABLET
-     ========================= */
-
-  @media (max-width: 1050px) {
-    height: auto;
-
-    min-height: 280px;
-    overflow: visible;
-  }
-
-  /* =========================
-     MOBILE
-     ========================= */
-
-  @media (max-width: 700px) {
-    height: auto;
-
-    min-height: 250px;
-
-    overflow: visible;
-  }
-
-  /* =========================
-     MOBILE PEQUEÑO
-     ========================= */
-
-  @media (max-width: 420px) {
-    min-height: 220px;
-  }
 `;
 
 /* ============================================================

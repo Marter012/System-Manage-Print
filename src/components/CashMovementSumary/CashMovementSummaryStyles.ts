@@ -6,9 +6,8 @@ import styled from "styled-components";
 
 export const SummaryContainer = styled.div`
   width: 100%;
-  max-width: 100%; 
+  max-width: 100%;
   min-width: 0;
-
   display: flex;
   flex-direction: column;
 
@@ -26,7 +25,7 @@ export const SummaryContainer = styled.div`
   /*
     ALTURA CONTROLADA EN ESCRITORIO
   */
-  height: 350px;
+  height: 100%;
 
   min-height: 0;
 
@@ -89,14 +88,6 @@ export const SummaryContainer = styled.div`
     width: 100%;
     max-width: 100%;
 
-    /*
-      En tablet vuelve a crecer normalmente.
-    */
-    height: auto;
-
-    min-height: 320px;
-
-    overflow: visible;
   }
 
   /* =======================================================
@@ -106,10 +97,6 @@ export const SummaryContainer = styled.div`
   @media (max-width: 700px) {
     width: 100%;
     max-width: 100%;
-
-    height: auto;
-
-    min-height: 280px;
 
     padding: 16px;
 
@@ -146,8 +133,6 @@ export const SummaryContainer = styled.div`
      ======================================================= */
 
   @media (max-width: 420px) {
-    min-height: 260px;
-
     padding: 13px;
 
     border-radius: 10px;
@@ -271,16 +256,16 @@ export const MovementList = styled.div`
   flex: 1;
 
   min-height: 0;
-
+  height: 60%;
   margin-top: 0;
-overflow-y: auto;
-overflow-x: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 
-scrollbar-width: none;
+  scrollbar-width: none;
 
-&::-webkit-scrollbar {
-  display: none;
-}
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   box-sizing: border-box;
 
@@ -305,11 +290,9 @@ scrollbar-width: none;
   }
 
   @media (max-width: 1050px) {
-    height: auto;
 
     flex: none;
 
-    overflow: visible;
   }
 
   /*
@@ -319,13 +302,10 @@ scrollbar-width: none;
     width: 100%;
     max-width: 100%;
 
-    height: auto;
-
     flex: none;
 
     margin-top: 0;
 
-    overflow: visible;
 
     > p {
       padding: 18px 10px;

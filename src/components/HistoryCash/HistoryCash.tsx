@@ -6,7 +6,7 @@ import type { RootState } from "../../store/store.ts";
 
 import type { ICashRegister } from "../../interfaces/CashRegister.ts";
 
-import { formatDate, getDateTime } from "../Utils/Formats.tsx";
+import { formatDate, getDateOnly } from "../Utils/Formats.tsx";
 
 import ModalForm from "../ModalForm/ModalForm.tsx";
 
@@ -560,7 +560,7 @@ const HistoryCash = () => {
 
                 <strong>
                   {selectedCashRegister.opened_at
-                    ? getDateTime(selectedCashRegister.opened_at)
+                    ? getDateOnly(selectedCashRegister.opened_at)
                     : "—"}
                 </strong>
               </DetailItem>
@@ -572,7 +572,7 @@ const HistoryCash = () => {
 
                 <strong>
                   {selectedCashRegister.closed_at
-                    ? getDateTime(selectedCashRegister.closed_at)
+                    ? getDateOnly(selectedCashRegister.closed_at)
                     : "—"}
                 </strong>
               </DetailItem>

@@ -24,7 +24,6 @@ const CashMovementSummary = ({
   onIncome,
   onExpense,
 }: CashMovementSummaryProps) => {
-
   const recentMovements = [...movements]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
@@ -32,7 +31,7 @@ const CashMovementSummary = ({
   return (
     <SummaryContainer>
       <SummaryHeader>
-          <h3>Movimientos</h3>
+        <h3>Movimientos</h3>
       </SummaryHeader>
 
       <MovementList>
@@ -44,7 +43,15 @@ const CashMovementSummary = ({
               <div>
                 <strong>{movement.description || "Sin descripción"}</strong>
 
-                <small>{movement.method_payment}</small>
+                <small>
+                  {movement.method_payment === "cash"
+                    ? "Efectivo"
+                    : movement.method_payment === "debit"
+                      ? "Debito"
+                      : movement.method_payment === "qr"
+                        ? "QR"
+                        : "Transferencia"}
+                </small>
               </div>
 
               <MovementType
