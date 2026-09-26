@@ -6,9 +6,9 @@ import styled from "styled-components";
 
 export const CashDayContent = styled.div`
   width: 100%;
-  max-height: 100%;
+  height: 100%;
   min-width: 0;
-
+  background-color: blue;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -874,9 +874,9 @@ export const CashContent = styled.div`
    * ESTA es la altura que controla todo el contenido.
    * Podés cambiar 80% por 75%, 70%, etc.
    */
-  height: 80%;
-
   min-height: 0;
+  height: 80%;
+  background-color: red;
 
   box-sizing: border-box;
 
@@ -889,13 +889,13 @@ export const CashContent = styled.div`
   .cash-movements {
     min-width: 0;
     min-height: 0;
+    background-color: black;
 
     /*
      * Ocupan exactamente el espacio que
      * les asigna el grid.
      */
     height: 100%;
-
 
     /*
      * Importante: permite que el contenido
@@ -931,9 +931,6 @@ export const CashContent = styled.div`
     align-items: stretch;
 
     gap: 18px;
-
-    height: auto;
-    min-height: 0;
 
     overflow: visible;
 
@@ -972,9 +969,6 @@ export const CashContent = styled.div`
     align-items: stretch;
 
     gap: 14px;
-
-    height: auto;
-    min-height: 0;
 
     overflow: visible;
 
