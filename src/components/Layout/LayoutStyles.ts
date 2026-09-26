@@ -15,5 +15,4 @@ export const LayoutContainer = styled.div`
   flex-direction: column;
 
   position: relative;
-  background-color: black;
 `;
