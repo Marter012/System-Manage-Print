@@ -87,6 +87,8 @@ export interface WindowsPrintJob {
 }
 
 export interface PrinterStatus {
+  /** Estado del Print Agent que vive en la PC. */
+  agent_connected?: boolean;
   connected: boolean;
   online: boolean;
   status: string;

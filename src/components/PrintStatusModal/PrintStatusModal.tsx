@@ -81,6 +81,10 @@ import type {
 } from "../../interfaces/PrintAgent.ts";
 import { getAxiosErrorMessage } from "../Utils/ErrorAxios.tsx";
 import { setPrinterActive } from "../../store/slices/printAgentSlice.ts";
+import {
+  isPrintServer,
+  requestPrintFromPrintServer,
+} from "../../websocket/websocketService.ts";
 
 interface PrintStatusModalProps {
   isOpen: boolean;
@@ -123,6 +127,14 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
   );
 
   const orders = useSelector((state: RootState) => state.orders.orders);
+
+  const remoteAgentConnected = useSelector(
+    (state: RootState) => state.printAgent.agentConnected,
+  );
+
+  const remotePrinterStatus = useSelector(
+    (state: RootState) => state.printAgent.printerStatus,
+  );
 
   const [selectedCashRegisterId, setSelectedCashRegisterId] = useState("");
 
@@ -257,12 +269,40 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
    */
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isPrintServer()) {
+      return;
+    }
 
-    loadInitialData();
+    setOnline(remoteAgentConnected);
+    setPrinterStatus(remotePrinterStatus);
+
+    if (remotePrinterStatus) {
+      setConfig({
+        printer_name: remotePrinterStatus.printer,
+        printer_type: remotePrinterStatus.printer_type,
+        printer_ip: null,
+        printer_port: 0,
+        simulation: false,
+        business_name: "",
+      });
+      setSelectedPrinter(remotePrinterStatus.printer || "");
+    } else {
+      setConfig(null);
+    }
+
+    setError(false);
+    setLoading(false);
+  }, [isOpen, remoteAgentConnected, remotePrinterStatus]);
+
+  useEffect(() => {
+    if (!isOpen || !isPrintServer()) {
+      return;
+    }
+
+    void loadInitialData();
 
     const interval = setInterval(() => {
-      refreshPrinterStatus();
+      void refreshPrinterStatus();
     }, 5000);
 
     return () => {
@@ -355,22 +395,29 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
 
     try {
       setPrintingOrderId(selectedOrder.id);
-
       setError(false);
 
       const ticket = buildOrderTicket(selectedOrder);
 
-      await printOrderAPI(ticket);
+      if (isPrintServer()) {
+        await printOrderAPI(ticket);
+
+        /*
+         * Esperamos un pequeño momento para
+         * permitir que Windows registre el trabajo.
+         */
+        setTimeout(() => {
+          void refreshPrinterStatus();
+        }, 500);
+      } else {
+        const success = await requestPrintFromPrintServer(ticket);
+
+        if (!success) {
+          throw new Error("La PC con el Print Agent no pudo imprimir la comanda.");
+        }
+      }
 
       setSelectedOrderId(null);
-
-      /*
-       * Esperamos un pequeño momento para
-       * permitir que Windows registre el trabajo.
-       */
-      setTimeout(() => {
-        refreshPrinterStatus();
-      }, 500);
     } catch (error) {
       getAxiosErrorMessage(error);
       setError(true);
@@ -408,7 +455,7 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
    */
 
   const handlePrinterChange = async (printerName: string) => {
-    if (!config) {
+    if (!isPrintServer() || !config) {
       return;
     }
 

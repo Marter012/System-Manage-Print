@@ -6,16 +6,22 @@ import { getOrdersAPI } from "../services/orderService.ts";
 import { getCashRegistersAPI } from "../services/cashRegisterService.ts";
 import { getCashMovementsAPI } from "../services/cashMovementService.ts";
 import { getPromotionsAPI } from "../services/promotionService.ts";
-import { printOrderAPI } from "../services/printAgentService.ts";
+import {
+  getHealth,
+  getPrinterStatusAPI,
+  printOrderAPI,
+} from "../services/printAgentService.ts";
 
 import { setProducts } from "../store/slices/productSlice.ts";
 import { setOrders } from "../store/slices/orderSlice.ts";
 import { setCashRegisters } from "../store/slices/cashRegisterSlice.ts";
 import { setCashMovements } from "../store/slices/cashMovementSlice.ts";
 import { setPromotions } from "../store/slices/promotionSlice.ts";
+import { setPrintAgentStatus } from "../store/slices/printAgentSlice.ts";
 
 import { buildOrderTicket } from "../components/Utils/OrderTicket.ts";
 import type { IOrder } from "../interfaces/Order.ts";
+import type { PrinterStatus } from "../interfaces/PrintAgent.ts";
 
 interface WebSocketChangeEvent {
   type: "DATA_CHANGED";
@@ -26,13 +32,40 @@ interface WebSocketChangeEvent {
   timestamp: string;
 }
 
+interface PrintRequestMessage {
+  type: "PRINT_REQUEST";
+  request_id: string;
+  source_client_id: string;
+  ticket: string;
+}
+
+interface PrintResultMessage {
+  type: "PRINT_RESULT";
+  request_id: string;
+  success: boolean;
+  response?: unknown;
+  error?: string;
+}
+
+const PRINT_SERVER_STORAGE_KEY = "boutique-sabores-print-server";
+
 let socket: WebSocket | null = null;
 let reconnectTimer: number | null = null;
 let heartbeatTimer: number | null = null;
+let printStatusTimer: number | null = null;
 let refreshTimer: number | null = null;
 let reconnectDelay = 1000;
 let stopped = false;
 let currentDispatch: AppDispatch | null = null;
+
+const pendingPrintRequests = new Map<
+  string,
+  {
+    resolve: (success: boolean) => void;
+    reject: (error: Error) => void;
+    timeout: number;
+  }
+>();
 
 const getWebSocketURL = (): string => {
   const configuredUrl = import.meta.env.VITE_API_WS_URL as string | undefined;
@@ -55,8 +88,8 @@ const getWebSocketURL = (): string => {
   return `${websocketBaseUrl}/ws`;
 };
 
-const isPrintServer = (): boolean => {
-  const configured = localStorage.getItem("boutique-sabores-print-server");
+export const isPrintServer = (): boolean => {
+  const configured = localStorage.getItem(PRINT_SERVER_STORAGE_KEY);
 
   if (configured === "true") {
     return true;
@@ -110,6 +143,101 @@ const scheduleRefresh = (dispatch: AppDispatch) => {
   }, 150);
 };
 
+const buildDisconnectedStatus = (): PrinterStatus => ({
+  agent_connected: false,
+  connected: false,
+  online: false,
+  status: "DISCONNECTED",
+  status_message: "El Print Agent no está conectado.",
+  printer: "",
+  printer_type: "",
+  driver: null,
+  server: null,
+  queue_count: 0,
+  jobs: [],
+  agent_queue_count: 0,
+});
+
+const publishPrintStatus = async () => {
+  if (!isPrintServer() || socket?.readyState !== WebSocket.OPEN) {
+    return;
+  }
+
+  try {
+    const [health, printerStatus] = await Promise.all([
+      getHealth(),
+      getPrinterStatusAPI(),
+    ]);
+
+    const status: PrinterStatus = {
+      ...printerStatus,
+      agent_connected: health,
+    };
+
+    socket.send(
+      JSON.stringify({
+        type: "PRINT_STATUS",
+        data: status,
+      }),
+    );
+
+    currentDispatch?.(
+      setPrintAgentStatus({
+        connected: true,
+        status,
+        timestamp: new Date().toISOString(),
+      }),
+    );
+  } catch (error) {
+    const status = buildDisconnectedStatus();
+
+    console.warn(
+      "No se pudo consultar el Print Agent local. Publicando estado desconectado.",
+      error,
+    );
+
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({
+          type: "PRINT_STATUS",
+          data: status,
+        }),
+      );
+    }
+
+    currentDispatch?.(
+      setPrintAgentStatus({
+        connected: false,
+        status,
+        timestamp: new Date().toISOString(),
+      }),
+    );
+  }
+};
+
+const startPrintStatusPolling = () => {
+  if (!isPrintServer()) {
+    return;
+  }
+
+  if (printStatusTimer !== null) {
+    window.clearInterval(printStatusTimer);
+  }
+
+  void publishPrintStatus();
+
+  printStatusTimer = window.setInterval(() => {
+    void publishPrintStatus();
+  }, 5000);
+};
+
+const stopPrintStatusPolling = () => {
+  if (printStatusTimer !== null) {
+    window.clearInterval(printStatusTimer);
+    printStatusTimer = null;
+  }
+};
+
 const printRemoteOrder = async (event: WebSocketChangeEvent) => {
   if (event.resource !== "order" || event.action !== "created") {
     return;
@@ -145,6 +273,96 @@ const printRemoteOrder = async (event: WebSocketChangeEvent) => {
   }
 };
 
+const handlePrintRequest = async (event: PrintRequestMessage) => {
+  if (!isPrintServer()) {
+    return;
+  }
+
+  try {
+    const response = await printOrderAPI(event.ticket);
+
+    socket?.send(
+      JSON.stringify({
+        type: "PRINT_RESULT",
+        request_id: event.request_id,
+        source_client_id: event.source_client_id,
+        success: true,
+        response,
+      }),
+    );
+
+    void publishPrintStatus();
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "No se pudo imprimir.";
+
+    socket?.send(
+      JSON.stringify({
+        type: "PRINT_RESULT",
+        request_id: event.request_id,
+        source_client_id: event.source_client_id,
+        success: false,
+        error: message,
+      }),
+    );
+
+    void publishPrintStatus();
+  }
+};
+
+const handlePrintResult = (event: PrintResultMessage) => {
+  const pending = pendingPrintRequests.get(event.request_id);
+
+  if (!pending) {
+    return;
+  }
+
+  window.clearTimeout(pending.timeout);
+  pendingPrintRequests.delete(event.request_id);
+
+  if (event.success) {
+    pending.resolve(true);
+  } else {
+    pending.resolve(false);
+  }
+};
+
+export const requestPrintFromPrintServer = (
+  ticket: string,
+  timeoutMs = 15000,
+): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    if (socket?.readyState !== WebSocket.OPEN) {
+      resolve(false);
+      return;
+    }
+
+    const requestId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const timeout = window.setTimeout(() => {
+      pendingPrintRequests.delete(requestId);
+      reject(new Error("La PC con el Print Agent no respondió a tiempo."));
+    }, timeoutMs);
+
+    pendingPrintRequests.set(requestId, {
+      resolve,
+      reject,
+      timeout,
+    });
+
+    socket.send(
+      JSON.stringify({
+        type: "PRINT_REQUEST",
+        request_id: requestId,
+        ticket,
+      }),
+    );
+  });
+};
+
 const clearTimers = () => {
   if (reconnectTimer !== null) {
     window.clearTimeout(reconnectTimer);
@@ -159,6 +377,16 @@ const clearTimers = () => {
   if (refreshTimer !== null) {
     window.clearTimeout(refreshTimer);
     refreshTimer = null;
+  }
+
+  stopPrintStatusPolling();
+};
+
+const rejectPendingPrintRequests = () => {
+  for (const [requestId, pending] of pendingPrintRequests.entries()) {
+    window.clearTimeout(pending.timeout);
+    pending.reject(new Error("Se perdió la conexión con el servidor."));
+    pendingPrintRequests.delete(requestId);
   }
 };
 
@@ -208,11 +436,53 @@ const connectWebSocket = () => {
           socket.send(JSON.stringify({ type: "ping" }));
         }
       }, 20000);
+
+      if (isPrintServer()) {
+        socket?.send(JSON.stringify({ type: "REGISTER_PRINT_SERVER" }));
+        startPrintStatusPolling();
+      } else {
+        currentDispatch?.(
+          setPrintAgentStatus({
+            connected: false,
+            status: null,
+            timestamp: new Date().toISOString(),
+          }),
+        );
+      }
     };
 
     socket.onmessage = (message) => {
       try {
-        const event = JSON.parse(message.data) as WebSocketChangeEvent;
+        const event = JSON.parse(message.data);
+
+        if (event.type === "PRINT_STATUS") {
+          const status = event.data as PrinterStatus;
+
+          currentDispatch?.(
+            setPrintAgentStatus({
+              connected: Boolean(status?.agent_connected ?? status?.connected),
+              status,
+              timestamp: event.timestamp,
+            }),
+          );
+
+          return;
+        }
+
+        if (event.type === "PRINT_REQUEST") {
+          void handlePrintRequest(event as PrintRequestMessage);
+          return;
+        }
+
+        if (event.type === "PRINT_RESULT") {
+          handlePrintResult(event as PrintResultMessage);
+          return;
+        }
+
+        if (event.type === "PRINT_SERVER_REGISTERED") {
+          void publishPrintStatus();
+          return;
+        }
 
         if (event.type !== "DATA_CHANGED") {
           return;
@@ -224,7 +494,7 @@ const connectWebSocket = () => {
           scheduleRefresh(currentDispatch);
         }
 
-        void printRemoteOrder(event);
+        void printRemoteOrder(event as WebSocketChangeEvent);
       } catch (error) {
         console.error("Mensaje WebSocket inválido:", error);
       }
@@ -241,6 +511,20 @@ const connectWebSocket = () => {
         window.clearInterval(heartbeatTimer);
         heartbeatTimer = null;
       }
+
+      stopPrintStatusPolling();
+
+      if (isPrintServer()) {
+        currentDispatch?.(
+          setPrintAgentStatus({
+            connected: false,
+            status: buildDisconnectedStatus(),
+            timestamp: new Date().toISOString(),
+          }),
+        );
+      }
+
+      rejectPendingPrintRequests();
 
       socket = null;
       scheduleReconnect();
@@ -262,6 +546,7 @@ export const stopWebSocket = () => {
   stopped = true;
   currentDispatch = null;
   clearTimers();
+  rejectPendingPrintRequests();
 
   if (socket) {
     socket.close();

@@ -4,6 +4,10 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../store/store.ts";
 
 import { printOrderAPI } from "../services/printAgentService.ts";
+import {
+  isPrintServer,
+  requestPrintFromPrintServer,
+} from "../websocket/websocketService.ts";
 import { getAxiosErrorMessage } from "../components/Utils/ErrorAxios.tsx";
 
 const usePrintAgent = () => {
@@ -12,6 +16,10 @@ const usePrintAgent = () => {
 
   const printerActive = useSelector(
     (state: RootState) => state.printAgent.printerActive,
+  );
+
+  const agentConnected = useSelector(
+    (state: RootState) => state.printAgent.agentConnected,
   );
 
   const printTicket = async (ticket: string) => {
@@ -23,7 +31,16 @@ const usePrintAgent = () => {
     try {
       setPrinting(true);
 
-      await printOrderAPI(ticket);
+      if (isPrintServer()) {
+        await printOrderAPI(ticket);
+      } else {
+        const success = await requestPrintFromPrintServer(ticket);
+
+        if (!success) {
+          setShowPrinterModal(true);
+          return false;
+        }
+      }
 
       return true;
     } catch (error) {
@@ -38,6 +55,7 @@ const usePrintAgent = () => {
     printTicket,
     printing,
     printerActive,
+    agentConnected,
     showPrinterModal,
     setShowPrinterModal,
   };
