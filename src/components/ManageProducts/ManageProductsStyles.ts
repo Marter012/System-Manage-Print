@@ -87,6 +87,7 @@ export const ContainerManageProducts = styled.div`
       */
 
       .products-table-row {
+        text-align: start;
         grid-template-columns:
           minmax(0, 1fr)
           80px

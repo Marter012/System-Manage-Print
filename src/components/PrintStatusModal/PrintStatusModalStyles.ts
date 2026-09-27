@@ -358,7 +358,9 @@ export const Section = styled.section`
   background: #ffffff;
 
   box-shadow: 0 6px 20px rgba(50, 29, 17, 0.045);
-
+button{
+  width: 100%;
+}
   @media (max-width: 600px) {
     margin: 14px 16px 0;
 
@@ -1128,15 +1130,14 @@ export const ModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   position: sticky;
-  bottom: 0;
+  bottom: 0 ;
   z-index: 5;
   margin-top: 12px;
-
-  @media (max-width: 560px) {
-    button {
-      width: 100%;
-    }
+  width: 100%;
+  button{
+    width: 100%;
   }
+
 `;
 
 export const SelectWrapper = styled.div`

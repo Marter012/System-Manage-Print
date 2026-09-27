@@ -35,16 +35,6 @@ const PrintAgentSlice = createSlice({
         timestamp?: string;
       }>,
     ) => {
-      console.log("🟢 setPrintAgentStatus:", {
-        connected: action.payload.connected,
-        statusConnected: action.payload.status?.connected,
-        statusOnline: action.payload.status?.online,
-        printerActive: Boolean(
-          action.payload.connected &&
-          action.payload.status?.connected &&
-          action.payload.status?.online,
-        ),
-      });
 
       state.agentConnected = action.payload.connected;
       state.printerStatus = action.payload.status;

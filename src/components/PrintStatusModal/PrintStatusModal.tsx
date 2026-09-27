@@ -85,7 +85,6 @@ import {
   SelectLabel,
   Select,
   ResponsiveRow,
-  SmallInfo,
   OrderList,
   OrderItem,
   OrderIcon,
@@ -157,10 +156,6 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
     (state: RootState) => state.printAgent.printerStatus,
   );
 
-  console.log("ACTUALIZACION DE ESTADOS");
-  console.log(online);
-  console.log(remoteAgentConnected);
-  console.log(printerStatus);
   const loadInitialData = async () => {
     try {
       setLoading(true);
@@ -190,7 +185,7 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
         setPrinterStatus(null);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       getAxiosErrorMessage(error);
 
       setOnline(false);
@@ -803,8 +798,6 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
               {/* ================================================= */}
 
               <ResponsiveRow>
-                <SmallInfo>Estado: {printerStatusName}</SmallInfo>
-
                 <RefreshButton
                   type="button"
                   onClick={handleFullRefresh}
@@ -927,19 +920,21 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
                 )}
               </div>
             )}
-            <ModalFooter>
-              <ActionButton
-                type="button"
-                disabled={selectedOrder?.id === undefined}
-                onClick={handleReprintOrder}
-              >
-                <MdPrint />
+            {selectedCashRegisterId ? (
+              <ModalFooter>
+                <ActionButton
+                  type="button"
+                  disabled={selectedOrder?.id === undefined}
+                  onClick={handleReprintOrder}
+                >
+                  <MdPrint />
 
-                {printingOrderId === selectedOrder?.id
-                  ? "Enviando..."
-                  : `${selectedOrder ? `Reimprimir comanda #${selectedOrder?.order_number}` : "Seleccione una comanda"}`}
-              </ActionButton>
-            </ModalFooter>
+                  {printingOrderId === selectedOrder?.id
+                    ? "Enviando..."
+                    : `${selectedOrder ? `Reimprimir comanda #${selectedOrder?.order_number}` : "Seleccione una comanda"}`}
+                </ActionButton>
+              </ModalFooter>
+            ):<></>}
           </Modal>
         </SubModalOverlay>
       )}

@@ -151,9 +151,8 @@ export const Actions = styled.div`
 `;
 
 export const Tab = styled.button`
-  flex: 1;
-
-  border: none;
+display: flex;
+justify-content: center;
 
   padding: 10px 20px;
 
@@ -164,7 +163,8 @@ export const Tab = styled.button`
   color: #6d6258;
 
   font-weight: 600;
-
+  align-items: center;
+border: none;
   cursor: pointer;
 
   transition:
