@@ -6,21 +6,17 @@ export const Overlay = styled.div<{
   position: fixed;
   inset: 0;
 
-  z-index: ${({ $above }) =>
-    $above ? 1002 : 1000};
+  z-index: ${({ $above }) => ($above ? 1002 : 1000)};
 
   display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 24px;
 
   background: rgba(25, 17, 12, 0.62);
 
   backdrop-filter: blur(7px);
 
   animation: fadeIn 0.18s ease;
-
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -30,17 +26,12 @@ export const Overlay = styled.div<{
       opacity: 1;
     }
   }
-
-  @media (max-width: 600px) {
-    padding: 0;
-    align-items: flex-end;
-  }
 `;
 
 export const Modal = styled.div`
-  width: min(980px, 100%);
+  width: 80%;
 
-  max-height: calc(100vh - 48px);
+  height: 80%;
 
   overflow-y: auto;
 
@@ -56,37 +47,16 @@ export const Modal = styled.div`
 
   color: #321b0d;
 
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  position: relative;
 
-  scrollbar-color:
-    rgba(101, 48, 7, 0.3)
-    transparent;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(101, 48, 7, 0.28);
-    border-radius: 20px;
-  }
-
-  @media (max-width: 600px) {
-    width: 100%;
-    max-height: 94vh;
-
-    border-radius: 24px 24px 0 0;
-  }
 `;
 
 export const Header = styled.div`
   position: sticky;
   top: 0;
   z-index: 5;
+  width: 100%;
 
   display: flex;
   align-items: center;
@@ -96,29 +66,16 @@ export const Header = styled.div`
 
   padding: 22px 24px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #653007 0%,
-      #7c421c 55%,
-      #9a6338 100%
-    );
+  background: linear-gradient(135deg, #653007 0%, #7c421c 55%, #9a6338 100%);
 
   color: white;
 
-  border-radius: 24px 24px 0 0;
+  box-shadow: 0 8px 24px rgba(75, 38, 12, 0.18);
 
-  box-shadow:
-    0 8px 24px rgba(75, 38, 12, 0.18);
-
-  @media (max-width: 600px) {
-    padding: 18px;
-    border-radius: 24px 24px 0 0;
-  }
 `;
 
 export const HeaderLeft = styled.div`
-  min-width: 0;
+  width: 100%;
 
   display: flex;
   flex-direction: column;
@@ -136,7 +93,6 @@ export const Title = styled.h2`
   font-weight: 800;
 
   letter-spacing: -0.02em;
-
   svg {
     flex-shrink: 0;
     font-size: 1.6rem;
@@ -162,8 +118,7 @@ export const CloseButton = styled.button`
   display: grid;
   place-items: center;
 
-  border: 1px solid
-    rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.22);
 
   border-radius: 12px;
 
@@ -190,8 +145,7 @@ export const CloseButton = styled.button`
 export const DashboardGrid = styled.div`
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 14px;
 
@@ -221,18 +175,14 @@ export const StatusCard = styled.div<{
 
   border: 1px solid
     ${({ $active }) =>
-      $active
-        ? "rgba(42, 125, 72, 0.18)"
-        : "rgba(101, 48, 7, 0.12)"};
+      $active ? "rgba(42, 125, 72, 0.18)" : "rgba(101, 48, 7, 0.12)"};
 
   background: ${({ $active }) =>
     $active
       ? "linear-gradient(145deg, #f5fbf6, #ffffff)"
       : "linear-gradient(145deg, #f8f3ee, #ffffff)"};
 
-  box-shadow:
-    0 8px 22px
-      rgba(60, 35, 20, 0.06);
+  box-shadow: 0 8px 22px rgba(60, 35, 20, 0.06);
 
   &::after {
     content: "";
@@ -248,9 +198,7 @@ export const StatusCard = styled.div<{
     border-radius: 50%;
 
     background: ${({ $active }) =>
-      $active
-        ? "rgba(63, 145, 83, 0.08)"
-        : "rgba(101, 48, 7, 0.05)"};
+      $active ? "rgba(63, 145, 83, 0.08)" : "rgba(101, 48, 7, 0.05)"};
   }
 `;
 
@@ -274,12 +222,9 @@ export const StatusIcon = styled.div<{
   border-radius: 12px;
 
   background: ${({ $active }) =>
-    $active
-      ? "rgba(50, 142, 77, 0.11)"
-      : "rgba(101, 48, 7, 0.08)"};
+    $active ? "rgba(50, 142, 77, 0.11)" : "rgba(101, 48, 7, 0.08)"};
 
-  color: ${({ $active }) =>
-    $active ? "#328e4d" : "#8b6243"};
+  color: ${({ $active }) => ($active ? "#328e4d" : "#8b6243")};
 
   svg {
     font-size: 1.35rem;
@@ -294,13 +239,10 @@ export const StatusDot = styled.span<{
 
   border-radius: 50%;
 
-  background: ${({ $active }) =>
-    $active ? "#38a45a" : "#b8a99d"};
+  background: ${({ $active }) => ($active ? "#38a45a" : "#b8a99d")};
 
   box-shadow: ${({ $active }) =>
-    $active
-      ? "0 0 0 4px rgba(56, 164, 90, 0.1)"
-      : "none"};
+    $active ? "0 0 0 4px rgba(56, 164, 90, 0.1)" : "none"};
 `;
 
 export const StatusCardTitle = styled.div`
@@ -319,8 +261,7 @@ export const StatusCardValue = styled.div<{
 }>`
   margin-top: 3px;
 
-  color: ${({ $active }) =>
-    $active ? "#277440" : "#78583f"};
+  color: ${({ $active }) => ($active ? "#277440" : "#78583f")};
 
   font-size: 1.12rem;
   font-weight: 800;
@@ -350,16 +291,11 @@ export const StatusBanner = styled.div<{
 
   border: 1px solid
     ${({ $success }) =>
-      $success
-        ? "rgba(47, 143, 76, 0.18)"
-        : "rgba(190, 128, 47, 0.2)"};
+      $success ? "rgba(47, 143, 76, 0.18)" : "rgba(190, 128, 47, 0.2)"};
 
   border-radius: 16px;
 
-  background: ${({ $success }) =>
-    $success
-      ? "#f1faf3"
-      : "#fff9ed"};
+  background: ${({ $success }) => ($success ? "#f1faf3" : "#fff9ed")};
 
   @media (max-width: 600px) {
     margin: 16px 16px 0;
@@ -380,12 +316,9 @@ export const StatusBannerIcon = styled.div<{
   border-radius: 11px;
 
   background: ${({ $success }) =>
-    $success
-      ? "rgba(47, 143, 76, 0.11)"
-      : "rgba(190, 128, 47, 0.1)"};
+    $success ? "rgba(47, 143, 76, 0.11)" : "rgba(190, 128, 47, 0.1)"};
 
-  color: ${({ $success }) =>
-    $success ? "#2f8f4c" : "#b47a2f"};
+  color: ${({ $success }) => ($success ? "#2f8f4c" : "#b47a2f")};
 
   svg {
     font-size: 1.35rem;
@@ -418,16 +351,13 @@ export const Section = styled.section`
 
   padding: 19px;
 
-  border: 1px solid
-    rgba(101, 48, 7, 0.1);
+  border: 1px solid rgba(101, 48, 7, 0.1);
 
   border-radius: 18px;
 
   background: #ffffff;
 
-  box-shadow:
-    0 6px 20px
-      rgba(50, 29, 17, 0.045);
+  box-shadow: 0 6px 20px rgba(50, 29, 17, 0.045);
 
   @media (max-width: 600px) {
     margin: 14px 16px 0;
@@ -509,8 +439,7 @@ export const PrinterSelector = styled.div`
 
   background: #faf7f3;
 
-  border: 1px solid
-    rgba(101, 48, 7, 0.08);
+  border: 1px solid rgba(101, 48, 7, 0.08);
 `;
 
 export const PrinterIcon = styled.div`
@@ -559,16 +488,14 @@ export const PrinterSelect = styled.select`
 export const InfoGrid = styled.div`
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 10px;
 
   margin-top: 12px;
 
   @media (max-width: 760px) {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @media (max-width: 480px) {
@@ -585,8 +512,7 @@ export const InfoCard = styled.div`
 
   background: #fbf9f7;
 
-  border: 1px solid
-    rgba(101, 48, 7, 0.07);
+  border: 1px solid rgba(101, 48, 7, 0.07);
 `;
 
 export const InfoLabel = styled.div`
@@ -634,8 +560,7 @@ export const InfoValue = styled.div<{
 export const QueueSummary = styled.div`
   display: grid;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 10px;
 
@@ -656,8 +581,7 @@ export const QueueSummaryItem = styled.div`
 
   background: #faf7f3;
 
-  border: 1px solid
-    rgba(101, 48, 7, 0.08);
+  border: 1px solid rgba(101, 48, 7, 0.08);
 `;
 
 export const QueueSummaryIcon = styled.div`
@@ -711,13 +635,9 @@ export const QueueBadge = styled.div<{
 
   border-radius: 11px;
 
-  background: ${({ $warning }) =>
-    $warning
-      ? "#fff5df"
-      : "#eef9f1"};
+  background: ${({ $warning }) => ($warning ? "#fff5df" : "#eef9f1")};
 
-  color: ${({ $warning }) =>
-    $warning ? "#a86c20" : "#347849"};
+  color: ${({ $warning }) => ($warning ? "#a86c20" : "#347849")};
 
   font-size: 0.77rem;
   font-weight: 750;
@@ -730,8 +650,7 @@ export const QueueBadge = styled.div<{
 export const ActionGrid = styled.div`
   display: grid;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 10px;
 
@@ -775,9 +694,7 @@ export const ActionButton = styled.button`
 
     transform: translateY(-1px);
 
-    box-shadow:
-      0 7px 18px
-        rgba(101, 48, 7, 0.18);
+    box-shadow: 0 7px 18px rgba(101, 48, 7, 0.18);
   }
 
   &:disabled {
@@ -801,8 +718,7 @@ export const SecondaryButton = styled.button`
 
   padding: 10px 14px;
 
-  border: 1px solid
-    rgba(101, 48, 7, 0.15);
+  border: 1px solid rgba(101, 48, 7, 0.15);
 
   border-radius: 12px;
 
@@ -823,8 +739,7 @@ export const SecondaryButton = styled.button`
   &:hover {
     background: #faf5f0;
 
-    border-color:
-      rgba(101, 48, 7, 0.28);
+    border-color: rgba(101, 48, 7, 0.28);
 
     transform: translateY(-1px);
   }
@@ -883,8 +798,7 @@ export const RefreshButton = styled.button`
 
   padding: 9px 15px;
 
-  border: 1px solid
-    rgba(101, 48, 7, 0.16);
+  border: 1px solid rgba(101, 48, 7, 0.16);
 
   border-radius: 12px;
 
@@ -979,8 +893,7 @@ export const ErrorMessage = styled.div`
 
   padding: 12px 14px;
 
-  border: 1px solid
-    rgba(182, 77, 61, 0.16);
+  border: 1px solid rgba(182, 77, 61, 0.16);
 
   border-radius: 12px;
 
@@ -1034,34 +947,6 @@ export const SubModalOverlay = styled(Overlay)`
   background: rgba(25, 17, 12, 0.72);
 `;
 
-export const SubModal = styled.div`
-  width: min(720px, 100%);
-
-  max-height: calc(100vh - 48px);
-
-  overflow-y: auto;
-
-  padding-bottom: 20px;
-
-  border-radius: 22px;
-
-  background: #faf8f5;
-
-  box-shadow:
-    0 30px 80px
-      rgba(30, 18, 10, 0.35);
-
-  scrollbar-width: thin;
-
-  @media (max-width: 600px) {
-    width: 100%;
-
-    max-height: 94vh;
-
-    border-radius: 22px 22px 0 0;
-  }
-`;
-
 export const SubModalHeader = styled.div`
   position: sticky;
   top: 0;
@@ -1108,8 +993,7 @@ export const SubModalClose = styled.button`
   display: grid;
   place-items: center;
 
-  border: 1px solid
-    rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 
   border-radius: 10px;
 
@@ -1148,14 +1032,11 @@ export const JobItem = styled.div<{
 
   border: 1px solid
     ${({ $selected }) =>
-      $selected
-        ? "rgba(101, 48, 7, 0.3)"
-        : "rgba(101, 48, 7, 0.08)"};
+      $selected ? "rgba(101, 48, 7, 0.3)" : "rgba(101, 48, 7, 0.08)"};
 
   border-radius: 13px;
 
-  background: ${({ $selected }) =>
-    $selected ? "#f7eee7" : "#ffffff"};
+  background: ${({ $selected }) => ($selected ? "#f7eee7" : "#ffffff")};
 
   cursor: pointer;
 
@@ -1169,8 +1050,7 @@ export const JobItem = styled.div<{
 
     background: #fbf6f1;
 
-    border-color:
-      rgba(101, 48, 7, 0.18);
+    border-color: rgba(101, 48, 7, 0.18);
   }
 `;
 
@@ -1247,7 +1127,9 @@ export const JobMeta = styled.div`
 export const ModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
-
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
   margin-top: 12px;
 
   @media (max-width: 560px) {
@@ -1279,8 +1161,7 @@ export const Select = styled.select`
 
   padding: 0 13px;
 
-  border: 1px solid
-    rgba(101, 48, 7, 0.14);
+  border: 1px solid rgba(101, 48, 7, 0.14);
 
   border-radius: 12px;
 
@@ -1298,9 +1179,7 @@ export const Select = styled.select`
   &:focus {
     border-color: #8b542a;
 
-    box-shadow:
-      0 0 0 3px
-        rgba(101, 48, 7, 0.08);
+    box-shadow: 0 0 0 3px rgba(101, 48, 7, 0.08);
   }
 `;
 
@@ -1326,14 +1205,11 @@ export const OrderItem = styled.div<{
 
   border: 1px solid
     ${({ $selected }) =>
-      $selected
-        ? "rgba(101, 48, 7, 0.3)"
-        : "rgba(101, 48, 7, 0.08)"};
+      $selected ? "rgba(101, 48, 7, 0.3)" : "rgba(101, 48, 7, 0.08)"};
 
   border-radius: 13px;
 
-  background: ${({ $selected }) =>
-    $selected ? "#f7eee7" : "#ffffff"};
+  background: ${({ $selected }) => ($selected ? "#f7eee7" : "#ffffff")};
 
   cursor: pointer;
 

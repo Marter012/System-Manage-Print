@@ -60,12 +60,6 @@ let stopped = false;
 
 let currentDispatch: AppDispatch | null = null;
 
-/**
- * Evita que dos consultas al Print Agent
- * se ejecuten simultáneamente.
- */
-let printStatusRefreshing = false;
-
 const pendingPrintRequests = new Map<
   string,
   {
@@ -248,7 +242,6 @@ const stopPrintStatusPolling = () => {
     printStatusTimer = null;
   }
 
-  printStatusRefreshing = false;
 };
 
 const printRemoteOrder = async (event: WebSocketChangeEvent) => {
