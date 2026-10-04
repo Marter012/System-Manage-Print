@@ -16,6 +16,13 @@ export interface UpdateUserData {
   email?: string;
   status?: boolean;
 }
+export interface CreateUserData {
+  username: string;
+  password: string;
+  role: string;
+  email: string;
+  status: boolean;
+}
 
 export const getUsersAPI = async (): Promise<SystemUser[]> => {
   const response = await api.get<SystemUser[]>("/users/");
@@ -23,6 +30,14 @@ export const getUsersAPI = async (): Promise<SystemUser[]> => {
   return response.data;
 };
 
+
+export const createUserAPI = async (
+  data: CreateUserData,
+): Promise<SystemUser> => {
+  const response = await api.post<SystemUser>("/users/", data);
+
+  return response.data;
+};
 export const updateUserAPI = async (
   userId: string,
   data: UpdateUserData,

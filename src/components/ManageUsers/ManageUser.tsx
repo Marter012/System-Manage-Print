@@ -18,7 +18,10 @@ import {
   FaUser,
   FaUserEdit,
   FaUserSlash,
+  FaPlus,
 } from "react-icons/fa";
+
+import { RiUserAddFill } from "react-icons/ri";
 
 import {
   getUsersAPI,
@@ -121,6 +124,7 @@ import {
   SuccessMessage,
   FooterSpacer,
 } from "./ManageUserStyles.ts";
+import UserForm from "../Forms/UserForm/UserForm.tsx";
 
 interface ManageUserProps {
   isOpen: boolean;
@@ -142,11 +146,11 @@ const SELECTED_USER_STORAGE_KEY = "boutique-selected-user";
 const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
   const [users, setUsers] = useState<SystemUser[]>([]);
 
-  const [statusFilter, setStatusFilter] =
-    useState<StatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
-  const [selectedUser, setSelectedUser] =
-    useState<SystemUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<SystemUser | null>(null);
+
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
@@ -157,25 +161,19 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const [securityStep, setSecurityStep] =
-    useState<SecurityStep>("idle");
+  const [securityStep, setSecurityStep] = useState<SecurityStep>("idle");
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [loadingResetStatus, setLoadingResetStatus] =
-    useState(false);
+  const [loadingResetStatus, setLoadingResetStatus] = useState(false);
 
-  const [error, setError] =
-    useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [success, setSuccess] =
-    useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const codeInputRefs =
-    useRef<(HTMLInputElement | null)[]>([]);
+  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const modalContentRef =
-    useRef<HTMLDivElement>(null);
+  const modalContentRef = useRef<HTMLDivElement>(null);
 
   const scrollModalToTop = () => {
     modalContentRef.current?.scrollTo({
@@ -201,9 +199,7 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
   };
 
   const clearSelectedUserStorage = () => {
-    localStorage.removeItem(
-      SELECTED_USER_STORAGE_KEY,
-    );
+    localStorage.removeItem(SELECTED_USER_STORAGE_KEY);
   };
 
   /*
@@ -225,17 +221,9 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
    * ---------------------------------------------------------
    */
 
-  const applyResetStatus = (
-    resetStatus: ResetStatus,
-  ) => {
+  const applyResetStatus = (resetStatus: ResetStatus) => {
     switch (resetStatus) {
       case "pending":
-        /*
-         * Existe un código pendiente.
-         * Podemos continuar ingresándolo porque
-         * todavía no necesitamos conservar el código
-         * en localStorage.
-         */
         setCode("");
         setPassword("");
         setSecurityStep("code-sent");
@@ -249,23 +237,6 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
         break;
 
       case "verified":
-        /*
-         * IMPORTANTE:
-         *
-         * El backend sabe que el código fue verificado,
-         * pero el frontend NO conserva el código después
-         * de una recarga.
-         *
-         * Como /reset-password todavía necesita enviar
-         * nuevamente el código, no podemos permitir que
-         * el usuario llegue al paso de contraseña con
-         * code = "".
-         *
-         * Por seguridad NO guardamos el código en
-         * localStorage.
-         *
-         * Por eso obligamos a solicitar un nuevo código.
-         */
         setCode("");
         setPassword("");
         setSecurityStep("idle");
@@ -288,9 +259,7 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
         setError(null);
 
-        setSuccess(
-          "El proceso de recuperación ya fue completado.",
-        );
+        setSuccess("El proceso de recuperación ya fue completado.");
 
         break;
 
@@ -301,9 +270,7 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
         setPassword("");
         setShowPassword(false);
 
-        setError(
-          "El código de recuperación expiró. Solicitá uno nuevo.",
-        );
+        setError("El código de recuperación expiró. Solicitá uno nuevo.");
 
         break;
 
@@ -325,9 +292,7 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
    * ---------------------------------------------------------
    */
 
-  const loadResetStatus = async (
-    userEmail: string,
-  ) => {
+  const loadResetStatus = async (userEmail: string) => {
     if (!userEmail.trim()) {
       return;
     }
@@ -335,15 +300,11 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
     try {
       setLoadingResetStatus(true);
 
-      const resetStatus =
-        await GetResetStatus(userEmail.trim());
+      const resetStatus = await GetResetStatus(userEmail.trim());
 
       applyResetStatus(resetStatus);
     } catch (error) {
-      console.error(
-        "Error consultando estado de recuperación:",
-        error,
-      );
+      console.error("Error consultando estado de recuperación:", error);
 
       setError(
         getAxiosErrorMessage(error) ||
@@ -372,73 +333,46 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
       setUsers(data);
 
       /*
-       * Intentamos restaurar el usuario que estaba seleccionado
+       * Intentamos restaurar el usuario seleccionado
        * antes de recargar la página.
        */
 
-      const storedUser =
-        localStorage.getItem(
-          SELECTED_USER_STORAGE_KEY,
-        );
+      const storedUser = localStorage.getItem(SELECTED_USER_STORAGE_KEY);
 
       if (storedUser) {
         try {
-          const parsed = JSON.parse(
-            storedUser,
-          ) as {
+          const parsed = JSON.parse(storedUser) as {
             id?: string;
             email?: string;
           };
 
-          const restoredUser = data.find(
-            (user) => user.id === parsed.id,
-          );
+          const restoredUser = data.find((user) => user.id === parsed.id);
 
           if (restoredUser) {
             setSelectedUser(restoredUser);
 
-            setUsername(
-              restoredUser.username,
-            );
+            setUsername(restoredUser.username);
 
             setRole(restoredUser.role);
 
-            setEmail(
-              restoredUser.email,
-            );
+            setEmail(restoredUser.email);
 
-            setStatus(
-              restoredUser.status,
-            );
+            setStatus(restoredUser.status);
 
-            /*
-             * Consultamos al backend para saber
-             * en qué etapa estaba la recuperación.
-             */
-            await loadResetStatus(
-              restoredUser.email,
-            );
+            await loadResetStatus(restoredUser.email);
           } else {
             clearSelectedUserStorage();
           }
         } catch (error) {
-          console.error(
-            "Error restaurando usuario seleccionado:",
-            error,
-          );
+          console.error("Error restaurando usuario seleccionado:", error);
 
           clearSelectedUserStorage();
         }
       }
     } catch (error) {
-      console.error(
-        "Error cargando usuarios:",
-        error,
-      );
+      console.error("Error cargando usuarios:", error);
 
-      setError(
-        "No se pudieron cargar los usuarios.",
-      );
+      setError("No se pudieron cargar los usuarios.");
     } finally {
       setLoading(false);
     }
@@ -463,24 +397,16 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
       return;
     }
 
-    const handleEscape = (
-      event: globalThis.KeyboardEvent,
-    ) => {
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         handleClose();
       }
     };
 
-    document.addEventListener(
-      "keydown",
-      handleEscape,
-    );
+    document.addEventListener("keydown", handleEscape);
 
     return () => {
-      document.removeEventListener(
-        "keydown",
-        handleEscape,
-      );
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen]);
 
@@ -492,15 +418,11 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
   const filteredUsers = useMemo(() => {
     if (statusFilter === "active") {
-      return users.filter(
-        (user) => user.status,
-      );
+      return users.filter((user) => user.status);
     }
 
     if (statusFilter === "inactive") {
-      return users.filter(
-        (user) => !user.status,
-      );
+      return users.filter((user) => !user.status);
     }
 
     return users;
@@ -508,13 +430,71 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
   /*
    * ---------------------------------------------------------
+   * CREAR USUARIO
+   * ---------------------------------------------------------
+   */
+
+  const handleCreateUser = () => {
+    setSelectedUser(null);
+
+    clearSelectedUserStorage();
+
+    setUsername("");
+    setRole("employee");
+    setEmail("");
+    setStatus(true);
+
+    resetSecurity();
+
+    setError(null);
+    setSuccess(null);
+
+    setIsCreatingUser(true);
+
+    scrollModalToTop();
+  };
+
+  /*
+   * ---------------------------------------------------------
+   * USUARIO CREADO
+   * ---------------------------------------------------------
+   */
+
+  const handleUserCreated = (newUser: SystemUser) => {
+    setUsers((currentUsers) => [...currentUsers, newUser]);
+
+    setSelectedUser(newUser);
+
+    setUsername(newUser.username);
+
+    setRole(newUser.role);
+
+    setEmail(newUser.email);
+
+    setStatus(newUser.status);
+
+    saveSelectedUser(newUser);
+
+    setIsCreatingUser(false);
+
+    setSuccess("El usuario fue creado correctamente.");
+
+    scrollModalToTop();
+
+    window.setTimeout(() => {
+      setSuccess(null);
+    }, 3500);
+  };
+
+  /*
+   * ---------------------------------------------------------
    * SELECCIONAR USUARIO
    * ---------------------------------------------------------
    */
 
-  const handleSelectUser = async (
-    user: SystemUser,
-  ) => {
+  const handleSelectUser = async (user: SystemUser) => {
+    setIsCreatingUser(false);
+
     setSelectedUser(user);
 
     setUsername(user.username);
@@ -527,15 +507,8 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
     setError(null);
     setSuccess(null);
 
-    /*
-     * Guardamos el usuario seleccionado.
-     */
     saveSelectedUser(user);
 
-    /*
-     * Consultamos inmediatamente el estado real
-     * de recuperación almacenado en MongoDB.
-     */
     await loadResetStatus(user.email);
   };
 
@@ -547,6 +520,8 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
   const handleCancelEdit = () => {
     setSelectedUser(null);
+
+    setIsCreatingUser(false);
 
     setUsername("");
     setRole("");
@@ -582,23 +557,20 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
     }
 
     if (!username.trim()) {
-      setError(
-        "El username es obligatorio.",
-      );
+      setError("El username es obligatorio.");
+
       return;
     }
 
     if (!email.trim()) {
-      setError(
-        "El email es obligatorio.",
-      );
+      setError("El email es obligatorio.");
+
       return;
     }
 
     if (!role.trim()) {
-      setError(
-        "El rol es obligatorio.",
-      );
+      setError("El rol es obligatorio.");
+
       return;
     }
 
@@ -607,61 +579,46 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
       setError(null);
       setSuccess(null);
 
-      const updatedUser =
-        await updateUserAPI(
-          selectedUser.id,
-          {
-            username: username.trim(),
-            role: role.trim(),
-            email: email.trim(),
-            status,
-          },
-        );
+      const updatedUser = await updateUserAPI(selectedUser.id, {
+        username: username.trim(),
+
+        role: role.trim(),
+
+        email: email.trim(),
+
+        status,
+      });
 
       scrollModalToTop();
 
       setUsers((currentUsers) =>
         currentUsers.map((user) =>
-          user.id === updatedUser.id
-            ? updatedUser
-            : user,
+          user.id === updatedUser.id ? updatedUser : user,
         ),
       );
 
       setSelectedUser(updatedUser);
 
-      setUsername(
-        updatedUser.username,
-      );
+      setUsername(updatedUser.username);
 
       setRole(updatedUser.role);
 
-      setEmail(
-        updatedUser.email,
-      );
+      setEmail(updatedUser.email);
 
-      setStatus(
-        updatedUser.status,
-      );
+      setStatus(updatedUser.status);
 
       saveSelectedUser(updatedUser);
 
-      setSuccess(
-        "Los datos del usuario fueron actualizados correctamente.",
-      );
+      setSuccess("Los datos del usuario fueron actualizados correctamente.");
 
       window.setTimeout(() => {
         setSuccess(null);
       }, 3500);
     } catch (error) {
-      console.error(
-        "Error actualizando usuario:",
-        error,
-      );
+      console.error("Error actualizando usuario:", error);
 
       setError(
-        getAxiosErrorMessage(error) ||
-          "No se pudo actualizar el usuario.",
+        getAxiosErrorMessage(error) || "No se pudo actualizar el usuario.",
       );
     } finally {
       setSaving(false);
@@ -676,46 +633,32 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
   const handleSendCode = async () => {
     if (!email.trim()) {
-      setError(
-        "El usuario debe tener un email válido.",
-      );
+      setError("El usuario debe tener un email válido.");
+
       return;
     }
 
     try {
       setSecurityStep("sending");
+
       setError(null);
       setSuccess(null);
 
-      /*
-       * Cada vez que solicitamos un nuevo código,
-       * descartamos cualquier código anterior que
-       * pudiera estar solamente en memoria.
-       */
       setCode("");
       setPassword("");
       setShowPassword(false);
 
-      await ForgotPassword(
-        email.trim(),
-      );
+      await ForgotPassword(email.trim());
 
-      setSecurityStep(
-        "code-sent",
-      );
+      setSecurityStep("code-sent");
 
-      setSuccess(
-        "Código enviado. Revisá el email asociado a esta cuenta.",
-      );
+      setSuccess("Código enviado. Revisá el email asociado a esta cuenta.");
 
       window.setTimeout(() => {
         codeInputRefs.current[0]?.focus();
       }, 100);
     } catch (error) {
-      console.error(
-        "Error enviando código:",
-        error,
-      );
+      console.error("Error enviando código:", error);
 
       setSecurityStep("idle");
 
@@ -734,55 +677,37 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
   const handleVerifyCode = async () => {
     if (!email.trim()) {
-      setError(
-        "El email del usuario es obligatorio.",
-      );
+      setError("El email del usuario es obligatorio.");
+
       return;
     }
 
     if (!/^\d{6}$/.test(code)) {
-      setError(
-        "Ingresá el código completo de 6 dígitos.",
-      );
+      setError("Ingresá el código completo de 6 dígitos.");
+
       return;
     }
 
     try {
       setSecurityStep("verifying");
+
       setError(null);
       setSuccess(null);
 
-      await VerifyCode(
-        email.trim(),
-        code,
-      );
+      await VerifyCode(email.trim(), code);
 
-      /*
-       * IMPORTANTE:
-       *
-       * El código permanece en memoria.
-       * No lo guardamos en localStorage.
-       *
-       * Mientras no se recargue la página,
-       * podemos utilizarlo posteriormente
-       * para /reset-password.
-       */
       setSecurityStep("verified");
 
       setSuccess(
         "Código verificado correctamente. Ya podés establecer una nueva contraseña.",
       );
     } catch (error) {
-      console.error(
-        "Error verificando código:",
-        error,
-      );
+      console.error("Error verificando código:", error);
 
       setSecurityStep("code-sent");
 
       setError(
-        getAxiosErrorMessage(error) ||
-          "El código no es válido o ya expiró.",
+        getAxiosErrorMessage(error) || "El código no es válido o ya expiró.",
       );
     }
   };
@@ -793,50 +718,33 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
    * ---------------------------------------------------------
    */
 
-  const handleCodeChange = (
-    index: number,
-    value: string,
-  ) => {
-    const digits =
-      value.replace(/\D/g, "");
+  const handleCodeChange = (index: number, value: string) => {
+    const digits = value.replace(/\D/g, "");
 
     if (!digits) {
-      const codeArray = code
-        .padEnd(6, " ")
-        .split("");
+      const codeArray = code.padEnd(6, " ").split("");
 
       codeArray[index] = " ";
 
-      setCode(
-        codeArray
-          .join("")
-          .replace(/\s/g, ""),
-      );
+      setCode(codeArray.join("").replace(/\s/g, ""));
 
       return;
     }
 
-    const digit =
-      digits[digits.length - 1];
+    const digit = digits[digits.length - 1];
 
-    const codeArray = code
-      .padEnd(6, " ")
-      .split("");
+    const codeArray = code.padEnd(6, " ").split("");
 
     codeArray[index] = digit;
 
-    const newCode = codeArray
-      .join("")
-      .replace(/\s/g, "");
+    const newCode = codeArray.join("").replace(/\s/g, "");
 
     setCode(newCode);
 
     setError(null);
 
     if (index < 5) {
-      codeInputRefs.current[
-        index + 1
-      ]?.focus();
+      codeInputRefs.current[index + 1]?.focus();
     }
   };
 
@@ -844,14 +752,8 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
     index: number,
     event: KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (
-      event.key === "Backspace" &&
-      !code[index] &&
-      index > 0
-    ) {
-      codeInputRefs.current[
-        index - 1
-      ]?.focus();
+    if (event.key === "Backspace" && !code[index] && index > 0) {
+      codeInputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -861,100 +763,64 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
    * ---------------------------------------------------------
    */
 
-  const handleChangePassword =
-    async () => {
-      if (
-        securityStep !== "verified"
-      ) {
-        setError(
-          "Primero verificá el código de seguridad.",
-        );
+  const handleChangePassword = async () => {
+    if (securityStep !== "verified") {
+      setError("Primero verificá el código de seguridad.");
 
-        return;
-      }
+      return;
+    }
 
-      /*
-       * SEGURIDAD EXTRA:
-       *
-       * Aunque el estado diga "verified",
-       * nunca debemos llamar al backend si
-       * el código ya no está disponible.
-       *
-       * Esto evita exactamente el error que
-       * teníamos anteriormente:
-       *
-       * code: ""
-       */
-      if (!/^\d{6}$/.test(code)) {
+    if (!/^\d{6}$/.test(code)) {
+      setSecurityStep("idle");
+
+      setPassword("");
+
+      setError(
+        "El código de verificación ya no está disponible. Solicitá un nuevo código.",
+      );
+
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("La nueva contraseña debe tener al menos 6 caracteres.");
+
+      return;
+    }
+
+    try {
+      setSecurityStep("changing");
+
+      setError(null);
+      setSuccess(null);
+
+      await ResetPassword(email.trim(), code, password);
+
+      scrollModalToTop();
+
+      setPassword("");
+      setCode("");
+
+      setSecurityStep("idle");
+
+      setSuccess("La contraseña fue actualizada correctamente.");
+    } catch (error) {
+      console.error("Error cambiando contraseña:", error);
+
+      if (/^\d{6}$/.test(code)) {
+        setSecurityStep("verified");
+      } else {
         setSecurityStep("idle");
-        setPassword("");
 
-        setError(
-          "El código de verificación ya no está disponible. Solicitá un nuevo código.",
-        );
-
-        return;
-      }
-
-      if (password.length < 6) {
-        setError(
-          "La nueva contraseña debe tener al menos 6 caracteres.",
-        );
-
-        return;
-      }
-
-      try {
-        setSecurityStep("changing");
-        setError(null);
-        setSuccess(null);
-
-        await ResetPassword(
-          email.trim(),
-          code,
-          password,
-        );
-
-        scrollModalToTop();
-
-        setPassword("");
         setCode("");
-
-        /*
-         * El backend ahora debería devolver
-         * status = completed.
-         */
-        setSecurityStep("idle");
-
-        setSuccess(
-          "La contraseña fue actualizada correctamente.",
-        );
-      } catch (error) {
-        console.error(
-          "Error cambiando contraseña:",
-          error,
-        );
-
-        /*
-         * Si el backend rechaza el proceso,
-         * dejamos el estado como verified para
-         * que el usuario pueda volver a intentar,
-         * siempre que todavía tengamos el código.
-         */
-        if (/^\d{6}$/.test(code)) {
-          setSecurityStep("verified");
-        } else {
-          setSecurityStep("idle");
-          setCode("");
-          setPassword("");
-        }
-
-        setError(
-          getAxiosErrorMessage(error) ||
-            "No se pudo cambiar la contraseña.",
-        );
+        setPassword("");
       }
-    };
+
+      setError(
+        getAxiosErrorMessage(error) || "No se pudo cambiar la contraseña.",
+      );
+    }
+  };
 
   /*
    * ---------------------------------------------------------
@@ -962,141 +828,95 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
    * ---------------------------------------------------------
    */
 
-  const isSending =
-    securityStep === "sending";
+  const isSending = securityStep === "sending";
 
-  const isVerifying =
-    securityStep === "verifying";
+  const isVerifying = securityStep === "verifying";
 
-  const isChanging =
-    securityStep === "changing";
+  const isChanging = securityStep === "changing";
 
-  const codeSent =
-    securityStep === "code-sent" ||
-    securityStep === "verifying";
+  const codeSent = securityStep === "code-sent" || securityStep === "verifying";
 
   const codeVerified =
-    securityStep === "verified" ||
-    securityStep === "changing";
+    securityStep === "verified" || securityStep === "changing";
+
+  /*
+   * ---------------------------------------------------------
+   * RENDER
+   * ---------------------------------------------------------
+   */
 
   if (!isOpen) {
     return null;
   }
 
   return (
-    <ModalOverlay
-      onMouseDown={handleOverlayClick}
-    >
-      <ModalContainer
-        onMouseDown={(event) =>
-          event.stopPropagation()
-        }
-      >
+    <ModalOverlay onMouseDown={handleOverlayClick}>
+      <ModalContainer onMouseDown={(event) => event.stopPropagation()}>
         <ModalHeader>
           <ModalHeaderInfo>
-            <ModalTitle>
-              Gestión de usuarios
-            </ModalTitle>
+            <ModalTitle>Gestión de usuarios</ModalTitle>
 
             <ModalSubtitle>
-              Administrá cuentas, permisos y
-              seguridad del sistema.
+              Administrá cuentas, permisos y seguridad del sistema.
             </ModalSubtitle>
           </ModalHeaderInfo>
 
-          <CloseButton
-            type="button"
-            onClick={handleClose}
-            aria-label="Cerrar"
-          >
+          <CloseButton type="button" onClick={handleClose} aria-label="Cerrar">
             <FaTimes />
           </CloseButton>
         </ModalHeader>
 
-        <ModalContent
-          ref={modalContentRef}
-        >
+        <ModalContent ref={modalContentRef}>
           {loading ? (
-            <LoadingState>
-              Cargando usuarios...
-            </LoadingState>
+            <LoadingState>Cargando usuarios...</LoadingState>
           ) : (
             <>
               <Filters>
                 <FilterButton
+                  className="show"
                   type="button"
-                  $active={
-                    statusFilter === "all"
-                  }
-                  onClick={() =>
-                    setStatusFilter("all")
-                  }
+                  $active={statusFilter === "all"}
+                  onClick={() => setStatusFilter("all")}
                 >
                   Todos
-                  <span>
-                    {users.length}
-                  </span>
+                  <span>{users.length}</span>
                 </FilterButton>
 
                 <FilterButton
                   type="button"
-                  $active={
-                    statusFilter === "active"
-                  }
-                  onClick={() =>
-                    setStatusFilter(
-                      "active",
-                    )
-                  }
+                  $active={statusFilter === "active"}
+                  onClick={() => setStatusFilter("active")}
                 >
                   Activos
-                  <span>
-                    {
-                      users.filter(
-                        (user) =>
-                          user.status,
-                      ).length
-                    }
-                  </span>
+                  <span>{users.filter((user) => user.status).length}</span>
                 </FilterButton>
 
                 <FilterButton
                   type="button"
-                  $active={
-                    statusFilter ===
-                    "inactive"
-                  }
-                  onClick={() =>
-                    setStatusFilter(
-                      "inactive",
-                    )
-                  }
+                  $active={statusFilter === "inactive"}
+                  onClick={() => setStatusFilter("inactive")}
                 >
                   Inactivos
-                  <span>
-                    {
-                      users.filter(
-                        (user) =>
-                          !user.status,
-                      ).length
-                    }
-                  </span>
+                  <span>{users.filter((user) => !user.status).length}</span>
+                </FilterButton>
+
+                <FilterButton
+                  type="button"
+                  $active={isCreatingUser}
+                  onClick={handleCreateUser}
+                  title="Nuevo usuario"
+                >
+                  <RiUserAddFill />
                 </FilterButton>
               </Filters>
 
-              {error && (
-                <ErrorMessage>
-                  {error}
-                </ErrorMessage>
-              )}
+              {error && <ErrorMessage>{error}</ErrorMessage>}
 
               {success && (
                 <SuccessMessage>
                   <FaCheckCircle />
 
-                  <span>
-                    {success}
-                  </span>
+                  <span>{success}</span>
                 </SuccessMessage>
               )}
 
@@ -1104,13 +924,10 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                 <UsersPanel>
                   <UsersPanelHeader>
                     <div>
-                      <UsersPanelTitle>
-                        Usuarios
-                      </UsersPanelTitle>
+                      <UsersPanelTitle>Usuarios</UsersPanelTitle>
 
                       <UsersPanelSubtitle>
-                        Seleccioná una cuenta
-                        para administrarla
+                        Seleccioná una cuenta para administrarla
                       </UsersPanelSubtitle>
                     </div>
 
@@ -1118,109 +935,70 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                   </UsersPanelHeader>
 
                   <UsersList>
-                    {filteredUsers.length ===
-                    0 ? (
-                      <EmptyState>
-                        No hay usuarios para
-                        mostrar.
-                      </EmptyState>
+                    {filteredUsers.length === 0 ? (
+                      <EmptyState>No hay usuarios para mostrar.</EmptyState>
                     ) : (
-                      filteredUsers.map(
-                        (user) => (
-                          <UserRow
-                            key={user.id}
-                            $selected={
-                              selectedUser?.id ===
-                              user.id
-                            }
-                            type="button"
-                            onClick={() =>
-                              void handleSelectUser(
-                                user,
-                              )
-                            }
-                          >
-                            <UserAvatar
-                              $active={
-                                user.status
-                              }
-                            >
-                              {user.status ? (
-                                <FaUser />
-                              ) : (
-                                <FaUserSlash />
-                              )}
-                            </UserAvatar>
+                      filteredUsers.map((user) => (
+                        <UserRow
+                          key={user.id}
+                          $selected={selectedUser?.id === user.id}
+                          type="button"
+                          onClick={() => void handleSelectUser(user)}
+                        >
+                          <UserAvatar $active={user.status}>
+                            {user.status ? <FaUser /> : <FaUserSlash />}
+                          </UserAvatar>
 
-                            <UserMain>
-                              <UserName>
-                                {
-                                  user.username
-                                }
-                              </UserName>
+                          <UserMain>
+                            <UserName>{user.username}</UserName>
 
-                              <UserEmail>
-                                {user.email}
-                              </UserEmail>
+                            <UserEmail>{user.email}</UserEmail>
 
-                              <UserMeta>
-                                <UserRole>
-                                  {user.role ===
-                                  "admin"
-                                    ? "Administrador"
-                                    : "Empleado"}
-                                </UserRole>
+                            <UserMeta>
+                              <UserRole>
+                                {user.role === "admin"
+                                  ? "Administrador"
+                                  : "Empleado"}
+                              </UserRole>
 
-                                <UserStatus
-                                  $active={
-                                    user.status
-                                  }
-                                >
-                                  {user.status
-                                    ? "Activo"
-                                    : "Inactivo"}
-                                </UserStatus>
-                              </UserMeta>
-                            </UserMain>
+                              <UserStatus $active={user.status}>
+                                {user.status ? "Activo" : "Inactivo"}
+                              </UserStatus>
+                            </UserMeta>
+                          </UserMain>
 
-                            {selectedUser?.id ===
-                            user.id ? (
-                              <SelectedIndicator>
-                                <FaCheck />
-                              </SelectedIndicator>
-                            ) : (
-                              <FaChevronRight />
-                            )}
-                          </UserRow>
-                        ),
-                      )
+                          {selectedUser?.id === user.id ? (
+                            <SelectedIndicator>
+                              <FaCheck />
+                            </SelectedIndicator>
+                          ) : (
+                            <FaChevronRight />
+                          )}
+                        </UserRow>
+                      ))
                     )}
                   </UsersList>
                 </UsersPanel>
 
-                {selectedUser ? (
+                {isCreatingUser ? (
+                  /*
+                   * -------------------------------------------------
+                   * NUEVO USUARIO
+                   * -------------------------------------------------
+                   */
+
                   <EditorPanel>
                     <EditorHeader>
                       <EditorUser>
-                        <EditorAvatar
-                          $active={status}
-                        >
-                          {status ? (
-                            <FaUserEdit />
-                          ) : (
-                            <FaUserSlash />
-                          )}
+                        <EditorAvatar $active>
+                          <RiUserAddFill />
                         </EditorAvatar>
 
                         <EditorUserInfo>
-                          <EditorUserName>
-                            {username}
-                          </EditorUserName>
+                          <EditorUserName>Nuevo usuario</EditorUserName>
 
                           <EditorUserRole>
-                            {role === "admin"
-                              ? "Administrador"
-                              : "Empleado"}
+                            Crear una nueva cuenta
                           </EditorUserRole>
                         </EditorUserInfo>
                       </EditorUser>
@@ -1233,83 +1011,94 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                         </SectionIcon>
 
                         <div>
-                          <SectionTitle>
-                            Información
-                          </SectionTitle>
+                          <SectionTitle>Crear usuario</SectionTitle>
 
                           <SectionDescription>
-                            Datos principales
-                            de la cuenta.
+                            Completá los datos para crear una nueva cuenta del
+                            sistema.
+                          </SectionDescription>
+                        </div>
+                      </SectionHeader>
+
+                      <UserForm
+                        onSuccess={handleUserCreated}
+                        onCancel={handleCancelEdit}
+                      />
+                    </Section>
+                  </EditorPanel>
+                ) : selectedUser ? (
+                  /*
+                   * -------------------------------------------------
+                   * EDITAR USUARIO
+                   * -------------------------------------------------
+                   */
+
+                  <EditorPanel>
+                    <EditorHeader>
+                      <EditorUser>
+                        <EditorAvatar $active={status}>
+                          {status ? <FaUserEdit /> : <FaUserSlash />}
+                        </EditorAvatar>
+
+                        <EditorUserInfo>
+                          <EditorUserName>{username}</EditorUserName>
+
+                          <EditorUserRole>
+                            {role === "admin" ? "Administrador" : "Empleado"}
+                          </EditorUserRole>
+                        </EditorUserInfo>
+                      </EditorUser>
+                    </EditorHeader>
+
+                    <Section>
+                      <SectionHeader>
+                        <SectionIcon>
+                          <FaUser />
+                        </SectionIcon>
+
+                        <div>
+                          <SectionTitle>Información</SectionTitle>
+
+                          <SectionDescription>
+                            Datos principales de la cuenta.
                           </SectionDescription>
                         </div>
                       </SectionHeader>
 
                       <FormGrid>
                         <FormGroup>
-                          <Label>
-                            Username
-                          </Label>
+                          <Label>Nombre</Label>
 
                           <Input
                             value={username}
-                            onChange={(
-                              event,
-                            ) =>
-                              setUsername(
-                                event
-                                  .target
-                                  .value,
-                              )
+                            onChange={(event) =>
+                              setUsername(event.target.value)
                             }
                             placeholder="Username"
                           />
                         </FormGroup>
 
                         <FormGroup>
-                          <Label>
-                            Email
-                          </Label>
+                          <Label>Email</Label>
 
                           <Input
                             type="email"
                             value={email}
-                            onChange={(
-                              event,
-                            ) =>
-                              setEmail(
-                                event
-                                  .target
-                                  .value,
-                              )
-                            }
+                            onChange={(event) => setEmail(event.target.value)}
                             placeholder="Email"
                           />
                         </FormGroup>
 
                         <FormGroup>
-                          <Label>
-                            Rol
-                          </Label>
+                          <Label>Rol</Label>
 
                           <Select
                             value={role}
-                            onChange={(
-                              event,
-                            ) =>
-                              setRole(
-                                event
-                                  .target
-                                  .value,
-                              )
-                            }
+                            onChange={(event) => setRole(event.target.value)}
                           >
-                            <option value="admin">
-                              Administrador
-                            </option>
+                            <option value="admin">Administrador</option>
 
-                            <option value="employee">
-                              Empleado
-                            </option>
+                            <option value="employee">Empleado</option>
                           </Select>
                         </FormGroup>
                       </FormGrid>
@@ -1317,23 +1106,16 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
                     <Section>
                       <SectionHeader>
-                        <SectionIcon
-                          $security
-                        >
+                        <SectionIcon $security>
                           <FaShieldAlt />
                         </SectionIcon>
 
                         <div>
-                          <SectionTitle>
-                            Seguridad
-                          </SectionTitle>
+                          <SectionTitle>Seguridad</SectionTitle>
 
                           <SectionDescription>
-                            Cambiá la
-                            contraseña
-                            mediante una
-                            verificación
-                            por email.
+                            Cambiá la contraseña mediante una verificación por
+                            email.
                           </SectionDescription>
                         </div>
                       </SectionHeader>
@@ -1346,230 +1128,142 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
                           <SecurityText>
                             <SecurityTitle>
-                              Verificación de
-                              identidad
+                              Verificación de identidad
                             </SecurityTitle>
 
                             <SecurityDescription>
-                              Enviaremos un
-                              código de 6
-                              dígitos a
-                              <strong>
-                                {" "}
-                                {email}
-                              </strong>
+                              Enviaremos un código de 6 dígitos a
+                              <strong> {email}</strong>
                             </SecurityDescription>
                           </SecurityText>
                         </SecurityHeader>
 
                         {loadingResetStatus ? (
                           <LoadingState>
-                            Consultando estado
-                            de recuperación...
+                            Consultando estado de recuperación...
                           </LoadingState>
                         ) : (
                           <>
                             <SecuritySteps>
                               <SecurityStep
-                                $active={
-                                  !codeSent &&
-                                  !codeVerified
-                                }
-                                $completed={
-                                  codeSent ||
-                                  codeVerified
-                                }
+                                $active={!codeSent && !codeVerified}
+                                $completed={codeSent || codeVerified}
                               >
                                 <SecurityStepNumber>
-                                  {codeSent ||
-                                  codeVerified ? (
-                                    <FaCheck />
-                                  ) : (
-                                    "1"
-                                  )}
+                                  {codeSent || codeVerified ? <FaCheck /> : "1"}
                                 </SecurityStepNumber>
 
-                                <SecurityStepText>
-                                  Solicitar
-                                </SecurityStepText>
+                                <SecurityStepText>Solicitar</SecurityStepText>
                               </SecurityStep>
 
                               <SecurityStep
-                                $active={
-                                  codeSent &&
-                                  !codeVerified
-                                }
-                                $completed={
-                                  codeVerified
-                                }
+                                $active={codeSent && !codeVerified}
+                                $completed={codeVerified}
                               >
                                 <SecurityStepNumber>
-                                  {codeVerified ? (
-                                    <FaCheck />
-                                  ) : (
-                                    "2"
-                                  )}
+                                  {codeVerified ? <FaCheck /> : "2"}
                                 </SecurityStepNumber>
 
-                                <SecurityStepText>
-                                  Verificar
-                                </SecurityStepText>
+                                <SecurityStepText>Verificar</SecurityStepText>
                               </SecurityStep>
 
                               <SecurityStep
-                                $active={
-                                  codeVerified
-                                }
-                                $completed={
-                                  false
-                                }
+                                $active={codeVerified}
+                                $completed={false}
                               >
-                                <SecurityStepNumber>
-                                  3
-                                </SecurityStepNumber>
+                                <SecurityStepNumber>3</SecurityStepNumber>
 
-                                <SecurityStepText>
-                                  Contraseña
-                                </SecurityStepText>
+                                <SecurityStepText>Contraseña</SecurityStepText>
                               </SecurityStep>
                             </SecuritySteps>
 
-                            {!codeSent &&
-                              !codeVerified && (
-                                <SendCodeButton
+                            {!codeSent && !codeVerified && (
+                              <SendCodeButton
+                                type="button"
+                                onClick={() => void handleSendCode()}
+                                disabled={isSending}
+                              >
+                                <FaPaperPlane />
+
+                                <span>
+                                  {isSending
+                                    ? "Enviando código..."
+                                    : "Enviar código de verificación"}
+                                </span>
+
+                                {!isSending && <FaChevronRight />}
+                              </SendCodeButton>
+                            )}
+
+                            {codeSent && !codeVerified && (
+                              <CodeArea>
+                                <CodeHeader>
+                                  <div>
+                                    <strong>Código de verificación</strong>
+
+                                    <span>
+                                      Ingresá el código recibido por email.
+                                    </span>
+                                  </div>
+
+                                  <CodeStatus>
+                                    <FaEnvelope />
+                                    Enviado
+                                  </CodeStatus>
+                                </CodeHeader>
+
+                                <CodeInputs>
+                                  {Array.from(
+                                    {
+                                      length: 6,
+                                    },
+                                    (_, index) => (
+                                      <CodeInput
+                                        key={index}
+                                        ref={(element) => {
+                                          codeInputRefs.current[index] =
+                                            element;
+                                        }}
+                                        value={code[index] || ""}
+                                        maxLength={1}
+                                        inputMode="numeric"
+                                        autoComplete="one-time-code"
+                                        onChange={(event) =>
+                                          handleCodeChange(
+                                            index,
+                                            event.target.value,
+                                          )
+                                        }
+                                        onKeyDown={(event) =>
+                                          handleCodeKeyDown(index, event)
+                                        }
+                                      />
+                                    ),
+                                  )}
+                                </CodeInputs>
+
+                                <VerifyCodeButton
                                   type="button"
-                                  onClick={() =>
-                                    void handleSendCode()
-                                  }
-                                  disabled={
-                                    isSending
-                                  }
+                                  onClick={() => void handleVerifyCode()}
+                                  disabled={isVerifying || code.length !== 6}
+                                >
+                                  <FaCheckCircle />
+
+                                  {isVerifying
+                                    ? "Verificando..."
+                                    : "Verificar código"}
+                                </VerifyCodeButton>
+
+                                <ResendButton
+                                  type="button"
+                                  onClick={() => void handleSendCode()}
+                                  disabled={isSending}
                                 >
                                   <FaPaperPlane />
-
-                                  <span>
-                                    {isSending
-                                      ? "Enviando código..."
-                                      : "Enviar código de verificación"}
-                                  </span>
-
-                                  {!isSending && (
-                                    <FaChevronRight />
-                                  )}
-                                </SendCodeButton>
-                              )}
-
-                            {codeSent &&
-                              !codeVerified && (
-                                <CodeArea>
-                                  <CodeHeader>
-                                    <div>
-                                      <strong>
-                                        Código de
-                                        verificación
-                                      </strong>
-
-                                      <span>
-                                        Ingresá el
-                                        código
-                                        recibido
-                                        por email.
-                                      </span>
-                                    </div>
-
-                                    <CodeStatus>
-                                      <FaEnvelope />
-                                      Enviado
-                                    </CodeStatus>
-                                  </CodeHeader>
-
-                                  <CodeInputs>
-                                    {Array.from(
-                                      {
-                                        length: 6,
-                                      },
-                                      (
-                                        _,
-                                        index,
-                                      ) => (
-                                        <CodeInput
-                                          key={
-                                            index
-                                          }
-                                          ref={(
-                                            element,
-                                          ) => {
-                                            codeInputRefs.current[
-                                              index
-                                            ] =
-                                              element;
-                                          }}
-                                          value={
-                                            code[
-                                              index
-                                            ] ||
-                                            ""
-                                          }
-                                          maxLength={
-                                            1
-                                          }
-                                          inputMode="numeric"
-                                          autoComplete="one-time-code"
-                                          onChange={(
-                                            event,
-                                          ) =>
-                                            handleCodeChange(
-                                              index,
-                                              event
-                                                .target
-                                                .value,
-                                            )
-                                          }
-                                          onKeyDown={(
-                                            event,
-                                          ) =>
-                                            handleCodeKeyDown(
-                                              index,
-                                              event,
-                                            )
-                                          }
-                                        />
-                                      ),
-                                    )}
-                                  </CodeInputs>
-
-                                  <VerifyCodeButton
-                                    type="button"
-                                    onClick={() =>
-                                      void handleVerifyCode()
-                                    }
-                                    disabled={
-                                      isVerifying ||
-                                      code.length !==
-                                        6
-                                    }
-                                  >
-                                    <FaCheckCircle />
-
-                                    {isVerifying
-                                      ? "Verificando..."
-                                      : "Verificar código"}
-                                  </VerifyCodeButton>
-
-                                  <ResendButton
-                                    type="button"
-                                    onClick={() =>
-                                      void handleSendCode()
-                                    }
-                                    disabled={
-                                      isSending
-                                    }
-                                  >
-                                    <FaPaperPlane />
-                                    Reenviar código
-                                  </ResendButton>
-                                </CodeArea>
-                              )}
+                                  Reenviar código
+                                </ResendButton>
+                              </CodeArea>
+                            )}
 
                             {codeVerified && (
                               <>
@@ -1577,63 +1271,34 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                                   <FaCheckCircle />
 
                                   <div>
-                                    <strong>
-                                      Identidad
-                                      verificada
-                                    </strong>
+                                    <strong>Identidad verificada</strong>
 
                                     <span>
-                                      El código
-                                      fue
-                                      validado
-                                      correctamente.
+                                      El código fue validado correctamente.
                                     </span>
                                   </div>
                                 </SecuritySuccess>
 
                                 <PasswordArea>
                                   <FormGroup>
-                                    <Label>
-                                      Nueva
-                                      contraseña
-                                    </Label>
+                                    <Label>Nueva contraseña</Label>
 
                                     <PasswordInput
-                                      type={
-                                        showPassword
-                                          ? "text"
-                                          : "password"
-                                      }
-                                      value={
-                                        password
-                                      }
-                                      onChange={(
-                                        event,
-                                      ) =>
-                                        setPassword(
-                                          event
-                                            .target
-                                            .value,
-                                        )
+                                      type={showPassword ? "text" : "password"}
+                                      value={password}
+                                      onChange={(event) =>
+                                        setPassword(event.target.value)
                                       }
                                       placeholder="Ingresá la nueva contraseña"
                                     />
 
                                     {showPassword ? (
                                       <IoEyeSharp
-                                        onClick={() =>
-                                          setShowPassword(
-                                            false,
-                                          )
-                                        }
+                                        onClick={() => setShowPassword(false)}
                                       />
                                     ) : (
                                       <FaEyeSlash
-                                        onClick={() =>
-                                          setShowPassword(
-                                            true,
-                                          )
-                                        }
+                                        onClick={() => setShowPassword(true)}
                                       />
                                     )}
                                   </FormGroup>
@@ -1644,30 +1309,18 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                                     </PasswordStateIcon>
 
                                     <PasswordStateText>
-                                      <strong>
-                                        Contraseña
-                                        nueva
-                                      </strong>
+                                      <strong>Contraseña nueva</strong>
 
                                       <span>
-                                        Debe tener
-                                        al menos
-                                        6
-                                        caracteres.
+                                        Debe tener al menos 6 caracteres.
                                       </span>
                                     </PasswordStateText>
                                   </PasswordState>
 
                                   <VerifyCodeButton
                                     type="button"
-                                    onClick={() =>
-                                      void handleChangePassword()
-                                    }
-                                    disabled={
-                                      isChanging ||
-                                      password.length <
-                                        6
-                                    }
+                                    onClick={() => void handleChangePassword()}
+                                    disabled={isChanging || password.length < 6}
                                   >
                                     <FaCheckCircle />
 
@@ -1686,22 +1339,14 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                     <Section>
                       <SectionHeader>
                         <SectionIcon>
-                          {status ? (
-                            <FaCheckCircle />
-                          ) : (
-                            <FaUserSlash />
-                          )}
+                          {status ? <FaCheckCircle /> : <FaUserSlash />}
                         </SectionIcon>
 
                         <div>
-                          <SectionTitle>
-                            Estado de cuenta
-                          </SectionTitle>
+                          <SectionTitle>Estado de cuenta</SectionTitle>
 
                           <SectionDescription>
-                            Controlá el acceso
-                            de este usuario al
-                            sistema.
+                            Controlá el acceso de este usuario al sistema.
                           </SectionDescription>
                         </div>
                       </SectionHeader>
@@ -1709,28 +1354,15 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                       <StatusCard
                         type="button"
                         $active={status}
-                        onClick={() =>
-                          setStatus(
-                            (current) =>
-                              !current,
-                          )
-                        }
+                        onClick={() => setStatus((current) => !current)}
                       >
-                        <StatusIcon
-                          $active={status}
-                        >
-                          {status ? (
-                            <FaCheckCircle />
-                          ) : (
-                            <FaUserSlash />
-                          )}
+                        <StatusIcon $active={status}>
+                          {status ? <FaCheckCircle /> : <FaUserSlash />}
                         </StatusIcon>
 
                         <StatusContent>
                           <StatusTitle>
-                            {status
-                              ? "Usuario activo"
-                              : "Usuario inactivo"}
+                            {status ? "Usuario activo" : "Usuario inactivo"}
                           </StatusTitle>
 
                           <StatusDescription>
@@ -1751,9 +1383,7 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                     <EditorFooter>
                       <CancelButton
                         type="button"
-                        onClick={
-                          handleCancelEdit
-                        }
+                        onClick={handleCancelEdit}
                         disabled={saving}
                       >
                         <FaTimes />
@@ -1762,35 +1392,39 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
 
                       <SaveButton
                         type="button"
-                        onClick={() =>
-                          void handleSave()
-                        }
+                        onClick={() => void handleSave()}
                         disabled={saving}
                       >
                         <FaCheckCircle />
 
-                        {saving
-                          ? "Guardando..."
-                          : "Guardar cambios"}
+                        {saving ? "Guardando..." : "Guardar cambios"}
                       </SaveButton>
                     </EditorFooter>
                   </EditorPanel>
                 ) : (
+                  /*
+                   * -------------------------------------------------
+                   * SIN USUARIO SELECCIONADO
+                   * -------------------------------------------------
+                   */
+
                   <EditorPanel $empty>
                     <EmptyState>
                       <div>
                         <FaUserEdit />
                       </div>
 
-                      <strong>
-                        Seleccioná un usuario
-                      </strong>
+                      <strong>Seleccioná un usuario</strong>
 
                       <span>
-                        Elegí una cuenta de la
-                        lista para comenzar a
-                        editar sus datos.
+                        Elegí una cuenta de la lista para comenzar a editar sus
+                        datos.
                       </span>
+
+                      <button type="button" onClick={handleCreateUser}>
+                        <FaPlus />
+                        Crear nuevo usuario
+                      </button>
                     </EmptyState>
                   </EditorPanel>
                 )}

@@ -201,6 +201,7 @@ export const Filters = styled.div`
 
   margin-bottom: 16px;
   padding: 4px;
+    justify-content: space-between;
 
   overflow-x: auto;
 
@@ -213,6 +214,13 @@ export const Filters = styled.div`
 
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    .show{
+      display: none;
+    }
   }
 `;
 
