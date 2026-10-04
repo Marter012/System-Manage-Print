@@ -12,7 +12,7 @@ import {
 
 import {
   setAccessToken,
-} from "../../components/Auth/token";
+} from "../../components/Auth/token.ts";
 
 import type {
   User,

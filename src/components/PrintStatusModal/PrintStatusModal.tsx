@@ -282,8 +282,6 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
 
   const printerOnline = printerStatus?.online ?? false;
 
-  const printerStatusName = printerStatus?.status ?? "UNKNOWN";
-
   const printerStatusMessage =
     printerStatus?.status_message ??
     "No se pudo obtener el estado de la impresora.";
