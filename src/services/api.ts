@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { getAccessToken } from "./authStorage.ts";
+
 const CLIENT_ID_STORAGE_KEY = "boutique-sabores-client-id";
 
 export const getClientId = (): string => {
@@ -26,13 +28,17 @@ export const api = axios.create({
   },
 });
 
-/*
- * Identifica el navegador que realizó la operación.
- * El backend usa este ID para que el equipo que originó una orden
- * no vuelva a imprimirla cuando recibe su propio evento WebSocket.
- */
 api.interceptors.request.use((config) => {
   config.headers.set("X-Client-ID", getClientId());
+
+  const accessToken = getAccessToken();
+
+  if (accessToken) {
+    config.headers.set(
+      "Authorization",
+      `Bearer ${accessToken}`,
+    );
+  }
 
   return config;
 });

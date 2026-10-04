@@ -1,12 +1,13 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
+import { getAccessToken } from "../../services/authStorage.ts";
+
 const ProtectedRoute = () => {
   const location = useLocation();
 
-  const isAuthenticated =
-    localStorage.getItem("boutique_admin_authenticated") === "true";
+  const accessToken = getAccessToken();
 
-  if (!isAuthenticated) {
+  if (!accessToken) {
     return (
       <Navigate
         to="/login"

@@ -15,34 +15,34 @@ import {
   LoginError,
 } from "./LoginStyles.ts";
 
+import { getAxiosErrorMessage } from "../../Utils/ErrorAxios.tsx";
+import { login } from "../../../services/authService.ts";
+
 const Login = () => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const ADMIN_USERNAME = "admin";
-    const ADMIN_PASSWORD = "system";
+    setError("");
+    setLoading(true);
 
-    if (
-      username !== ADMIN_USERNAME ||
-      password !== ADMIN_PASSWORD
-    ) {
-      setError("Usuario o contraseña incorrectos.");
-      setPassword("");
-      return;
+    try {
+      const response = await login(username, password);
+
+      console.log("Login exitoso:", response);
+
+      navigate("/", { replace: true });
+    } catch (error) {
+      setError(getAxiosErrorMessage(error));
+    } finally {
+      setLoading(false);
     }
-
-    localStorage.setItem(
-      "boutique_admin_authenticated",
-      "true"
-    );
-
-    navigate("/", { replace: true });
   };
 
   return (
@@ -92,8 +92,8 @@ const Login = () => {
 
           {error && <LoginError>{error}</LoginError>}
 
-          <LoginButton type="submit">
-            Ingresar
+          <LoginButton type="submit" disabled={loading}>
+            {loading ? "Ingresando..." : "Ingresar"}
           </LoginButton>
         </LoginForm>
       </LoginCard>

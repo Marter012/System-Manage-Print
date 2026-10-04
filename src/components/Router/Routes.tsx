@@ -7,24 +7,35 @@ import CashRegister from "../Pages/Cash/CashRegister.tsx";
 import Promotions from "../Pages/Promotions/Promotions.tsx";
 import Login from "../Pages/Login/Login.tsx";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute.tsx";
-
+import PrivateLayout from "../PrivateLayout/PrivateLayout.tsx";
 
 const Router = () => {
   return (
     <Routes>
-      {/* Ruta pública */}
+      {/* ========================= */}
+      {/* RUTA PÚBLICA */}
+      {/* ========================= */}
+
       <Route path="/login" element={<Login />} />
 
-      {/* Rutas protegidas */}
+      {/* ========================= */}
+      {/* RUTAS PROTEGIDAS */}
+      {/* ========================= */}
+
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/promotions" element={<Promotions />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/cashRegister" element={<CashRegister />} />
+        <Route element={<PrivateLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/promotions" element={<Promotions />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/cashRegister" element={<CashRegister />} />
+        </Route>
       </Route>
 
-      {/* Cualquier ruta inexistente */}
+      {/* ========================= */}
+      {/* RUTA NO EXISTENTE */}
+      {/* ========================= */}
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

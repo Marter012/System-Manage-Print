@@ -624,14 +624,6 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
                       </InfoCard>
 
                       <InfoCard>
-                        <InfoLabel>Simulación</InfoLabel>
-
-                        <InfoValue>
-                          {config.simulation ? "Activada" : "Desactivada"}
-                        </InfoValue>
-                      </InfoCard>
-
-                      <InfoCard>
                         <InfoLabel>Conexión</InfoLabel>
 
                         <InfoValue
@@ -663,11 +655,6 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
                         </InfoCard>
                       )}
 
-                      <InfoCard>
-                        <InfoLabel>Estado interno</InfoLabel>
-
-                        <InfoValue>{printerStatusName}</InfoValue>
-                      </InfoCard>
                     </InfoGrid>
                   </>
                 ) : (
@@ -716,7 +703,7 @@ const PrintStatusModal = ({ isOpen, onClose }: PrintStatusModalProps) => {
                     </QueueSummaryIcon>
 
                     <div>
-                      <QueueBadgeLabel>Print Agent</QueueBadgeLabel>
+                      <QueueBadgeLabel>Programa de impresión</QueueBadgeLabel>
 
                       <QueueBadgeValue>{agentQueueCount}</QueueBadgeValue>
                     </div>

@@ -11,7 +11,6 @@ import {
   CashMessage,
   CashMessageLink,
   ContainerOrder,
-  EmptyCashContainer,
 } from "./OrdersStyles.ts";
 
 import type { RootState } from "../../../store/store.ts";
@@ -23,6 +22,7 @@ import PageHeader from "../../PageHeaders/PageHeaders.tsx";
 import { Tab } from "../../PageHeaders/PageHeadersStyles.ts";
 
 import { ContainerPage } from "../PageStyles.ts";
+import { OpenCashContainer } from "../../CashDay/CashDayStyles.ts";
 
 const Orders = () => {
   const [selected, setSelected] = useState<"create" | "manage">("manage");
@@ -37,12 +37,6 @@ const Orders = () => {
     (item) => getDateOnly(item.date) === day && item.shift === shift,
   );
 
-  /*
-   * CAJA CERRADA
-   *
-   * El header sigue visible y el mensaje aparece
-   * inmediatamente debajo.
-   */
   if (cashRegister?.status === false) {
     return (
       <ContainerPage>
@@ -51,7 +45,7 @@ const Orders = () => {
           description="Control y gestión de comandas por día."
         />
 
-        <ContainerOrder>
+        <OpenCashContainer>
           <CashMessage>
             <FaCashRegister />
 
@@ -67,7 +61,7 @@ const Orders = () => {
               Debés abrir la caja primero para poder gestionar las comandas.
             </span>
           </CashMessage>
-        </ContainerOrder>
+        </OpenCashContainer>
       </ContainerPage>
     );
   }
@@ -108,7 +102,7 @@ const Orders = () => {
           )}
         </ContainerOrder>
       ) : (
-        <EmptyCashContainer>
+        <OpenCashContainer>
           <CashMessageLink to="/cashRegister">
             <CashMessage>
               <FaCashRegister />
@@ -120,7 +114,7 @@ const Orders = () => {
               <span>Abrí una caja antes de gestionar las comandas.</span>
             </CashMessage>
           </CashMessageLink>
-        </EmptyCashContainer>
+        </OpenCashContainer>
       )}
     </ContainerPage>
   );

@@ -191,11 +191,6 @@ const publishPrintStatus = async () => {
   } catch (error) {
     const status = buildDisconnectedStatus();
 
-    console.warn(
-      "No se pudo consultar el Print Agent local. Publicando estado desconectado.",
-      error,
-    );
-
     if (socket?.readyState === WebSocket.OPEN) {
       socket.send(
         JSON.stringify({
@@ -268,9 +263,6 @@ const printRemoteOrder = async (event: WebSocketChangeEvent) => {
 
     await printOrderAPI(ticket);
 
-    console.log(
-      `Comanda #${order.order_number} recibida por WebSocket y enviada a impresión.`,
-    );
   } catch (error) {
     console.error(
       `La comanda #${order.order_number} llegó por WebSocket, pero no pudo imprimirse:`,
@@ -431,8 +423,6 @@ const connectWebSocket = () => {
     socket.onopen = () => {
       reconnectDelay = 1000;
 
-      console.log("🟢 WebSocket conectado.");
-
       if (heartbeatTimer !== null) {
         window.clearInterval(heartbeatTimer);
       }
@@ -497,8 +487,6 @@ const connectWebSocket = () => {
           return;
         }
 
-        console.log("🔄 Cambio recibido por WebSocket:", event);
-
         if (currentDispatch) {
           scheduleRefresh(currentDispatch);
         }
@@ -514,7 +502,6 @@ const connectWebSocket = () => {
     };
 
     socket.onclose = () => {
-      console.warn("🟠 WebSocket desconectado. Reintentando...");
 
       if (heartbeatTimer !== null) {
         window.clearInterval(heartbeatTimer);

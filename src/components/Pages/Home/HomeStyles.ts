@@ -1,302 +1,107 @@
 import styled from "styled-components";
 
-
-export const Welcome = styled.section`
-  width: 85%;
-
-  padding: 30px;
-
+export const HomeHeader = styled.section`
+  width: 88%;
+  max-width: 1250px;
+  padding: 24px 28px;
   box-sizing: border-box;
 
-  border-radius: 12px;
-
-  background-color: rgb(115, 77, 44, 0.7);
+  background: rgba(115, 77, 44, 0.72);
+  border-radius: 16px;
 
   color: #f4e9d8;
 
-  h1 {
-    margin: 0 0 10px;
+  box-shadow: 0 8px 25px rgba(101, 48, 7, 0.08);
 
-    font-size: 2rem;
-
-    line-height: 1.2;
+  @media (max-width: 900px) {
+    width: 92%;
+    padding: 22px;
   }
-
-  p {
-    margin: 0;
-
-    font-size: 1rem;
-
-    line-height: 1.5;
-
-    opacity: 0.8;
-  }
-
-  /* =========================
-     TABLET
-  ========================= */
-
-  @media (max-width: 850px) {
-    width: 90%;
-
-    padding: 25px;
-
-    h1 {
-      font-size: 1.7rem;
-    }
-  }
-
-  /* =========================
-     CELULAR
-  ========================= */
 
   @media (max-width: 600px) {
     width: calc(100% - 24px);
-
-    padding: 20px;
-
-    border-radius: 10px;
-
-    h1 {
-      margin-bottom: 8px;
-
-      font-size: 1.45rem;
-    }
-
-    p {
-      font-size: 0.9rem;
-    }
-  }
-
-  /* =========================
-     CELULAR CHICO
-  ========================= */
-
-  @media (max-width: 400px) {
-    width: calc(100% - 16px);
-
-    padding: 17px;
-
-    h1 {
-      font-size: 1.3rem;
-    }
-
-    p {
-      font-size: 0.85rem;
-    }
+    padding: 18px;
+    border-radius: 13px;
   }
 `;
 
-export const Tutorial = styled.section`
-  width: 85%;
-
-  h2 {
-    margin: 0;
-
-    font-size: 1.5rem;
-  }
-
-  .description {
-    margin: 6px 0 20px;
-
-    opacity: 0.65;
-  }
-
-  .cards {
-    display: grid;
-
-    grid-template-columns: repeat(4, 1fr);
-
-    gap: 15px;
-  }
-
-  /* =========================
-     NOTEBOOK / TABLET
-  ========================= */
-
-  @media (max-width: 1200px) {
-    width: 90%;
-
-    .cards {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  /* =========================
-     TABLET
-  ========================= */
-
-  @media (max-width: 850px) {
-    .cards {
-      grid-template-columns: repeat(2, 1fr);
-
-      gap: 12px;
-    }
-
-    h2 {
-      font-size: 1.35rem;
-    }
-
-    .description {
-      margin-bottom: 16px;
-    }
-  }
-
-  /* =========================
-     CELULAR
-  ========================= */
-
-  @media (max-width: 600px) {
-    width: calc(100% - 24px);
-
-    .cards {
-      grid-template-columns: 1fr;
-
-      gap: 12px;
-    }
-
-    h2 {
-      font-size: 1.25rem;
-    }
-
-    .description {
-      margin: 5px 0 15px;
-
-      font-size: 0.9rem;
-    }
-  }
-
-  /* =========================
-     CELULAR CHICO
-  ========================= */
-
-  @media (max-width: 400px) {
-    width: calc(100% - 16px);
-
-    h2 {
-      font-size: 1.15rem;
-    }
-
-    .description {
-      font-size: 0.85rem;
-    }
-  }
-`;
-
-export const TutorialCard = styled.article`
-  position: relative;
-
-  min-height: 190px;
-
+export const HeaderContent = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
 
-  gap: 10px;
-
-  padding: 22px;
-
-  box-sizing: border-box;
-
-  background-color: rgb(115, 77, 44, 0.7);
-
-  border-radius: 10px;
-
-  color: #f4e9d8;
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-3px);
+  @media (max-width: 700px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
   }
+`;
 
-  > svg {
-    width: 28px;
-    height: 28px;
+export const Greeting = styled.div`
+  flex: 1;
+  min-width: 0;
 
-    flex-shrink: 0;
+  span {
+    display: block;
+    margin-bottom: 6px;
+
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 
     color: #c29e70;
   }
 
-  h3 {
+  h1 {
     margin: 0;
 
-    font-size: 1.05rem;
-
-    line-height: 1.3;
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.15;
+    font-weight: 700;
   }
 
   p {
-    margin: 0;
+    margin: 8px 0 0;
 
-    font-size: 0.85rem;
+    max-width: 520px;
 
-    line-height: 1.5;
+    font-size: 0.88rem;
+    line-height: 1.45;
 
-    opacity: 0.7;
-  }
-
-  /* =========================
-     TABLET
-  ========================= */
-
-  @media (max-width: 850px) {
-    min-height: 175px;
-
-    padding: 20px;
-
-    gap: 9px;
-  }
-
-  /* =========================
-     CELULAR
-  ========================= */
-
-  @media (max-width: 600px) {
-    min-height: auto;
-
-    padding: 18px;
-
-    gap: 8px;
-
-    > svg {
-      width: 25px;
-      height: 25px;
-    }
-
-    h3 {
-      font-size: 1rem;
-    }
-
-    p {
-      font-size: 0.85rem;
-    }
-  }
-
-  @media (max-width: 400px) {
-    padding: 16px;
-
-    h3 {
-      font-size: 0.95rem;
-    }
-
-    p {
-      font-size: 0.8rem;
-    }
+    opacity: 0.72;
   }
 `;
 
-export const StepNumber = styled.span`
-  position: absolute;
+export const UserBadge = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  width: 30%;
 
-  top: 15px;
-  right: 15px;
+  padding: 9px 10px 9px 9px;
 
-  width: 27px;
-  height: 27px;
+  background: rgba(244, 233, 216, 0.1);
+  border: 1px solid rgba(244, 233, 216, 0.14);
+  border-radius: 12px;
+
+  flex-shrink: 0;
+  .user-info{
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+  }
+  @media (max-width: 700px) {
+    width: 100%;
+    box-sizing: border-box;
+  }
+`;
+
+export const UserAvatar = styled.div`
+  width: 38px;
+  height: 38px;
 
   display: flex;
   align-items: center;
@@ -304,93 +109,340 @@ export const StepNumber = styled.span`
 
   border-radius: 50%;
 
-  background-color: #c29e70;
-
+  background: #c29e70;
   color: #653007;
 
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
 
-  @media (max-width: 600px) {
-    top: 12px;
-    right: 12px;
+  flex-shrink: 0;
+`;
 
-    width: 25px;
-    height: 25px;
+export const UserDetails = styled.div`
+  min-width: 0;
 
-    font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+export const UserName = styled.strong`
+  max-width: 150px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: 0.82rem;
+  color: #fff5e8;
+`;
+
+export const UserEmail = styled.span`
+  max-width: 180px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: 0.7rem;
+  opacity: 0.6;
+`;
+
+export const LogoutButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 34px;
+  padding: 0 11px;
+
+  border: 1px solid rgba(244, 233, 216, 0.2);
+  border-radius: 8px;
+
+  background: rgba(101, 48, 7, 0.35);
+
+  color: #f4e9d8;
+
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    background: rgba(101, 48, 7, 0.65);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    font-size: 0.72rem;
+  }
+
+  @media (max-width: 450px) {
+    span {
+      display: none;
+    }
+
+    width: 34px;
+    padding: 0;
   }
 `;
 
-export const Workflow = styled.section`
-  width: 85%;
+/* =====================================================
+   INTRO
+===================================================== */
 
-  padding: 25px;
+export const Intro = styled.section`
+  width: 88%;
+  max-width: 1250px;
+
+  margin-top: 22px;
+
+  @media (max-width: 900px) {
+    width: 92%;
+  }
+
+  @media (max-width: 600px) {
+    width: calc(100% - 24px);
+    margin-top: 18px;
+  }
+`;
+
+export const IntroTitle = styled.h2`
+  margin: 0;
+
+  color: #653007;
+
+  font-size: 1.15rem;
+  font-weight: 700;
+`;
+
+export const IntroText = styled.p`
+  margin: 4px 0 0;
+
+  color: #653007;
+
+  font-size: 0.78rem;
+  opacity: 0.62;
+`;
+
+/* =====================================================
+   QUICK ACTIONS
+===================================================== */
+
+export const QuickActions = styled.section`
+  width: 88%;
+  max-width: 1250px;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 12px;
+
+  margin-top: 13px;
+
+  @media (max-width: 1050px) {
+    width: 92%;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    width: calc(100% - 24px);
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+  }
+
+  @media (max-width: 400px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const ActionItem = styled.article`
+  position: relative;
+
+  min-height: 126px;
+
+  padding: 17px;
 
   box-sizing: border-box;
 
-  background-color: rgba(194, 158, 112, 0.2);
+  display: flex;
+  gap: 13px;
 
-  border-radius: 10px;
+  background: rgba(115, 77, 44, 0.08);
 
-  h2 {
-    margin: 0 0 20px;
+  border: 1px solid rgba(115, 77, 44, 0.12);
+  border-radius: 12px;
 
-    font-size: 1.3rem;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+
+    background: rgba(115, 77, 44, 0.13);
+
+    box-shadow: 0 7px 18px rgba(101, 48, 7, 0.07);
   }
 
-  .flow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  @media (max-width: 600px) {
+    min-height: 118px;
+    padding: 14px;
+    gap: 10px;
+  }
+`;
 
-    gap: 20px;
+export const ActionIcon = styled.div`
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: #c29e70;
+  color: #653007;
+
+  svg {
+    font-size: 0.95rem;
   }
 
-  /* =========================
-     TABLET
-  ========================= */
+  @media (max-width: 600px) {
+    width: 33px;
+    height: 33px;
 
-  @media (max-width: 850px) {
-    width: 90%;
+    border-radius: 8px;
 
-    padding: 22px;
-
-    .flow {
-      gap: 12px;
+    svg {
+      font-size: 0.8rem;
     }
   }
+`;
 
-  /* =========================
-     CELULAR
-  ========================= */
+export const ActionContent = styled.div`
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ActionNumber = styled.span`
+  margin-bottom: 2px;
+
+  color: #653007;
+
+  font-size: 0.62rem;
+  font-weight: 800;
+
+  opacity: 0.45;
+`;
+
+export const ActionTitle = styled.h3`
+  margin: 0;
+
+  color: #653007;
+
+  font-size: 0.9rem;
+  line-height: 1.25;
+`;
+
+export const ActionDescription = styled.p`
+  margin: 5px 0 0;
+
+  color: #653007;
+
+  font-size: 0.72rem;
+  line-height: 1.4;
+
+  opacity: 0.62;
+`;
+
+/* =====================================================
+   WORKFLOW
+===================================================== */
+
+export const Workflow = styled.section`
+  width: 88%;
+  max-width: 1250px;
+
+  margin-top: 20px;
+  padding: 18px 20px;
+
+  box-sizing: border-box;
+
+  background: rgba(194, 158, 112, 0.15);
+
+  border-radius: 12px;
+
+  @media (max-width: 900px) {
+    width: 92%;
+  }
 
   @media (max-width: 600px) {
     width: calc(100% - 24px);
 
-    padding: 18px;
+    margin-top: 16px;
 
-    h2 {
-      margin-bottom: 16px;
+    padding: 15px;
+  }
+`;
 
-      font-size: 1.15rem;
-    }
+export const WorkflowHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    .flow {
-      flex-direction: column;
+  margin-bottom: 15px;
+`;
 
-      gap: 10px;
-    }
+export const WorkflowTitle = styled.h2`
+  margin: 0;
+
+  color: #653007;
+
+  font-size: 0.95rem;
+`;
+
+export const WorkflowDescription = styled.p`
+  margin: 3px 0 0;
+
+  color: #653007;
+
+  font-size: 0.7rem;
+
+  opacity: 0.58;
+`;
+
+export const WorkflowSteps = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 16px;
+
+  @media (max-width: 800px) {
+    gap: 9px;
   }
 
-  @media (max-width: 400px) {
-    width: calc(100% - 16px);
+  @media (max-width: 600px) {
+    flex-direction: column;
 
-    padding: 16px;
-
-    h2 {
-      font-size: 1.05rem;
-    }
+    gap: 5px;
   }
 `;
 
@@ -398,105 +450,109 @@ export const WorkflowStep = styled.div`
   display: flex;
   align-items: center;
 
-  gap: 8px;
+  gap: 7px;
 
-  font-weight: 600;
+  color: #653007;
 
-  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 700;
 
-  svg {
-    flex-shrink: 0;
-
-    color: #734d2c;
-  }
+  white-space: nowrap;
 
   @media (max-width: 600px) {
-    gap: 7px;
+    width: 100%;
 
-    font-size: 0.9rem;
-  }
+    justify-content: center;
 
-  @media (max-width: 400px) {
-    font-size: 0.85rem;
+    padding: 6px;
   }
 `;
 
-export const WorkflowArrow = styled.span`
+export const WorkflowIcon = styled.div`
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(194, 158, 112, 0.65);
+
+  color: #653007;
+
+  svg {
+    font-size: 0.72rem;
+  }
+`;
+
+export const WorkflowArrow = styled.div`
   display: flex;
   align-items: center;
 
-  opacity: 0.5;
+  color: #653007;
+
+  opacity: 0.35;
+
+  svg {
+    font-size: 0.7rem;
+  }
 
   @media (max-width: 600px) {
     transform: rotate(90deg);
   }
 `;
 
+/* =====================================================
+   TIP
+===================================================== */
+
 export const Tip = styled.div`
-  width: 85%;
+  width: 88%;
+  max-width: 1250px;
+
+  margin-top: 14px;
+  margin-bottom: 8px;
 
   display: flex;
   align-items: center;
 
-  gap: 10px;
-
-  padding: 15px 20px;
+  gap: 9px;
 
   box-sizing: border-box;
 
-  border-left: 4px solid #c29e70;
-
-  border-radius: 6px;
-
-  background-color: rgba(194, 158, 112, 0.15);
-
-  strong {
-    color: #734d2c;
-  }
+  color: #653007;
 
   span {
-    font-size: 0.9rem;
-
-    opacity: 0.75;
-
-    line-height: 1.4;
+    font-size: 1rem;
   }
 
-  /* =========================
-     TABLET
-  ========================= */
+  strong {
+    display: block;
 
-  @media (max-width: 850px) {
-    width: 90%;
+    margin-bottom: 1px;
 
-    padding: 14px 18px;
+    font-size: 0.7rem;
   }
 
-  /* =========================
-     CELULAR
-  ========================= */
+  p {
+    margin: 0;
+
+    font-size: 0.68rem;
+
+    opacity: 0.58;
+  }
+
+  @media (max-width: 900px) {
+    width: 92%;
+  }
 
   @media (max-width: 600px) {
     width: calc(100% - 24px);
 
     align-items: flex-start;
 
-    gap: 8px;
-
-    padding: 13px 15px;
-
-    span {
-      font-size: 0.82rem;
-    }
-  }
-
-  @media (max-width: 400px) {
-    width: calc(100% - 16px);
-
-    padding: 12px;
-
-    span {
-      font-size: 0.78rem;
-    }
+    margin-top: 12px;
   }
 `;

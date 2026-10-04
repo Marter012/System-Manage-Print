@@ -68,7 +68,6 @@ export const CashMessage = styled.div`
 
   background: #ffffff;
 
-  border: 1px solid #e4ddd7;
   border-radius: 16px;
 
   box-shadow: 0 6px 20px rgba(101, 48, 7, 0.06);
@@ -77,14 +76,6 @@ export const CashMessage = styled.div`
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
-
-  &:hover {
-    border-color: rgba(194, 158, 112, 0.7);
-
-    box-shadow: 0 8px 24px rgba(101, 48, 7, 0.09);
-
-    transform: translateY(-1px);
-  }
 
   svg {
     width: 52px;
