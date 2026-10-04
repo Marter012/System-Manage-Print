@@ -187,14 +187,6 @@ export const LogoutButton = styled.button`
     font-size: 0.72rem;
   }
 
-  @media (max-width: 450px) {
-    span {
-      display: none;
-    }
-
-    width: 34px;
-    padding: 0;
-  }
 `;
 
 /* =====================================================

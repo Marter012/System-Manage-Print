@@ -71,7 +71,7 @@ export const ModalContainer = styled.div`
 
   @media (max-width: 700px) {
     width: calc(100vw - 20px);
-    height: calc(100vh - 20px);
+    height: calc(80vh - 20px);
 
     border-radius: 18px;
   }

@@ -62,20 +62,9 @@ export const CashMessage = styled.div`
   flex-direction: column;
   align-items: center;
 
-  box-sizing: border-box;
-
   text-align: center;
 
-  background: #ffffff;
-
   border-radius: 16px;
-
-  box-shadow: 0 6px 20px rgba(101, 48, 7, 0.06);
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
 
   svg {
     width: 52px;
@@ -186,20 +175,29 @@ export const CashMessage = styled.div`
 ========================================================= */
 
 export const CashMessageLink = styled(NavLink)`
-  width: min(560px, 100%);
+width: min(560px, 100%);
+
+  padding: 42px 48px;
 
   display: flex;
-  justify-content: center;
 
-  color: inherit;
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+
+  background: #ffffff;
+
+  border: 1px solid #e4ddd7;
+
+  border-radius: 18px;
+
+  box-shadow: 0 8px 24px rgba(101, 48, 7, 0.07);
+
+  box-sizing: border-box;
+
+  transition: all 0.2s ease;
 
   text-decoration: none;
-
-  &:focus-visible {
-    outline: 3px solid rgba(194, 158, 112, 0.45);
-
-    outline-offset: 5px;
-
-    border-radius: 18px;
-  }
 `;

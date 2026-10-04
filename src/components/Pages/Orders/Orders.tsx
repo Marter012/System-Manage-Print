@@ -102,7 +102,6 @@ const Orders = () => {
           )}
         </ContainerOrder>
       ) : (
-        <OpenCashContainer>
           <CashMessageLink to="/cashRegister">
             <CashMessage>
               <FaCashRegister />
@@ -114,7 +113,6 @@ const Orders = () => {
               <span>Abrí una caja antes de gestionar las comandas.</span>
             </CashMessage>
           </CashMessageLink>
-        </OpenCashContainer>
       )}
     </ContainerPage>
   );
