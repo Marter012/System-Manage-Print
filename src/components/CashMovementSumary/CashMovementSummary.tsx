@@ -41,7 +41,7 @@ const CashMovementSummary = ({
           <p>No hay movimientos manuales.</p>
         ) : (
           recentMovements.map((movement) => (
-            <MovementRow key={movement.id} onDoubleClick={() => onEdit?.(movement)} title={onEdit ? "Doble clic para modificar" : undefined}>
+            <MovementRow key={movement.id} onClick={() => onEdit?.(movement)} title={onEdit ? "Doble clic para modificar" : undefined}>
               <div>
                 <strong>{movement.description || "Sin descripción"}</strong>
 

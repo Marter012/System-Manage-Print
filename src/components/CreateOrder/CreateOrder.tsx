@@ -54,6 +54,7 @@ export default function CreateOrder({
   setFieldValue,
 }: CreateOrderProps) {
   const [showPromotions, setShowPromotions] = useState(false);
+  const [currentStep, setCurrentStep] = useState<"products" | "details">("products");
   const [activeDetails, setActiveDetails] = useState<
     "delivery" | "discount" | "extra"
   >("delivery");
@@ -161,7 +162,12 @@ export default function CreateOrder({
   );
 
   return (
-    <OrderSection>
+    <OrderSection className={`create-order-form step-${currentStep}`}>
+      {/* Navegación por pasos: solo se muestra en tablet y móvil */}
+      <nav className="mobile-order-steps" aria-label="Pasos de la comanda">
+        <button type="button" className={currentStep === "products" ? "active" : ""} onClick={() => setCurrentStep("products")} aria-current={currentStep === "products" ? "step" : undefined}>1. Productos</button>
+        <button type="button" className={currentStep === "details" ? "active" : ""} onClick={() => setCurrentStep("details")} aria-current={currentStep === "details" ? "step" : undefined}>2. Pago y detalles</button>
+      </nav>
       {/* Fila 1: encabezado y cliente, ancho completo */}
       <OrderHeader className="order-header-row">
         <h3>Nueva comanda</h3>
@@ -558,7 +564,9 @@ export default function CreateOrder({
           )}
         </TotalSection>
 
+        <button className="mobile-continue-button" type="button" onClick={() => setCurrentStep("details")}>Continuar a pago y detalles →</button>
         <CreateOrderButton
+          className="desktop-create-order-button"
           type="submit"
           disabled={
             isSubmitting ||

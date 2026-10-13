@@ -6,8 +6,12 @@ import {
   FaClipboardList,
   FaSignOutAlt,
   FaUsers,
+  FaHistory,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store.ts";
+import ModalForm from "../../ModalForm/ModalForm.tsx";
 
 import { getMe, logout, type User } from "../../../services/authService.ts";
 import { api } from "../../../services/api.ts";
@@ -46,9 +50,11 @@ import {
   SettingCopy,
   SettingControl,
   SettingStatus,
-  ActivityPanel,
   ActivityList,
   ActivityRow,
+  ActivityButton,
+  ActivityModalContent,
+  HomeScrollFix,
 } from "./HomeStyles.ts";
 
 type ActivityEntry = {
@@ -64,12 +70,17 @@ const Home = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [showUserManagement, setShowUserManagement] = useState(false);
+  const [showActivity, setShowActivity] = useState(false);
+  const selectedDay = useSelector((state: RootState) => state.daySelected.day);
   const [allowOutOfStock, setAllowOutOfStock] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsError, setSettingsError] = useState("");
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const isAdmin = user?.role === "admin";
+  const filteredActivity = activity
+    .filter((entry) => Boolean(entry.created_at) && entry.created_at.slice(0, 10) === selectedDay)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   useEffect(() => {
     void getMe()
@@ -117,7 +128,28 @@ const Home = () => {
 
   const initial = user?.username?.charAt(0).toUpperCase() || "U";
 
+  const translateAuditAction = (action: string) => {
+    const translations: Record<string, string> = {
+      create: "Creó", created: "Creó", update: "Modificó", updated: "Modificó",
+      delete: "Eliminó", deleted: "Eliminó", login: "Inició sesión", logout: "Cerró sesión",
+      open: "Abrió", close: "Cerró", cancel: "Canceló", print: "Imprimió",
+      CREATE: "Creó", UPDATE: "Modificó", DELETE: "Eliminó",
+    };
+    return translations[action] ?? translations[action.toLowerCase()] ?? action;
+  };
+
+  const translateAuditResource = (resource: string) => {
+    const translations: Record<string, string> = {
+      product: "producto", products: "productos", order: "comanda", orders: "comandas",
+      cash_register: "caja", cash_movement: "movimiento de caja", user: "usuario", users: "usuarios",
+      promotion: "promoción", promotions: "promociones", setting: "configuración", settings: "configuración",
+    };
+    return translations[resource.toLowerCase()] ?? resource.replaceAll("_", " ");
+  };
+
   return (
+    <>
+    <HomeScrollFix />
     <ContainerPage className="home-page">
       <HomeHeader>
         <HeaderContent>
@@ -211,25 +243,45 @@ const Home = () => {
       </Workflow>
 
       {isAdmin && (
-        <ActivityPanel>
-          <h2>Última actividad</h2>
-          <ActivityList>
-            {activity.slice(0, 1).map((entry) => (
-              <ActivityRow key={entry.id}>
-                <strong>{entry.actor_username}</strong>
-                <span>{entry.action} · {entry.resource} {entry.details}</span>
-                <time>{new Date(entry.created_at).toLocaleString("es-AR")}</time>
-              </ActivityRow>
-            ))}
-            {activity.length === 0 && <p>Sin actividad reciente.</p>}
-          </ActivityList>
-        </ActivityPanel>
+        <ActivityButton type="button" onClick={() => setShowActivity(true)}>
+          <FaHistory />
+          <span>Ver actividad del día</span>
+          <small>{filteredActivity.length} registros · {selectedDay}</small>
+        </ActivityButton>
       )}
 
       <Tip><span>💡</span><div><strong>Recordatorio</strong><p>Antes de registrar una venta, asegurate de tener la caja abierta.</p></div></Tip>
 
+      {isAdmin && (
+        <ModalForm
+          isOpen={showActivity}
+          title={`Actividad del ${selectedDay}`}
+          onClose={() => setShowActivity(false)}
+        >
+          <ActivityModalContent>
+            <div className="activity-summary">
+              <strong>Registro de actividad</strong>
+              <span>{filteredActivity.length} {filteredActivity.length === 1 ? "acción" : "acciones"}</span>
+            </div>
+            <ActivityList>
+              {filteredActivity.length ? filteredActivity.map((entry) => (
+                <ActivityRow key={entry.id}>
+                  <strong>{entry.actor_username || "Usuario"}</strong>
+                  <span>
+                    {translateAuditAction(entry.action)} {translateAuditResource(entry.resource)}
+                    {entry.details ? ` · ${entry.details}` : ""}
+                  </span>
+                  <time>{new Date(entry.created_at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}</time>
+                </ActivityRow>
+              )) : <p>No hay actividad registrada para este día.</p>}
+            </ActivityList>
+          </ActivityModalContent>
+        </ModalForm>
+      )}
+
       {isAdmin && <ManageUser isOpen={showUserManagement} onClose={() => setShowUserManagement(false)} />}
     </ContainerPage>
+    </>
   );
 };
 

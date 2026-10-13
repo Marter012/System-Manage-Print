@@ -4,9 +4,9 @@ import styled from "styled-components";
 export const ContainerOrder = styled.div`
   width: 100%;
   max-width: 1600px;
-  min-height: 0;
+  min-height: 90% ;
+  max-height: 90% ;
   flex: 1 1 auto;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,7 +15,6 @@ export const ContainerOrder = styled.div`
 
   box-sizing: border-box;
 
-  height: auto;
 
   @media (max-width: 1000px) {
     margin-top: 0;

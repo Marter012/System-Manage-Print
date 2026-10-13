@@ -62,9 +62,15 @@ import {
   SummaryGroupItems,
   CashMobileTabs,
   CashMobileTab,
+  EditMovementForm,
+  EditMovementField,
+  EditMovementInput,
+  EditMovementActions,
+  EditMovementCancelButton,
+  EditMovementSaveButton,
 } from "./CashDayStyles.ts";
 
-import type { CashMovementType } from "../../interfaces/CashMovements.ts";
+import type { CashMovementType, ICashMovement } from "../../interfaces/CashMovements.ts";
 
 import { selectDay, selectShift } from "../../store/slices/daySelectedSlice.ts";
 
@@ -134,6 +140,10 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
   const [movementModalOpen, setMovementModalOpen] = useState(false);
 
   const [movementType, setMovementType] = useState<CashMovementType>("inflow");
+  const [editingMovement, setEditingMovement] = useState<ICashMovement | null>(null);
+  const [editMovementDescription, setEditMovementDescription] = useState("");
+  const [editMovementAmount, setEditMovementAmount] = useState("");
+  const [savingMovementEdit, setSavingMovementEdit] = useState(false);
 
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<
@@ -435,6 +445,45 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
 
   const handleOpenExpense = () => {
     handleOpenMovement("outflow");
+  };
+
+  const handleOpenEditMovement = (movement: ICashMovement) => {
+    if (!canModifyCash) return;
+    setEditingMovement(movement);
+    setEditMovementDescription(movement.description ?? "");
+    setEditMovementAmount(String(movement.amount));
+  };
+
+  const handleSubmitEditMovement = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!editingMovement || !canModifyCash || savingMovementEdit) return;
+
+    const description = editMovementDescription.trim();
+    const amount = Number(editMovementAmount.replace(",", "."));
+
+    if (!description) {
+      showInfo("Ingresá una descripción para el movimiento.");
+      return;
+    }
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showInfo("Ingresá un importe mayor a cero.");
+      return;
+    }
+
+    try {
+      setSavingMovementEdit(true);
+      await updateCashMovementAPI(editingMovement.id, { description, amount });
+      dispatch(setCashMovements(await getCashMovementsAPI()));
+      setEditingMovement(null);
+      showInfo("Movimiento actualizado correctamente.");
+    } catch (error) {
+      showInfo(
+        getAxiosErrorMessage(error, "No se pudo actualizar el movimiento."),
+      );
+    } finally {
+      setSavingMovementEdit(false);
+    }
   };
 
   /* =========================================================
@@ -913,39 +962,7 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
                 canModifyCash={canModifyCash}
                 onIncome={handleOpenIncome}
                 onExpense={handleOpenExpense}
-                onEdit={async (movement) => {
-                  if (!canModifyCash) return;
-                  const description = window.prompt(
-                    "Descripción",
-                    movement.description,
-                  );
-                  if (description === null) return;
-                  const amountText = window.prompt(
-                    "Importe",
-                    String(movement.amount),
-                  );
-                  if (amountText === null) return;
-                  const amount = Number(amountText.replace(",", "."));
-                  if (!Number.isFinite(amount) || amount <= 0) {
-                    showInfo("Ingresá un importe mayor a cero.");
-                    return;
-                  }
-                  try {
-                    await updateCashMovementAPI(movement.id, {
-                      description,
-                      amount,
-                    });
-                    dispatch(setCashMovements(await getCashMovementsAPI()));
-                    showInfo("Movimiento actualizado.");
-                  } catch (error) {
-                    showInfo(
-                      getAxiosErrorMessage(
-                        error,
-                        "No se pudo actualizar el movimiento.",
-                      ),
-                    );
-                  }
-                }}
+                onEdit={handleOpenEditMovement}
               />
             </div>
 
@@ -1014,6 +1031,62 @@ const CashDay = ({ setActiveTab }: CashDayProps) => {
           onSubmit={handleCreateMovement}
         />
       )}
+      {editingMovement && (
+        <ModalForm
+          isOpen={Boolean(editingMovement)}
+          title="Modificar movimiento"
+          onClose={() => {
+            if (savingMovementEdit) return;
+            setEditingMovement(null);
+          }}
+        >
+          <EditMovementForm onSubmit={handleSubmitEditMovement}>
+            <EditMovementField>
+              <label htmlFor="edit-movement-description">Descripción</label>
+              <EditMovementInput
+                id="edit-movement-description"
+                name="description"
+                type="text"
+                value={editMovementDescription}
+                onChange={(event) => setEditMovementDescription(event.target.value)}
+                placeholder="Ej.: compra de insumos"
+                maxLength={180}
+                autoFocus
+                required
+              />
+            </EditMovementField>
+
+            <EditMovementField>
+              <label htmlFor="edit-movement-amount">Importe</label>
+              <EditMovementInput
+                id="edit-movement-amount"
+                name="amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={editMovementAmount}
+                onChange={(event) => setEditMovementAmount(event.target.value)}
+                placeholder="0,00"
+                required
+              />
+            </EditMovementField>
+
+            <EditMovementActions>
+              <EditMovementCancelButton
+                type="button"
+                onClick={() => setEditingMovement(null)}
+                disabled={savingMovementEdit}
+              >
+                Cancelar
+              </EditMovementCancelButton>
+              <EditMovementSaveButton type="submit" disabled={savingMovementEdit}>
+                {savingMovementEdit ? "Guardando..." : "Guardar cambios"}
+              </EditMovementSaveButton>
+            </EditMovementActions>
+          </EditMovementForm>
+        </ModalForm>
+      )}
+
       {selectedSale && (
         <ModalForm
           isOpen

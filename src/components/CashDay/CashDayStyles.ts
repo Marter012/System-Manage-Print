@@ -1470,3 +1470,118 @@ export const EditOrderButton = styled.button`
     outline-offset: 2px;
   }
 `;
+
+
+/* ============================================================
+   FORMULARIO PARA EDITAR MOVIMIENTOS MANUALES
+============================================================ */
+
+export const EditMovementForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  color: #3f2a1d;
+`;
+
+export const EditMovementField = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  label {
+    color: #653007;
+    font-size: 13px;
+    font-weight: 700;
+  }
+`;
+
+export const EditMovementInput = styled.input`
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 11px 13px;
+  border: 1px solid #dfd0c2;
+  border-radius: 10px;
+  background: #fffdfb;
+  color: #3f2a1d;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: #9b653a;
+    box-shadow: 0 0 0 3px rgba(194, 158, 112, 0.2);
+  }
+
+  &::placeholder {
+    color: #a99a8d;
+  }
+`;
+
+export const EditMovementActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+`;
+
+export const EditMovementCancelButton = styled.button`
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid #d8c9bb;
+  border-radius: 10px;
+  background: #fff;
+  color: #653007;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f8f1e7;
+    border-color: #c29e70;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+export const EditMovementSaveButton = styled.button`
+  min-height: 42px;
+  padding: 10px 18px;
+  border: 1px solid #653007;
+  border-radius: 10px;
+  background: #653007;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(101, 48, 7, 0.15);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #7b3b0b;
+    box-shadow: 0 6px 14px rgba(101, 48, 7, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;

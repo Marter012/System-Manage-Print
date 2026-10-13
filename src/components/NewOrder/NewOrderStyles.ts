@@ -9,7 +9,6 @@ export const OrderForm = styled(Form)`
   width: 100%;
   height: 100%;
 
-
   max-width: 1600px;
 
   display: flex;
@@ -28,7 +27,7 @@ export const OrderForm = styled(Form)`
 export const ContainerNewOrder = styled.div`
   width: 100%;
   height: 100%;
-  
+
   min-width: 0;
   min-height: 0;
 
@@ -54,7 +53,6 @@ export const ContainerNewOrder = styled.div`
      * En móvil dejamos que el contenido
      * sea controlado por las secciones.
      */
-    height: auto;
   }
 
   @media (max-width: 400px) {
@@ -66,98 +64,85 @@ export const ContainerNewOrder = styled.div`
    SELECTOR MOBILE
 ========================================================= */
 
-export const MobileOrderSelector =
-  styled.div`
-    display: none;
+export const MobileOrderSelector = styled.div`
+  display: none;
 
-    @media (max-width: 1000px) {
-      width: 100%;
-
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-
-      gap: 5px;
-
-      padding: 5px;
-
-      margin-bottom: 12px;
-
-      box-sizing: border-box;
-
-      background-color: rgba(
-        115,
-        77,
-        44,
-        0.15
-      );
-
-      border-radius: 10px;
-    }
-
-    @media (max-width: 500px) {
-      margin-bottom: 10px;
-    }
-
-    @media (max-width: 400px) {
-      gap: 3px;
-      padding: 4px;
-    }
-  `;
-
-export const MobileOrderButton =
-  styled.button<{
-    $active: boolean;
-  }>`
+  @media (max-width: 1000px) {
     width: 100%;
 
-    height: 42px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 
-    border: none;
-    border-radius: 7px;
+    gap: 5px;
 
+    padding: 5px;
+
+    margin-bottom: 12px;
+
+    box-sizing: border-box;
+
+    background-color: rgba(115, 77, 44, 0.15);
+
+    border-radius: 10px;
+  }
+
+  @media (max-width: 500px) {
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 400px) {
+    gap: 3px;
+    padding: 4px;
+  }
+`;
+
+export const MobileOrderButton = styled.button<{
+  $active: boolean;
+}>`
+  width: 100%;
+
+  height: 42px;
+
+  border: none;
+  border-radius: 7px;
+
+  background-color: ${({ $active }) => ($active ? "#c29e70" : "transparent")};
+
+  color: #653007;
+
+  font-size: 0.92rem;
+  font-weight: ${({ $active }) => ($active ? 600 : 500)};
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
     background-color: ${({ $active }) =>
-      $active
-        ? "#c29e70"
-        : "transparent"};
+      $active ? "#c29e70" : "rgba(194, 158, 112, 0.5)"};
+  }
 
-    color: #653007;
+  &:active {
+    transform: scale(0.98);
+  }
 
-    font-size: 0.92rem;
-    font-weight: ${({ $active }) =>
-      $active ? 600 : 500};
+  @media (max-width: 700px) {
+    height: 40px;
+    font-size: 0.86rem;
+  }
 
-    cursor: pointer;
+  @media (max-width: 500px) {
+    height: 38px;
+    font-size: 0.82rem;
+  }
 
-    transition:
-      background-color 0.2s ease,
-      transform 0.2s ease;
-
-    &:hover {
-      background-color: ${({ $active }) =>
-        $active
-          ? "#c29e70"
-          : "rgba(194, 158, 112, 0.5)"};
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-
-    @media (max-width: 700px) {
-      height: 40px;
-      font-size: 0.86rem;
-    }
-
-    @media (max-width: 500px) {
-      height: 38px;
-      font-size: 0.82rem;
-    }
-
-    @media (max-width: 400px) {
-      height: 36px;
-      font-size: 0.76rem;
-    }
-  `;
+  @media (max-width: 400px) {
+    height: 36px;
+    font-size: 0.76rem;
+  }
+`;
 
 /* =========================================================
    GRID PRINCIPAL
@@ -220,10 +205,9 @@ export const MainOrder = styled.div`
 
     > .mobile-active {
       display: block;
-
+      height: 100%;
       width: 100%;
       min-width: 0;
-      min-height: 0;
     }
   }
 

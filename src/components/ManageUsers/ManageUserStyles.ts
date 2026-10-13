@@ -39,7 +39,7 @@ export const ModalOverlay = styled.div`
 export const ModalContainer = styled.div`
   width: min(1240px, calc(100vw - 48px));
 
-  height: min(840px, calc(100dvh - 40px));
+  height: 80dvh;
 
   display: flex;
   flex-direction: column;
@@ -69,11 +69,6 @@ export const ModalContainer = styled.div`
     }
   }
 
-  @media (max-width: 700px) {
-    width: calc(100vw - 24px);
-    height: calc(100dvh - 24px);
-    border-radius: 16px;
-  }
 `;
 
 export const ModalHeader = styled.header`

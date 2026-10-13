@@ -9,18 +9,15 @@ export const NavigationContainer = styled.nav`
   align-items: center;
 
   flex-shrink: 0;
-
   /* =========================
-     NAVIGATION LINKS
+  NAVIGATION LINKS
   ========================= */
-
+  
   .navigation-links {
     height: 100%;
 
     display: flex;
     align-items: center;
-
-    gap: 5px;
   }
 
   /* =========================
@@ -137,29 +134,11 @@ export const NavigationContainer = styled.nav`
     background-color: rgba(194, 158, 112, 0.12);
   }
 
-  /* =========================
-     TABLET
-  ========================= */
-
-  @media (max-width: 1100px) {
-    .navigation-links {
-      gap: 2px;
-    }
-
-    a {
-      padding: 0 14px;
-
-      gap: 6px;
-
-      font-size: 0.9rem;
-    }
-  }
 
   /* =========================
      MOBILE
   ========================= */
-
-  @media (max-width: 1400px) {
+  @media (max-width: 1300px) {
     height: 50px;
 
     .menu-toggle {
@@ -176,7 +155,6 @@ export const NavigationContainer = styled.nav`
 
       width: 230px;
       height: auto;
-
       display: flex;
       flex-direction: column;
       align-items: stretch;
@@ -191,8 +169,7 @@ export const NavigationContainer = styled.nav`
 
       background-color: #653007;
 
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 
       opacity: 0;
 
@@ -280,20 +257,21 @@ export const PrintButton = styled.button`
 
   gap: 8px;
 
-  padding: 0 18px;
+  padding: 0 20px;
 
   box-sizing: border-box;
-
   flex-shrink: 0;
 
   border: none;
+  border-radius: 0;
 
   background-color: transparent;
-
   color: #c29e70;
 
-  font-size: 18px;
+  font-size: 0.95rem;
+  font-weight: 500;
 
+  white-space: nowrap;
   cursor: pointer;
 
   transition:
@@ -302,8 +280,12 @@ export const PrintButton = styled.button`
 
   &:hover {
     color: #f4e9d8;
-
     background-color: rgba(194, 158, 112, 0.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #c29e70;
+    outline-offset: -2px;
   }
 
   span {
@@ -311,24 +293,18 @@ export const PrintButton = styled.button`
     font-weight: 500;
   }
 
-  @media (max-width: 1100px) {
-    padding: 0 14px;
-  }
-
-  @media (max-width: 700px) {
+  @media (max-width: 1300px) {
     width: 100%;
-
     height: 48px;
 
     justify-content: flex-start;
-
     gap: 12px;
 
     padding: 0 14px;
 
     border-radius: 8px;
 
-    font-size: 18px;
+    font-size: 0.9rem;
 
     span {
       display: inline;
@@ -337,7 +313,6 @@ export const PrintButton = styled.button`
 
   @media (max-width: 400px) {
     height: 46px;
-
     padding: 0 12px;
   }
 `;
@@ -355,11 +330,9 @@ export const PrintIndicator = styled.span<{
 
   border-radius: 50%;
 
-  background-color: ${({ $online }) =>
-    $online ? "#35a853" : "#d9534f"};
+  background-color: ${({ $online }) => ($online ? "#35a853" : "#d9534f")};
 
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
 
   pointer-events: none;
 

@@ -151,8 +151,8 @@ export const Actions = styled.div`
 `;
 
 export const Tab = styled.button`
-display: flex;
-justify-content: center;
+  display: flex;
+  justify-content: center;
 
   padding: 10px 20px;
 
@@ -164,13 +164,14 @@ justify-content: center;
 
   font-weight: 600;
   align-items: center;
-border: none;
+  border: none;
   cursor: pointer;
 
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
 
+  gap: 10px;
   &:hover {
     color: #734d2c;
   }

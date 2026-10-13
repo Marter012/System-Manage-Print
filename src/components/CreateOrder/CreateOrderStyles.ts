@@ -104,8 +104,6 @@ export const QuantityControls = styled.div`
 
 export const OrderSection = styled.section`
   width: 100%;
-  min-width: 0;
-  min-height: 0;
   height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
@@ -116,6 +114,10 @@ export const OrderSection = styled.section`
   background-color: rgba(115, 77, 44, 0.7);
   border-radius: 10px;
   overflow: hidden;
+  .mobile-order-steps,
+  .mobile-continue-button {
+    display: none;
+  }
 
   .order-header-row,
   .order-footer {
@@ -170,33 +172,151 @@ export const OrderSection = styled.section`
 
   @media (max-width: 1250px) and (min-width: 701px) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 10px;
-    padding: 14px;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 10px;
 
     .order-footer {
-      gap: 10px;
-      grid-template-columns: minmax(0, 1fr) minmax(160px, 0.35fr);
+      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) minmax(150px, 0.35fr);
+    }
+
+    .order-summary-column,
+    .order-options-column {
+      gap: 6px;
+    }
+
+    .section-title {
+      font-size: 0.9rem;
     }
   }
 
-  @media (max-width: 850px) {
-    gap: 9px;
-  }
-
-  @media (max-width: 700px) {
-    height: 100%;
+  @media (max-width: 1250px) {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1.15fr) minmax(0, 0.85fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
     gap: 8px;
     padding: 12px;
 
+    .mobile-order-steps {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      padding: 4px;
+      border-radius: 10px;
+      background: rgba(67, 37, 16, 0.25);
+    }
+
+    .mobile-order-steps button {
+      min-width: 0;
+      min-height: 38px;
+      padding: 7px 8px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.85);
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mobile-order-steps button.active {
+      background: #fff8ef;
+      color: #653007;
+      border-color: rgba(101, 48, 7, 0.15);
+    }
+
+    .order-summary-column,
+    .order-options-column {
+      grid-column: 1 / -1;
+      min-height: 0;
+    }
+
+    &.step-products .order-options-column,
+    &.step-details .order-summary-column {
+      display: none;
+    }
+
+    .order-footer {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 7px;
+    }
+
+    .mobile-continue-button {
+      display: block;
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: #fff8ef;
+      color: #653007;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    &.step-products .order-footer .desktop-create-order-button {
+      display: none;
+    }
+
+    &.step-details .order-footer .mobile-continue-button {
+      display: none;
+    }
+
+    .order-summary-column,
+    .order-options-column {
+      overflow: hidden;
+    }
+
+    .order-footer > div {
+      min-width: 0;
+    }
+  }
+
+  @media (max-width: 700px) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    gap: 6px;
+    padding: 8px;
+
+    .order-header-row {
+      gap: 5px;
+    }
+
+    .order-summary-column,
+    .order-options-column {
+      min-height: 0;
+      gap: 5px;
+    }
+
+    .order-summary-column {
+      overflow: hidden;
+    }
+
+    .order-options-column {
+      overflow: hidden;
+    }
+
+    .section-title {
+      font-size: 0.84rem;
+    }
+
     .order-footer {
       grid-template-columns: minmax(0, 1fr);
-      gap: 8px;
+      gap: 5px;
+    }
+
+    .order-footer > div {
+      min-width: 0;
     }
 
     .order-footer > button {
-      min-height: 42px;
+      min-height: 38px;
+      height: 38px;
     }
   }
 
@@ -504,7 +624,7 @@ export const TotalSection = styled.div`
   span,
   strong,
   button {
-    color: #222222;
+    color: #ffffff;
   }
 
   .subtotal-row {
@@ -595,8 +715,6 @@ export const TotalSection = styled.div`
     border-radius: 5px;
 
     background: transparent;
-
-    color: #222222;
 
     cursor: pointer;
 
@@ -961,17 +1079,77 @@ export const OrderData = styled.div`
   }
 
   @media (max-width: 700px) {
-    gap: 5px;
+    gap: 4px;
+    min-height: 0;
+
+    .payment-section {
+      padding: 6px 7px;
+      gap: 4px;
+    }
+
+    .data-section-heading strong {
+      font-size: 0.72rem;
+    }
+
     .details-nav {
       width: 100%;
+      min-height: 30px;
+      flex-shrink: 0;
+      gap: 2px;
+      padding: 2px;
     }
+
     .details-nav button {
-      flex: 1;
+      flex: 1 1 0;
       min-width: 0;
-      padding-inline: 6px;
+      min-height: 26px;
+      padding: 3px 4px;
+      font-size: 0.66rem;
     }
+
+    .details-panel {
+      min-height: 0;
+    }
+
+    .fields-grid {
+      gap: 4px;
+    }
+
     label {
-      font-size: 0.69rem;
+      font-size: 0.67rem;
+    }
+
+    .fields-grid input:not(.date-display),
+    .combined-payment-row input,
+    .date-display {
+      height: 29px;
+      font-size: 0.7rem;
+    }
+
+    .combined-payments {
+      gap: 3px;
+    }
+
+    .combined-payments-heading button,
+    .add-extra-button {
+      min-height: 25px;
+      font-size: 0.62rem;
+    }
+
+    .combined-payment-row {
+      grid-template-columns: minmax(0, 1fr) minmax(58px, 0.65fr) auto;
+      gap: 3px;
+    }
+
+    .combined-payment-row button {
+      min-height: 28px;
+      padding-inline: 5px;
+      font-size: 0.6rem;
+    }
+
+    .data-section {
+      padding: 6px 7px;
+      gap: 4px;
     }
   }
 
@@ -1094,7 +1272,7 @@ export const TimeInput = styled.input`
 export const CreateOrderButton = styled.button`
   width: 100%;
 
-  min-height: 46px;
+  height: 100%;
 
   flex-shrink: 0;
 

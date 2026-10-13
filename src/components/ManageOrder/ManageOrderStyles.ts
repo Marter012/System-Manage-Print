@@ -16,7 +16,6 @@ export const ContainerManageOrders = styled.div`
   box-sizing: border-box;
 
   flex-shrink: 0;
-
   .paid {
     background-color: #7bcf90;
     color: #287a3e;

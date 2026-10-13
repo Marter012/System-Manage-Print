@@ -20,7 +20,7 @@ export const ModalOverlay = styled.div`
 
 export const ModalContainer = styled.div`
   width: min(600px, 100%);
-  max-height: 90vh;
+  max-height: 80vh;
 
   display: flex;
   flex-direction: column;

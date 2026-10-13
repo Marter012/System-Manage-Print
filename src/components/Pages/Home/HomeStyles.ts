@@ -1,4 +1,22 @@
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
+
+/** Scroll exclusivo de Home; no modifica PageStyles.ts. */
+export const HomeScrollFix = createGlobalStyle`
+  .home-page.home-page {
+    height: auto;
+    min-height: calc(100dvh - 11dvh);
+    max-height: none;
+    margin-top: 11dvh;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+  }
+  .home-page.home-page > * { flex-shrink: 0; }
+`;
 
 export const HomeHeader = styled.section`
   width: min(100%, 1500px);
@@ -19,19 +37,9 @@ export const HeaderContent = styled.div`
   align-items: center;
   gap: clamp(12px, 2vw, 26px);
 
-  @media (max-width: 900px) {
-    grid-template-columns: minmax(170px, 0.8fr) minmax(250px, 1.2fr);
-    .user-badge {
-      grid-column: 1 / -1;
-    }
-  }
-
-  @media (max-width: 620px) {
+  @media (max-width: 1100px) {
     grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-    .user-badge {
-      grid-column: auto;
-    }
+    gap: 14px;
   }
 `;
 
@@ -59,7 +67,7 @@ export const Greeting = styled.div`
   }
   @media (max-width: 620px) {
     p {
-      display: none;
+      display: block;
     }
   }
 `;
@@ -67,6 +75,7 @@ export const Greeting = styled.div`
 export const UserBadge = styled.div`
   min-width: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -77,12 +86,13 @@ export const UserBadge = styled.div`
   .user-info,
   .user-actions {
     display: flex;
-    align-items: center;
+    justify-content: center;
     gap: 9px;
-    min-width: 0;
+    width: 100%;
+
   }
-  .user-actions {
-    justify-content: flex-end;
+  @media (max-width: 1100px) {
+    flex-direction: row;
   }
   @media (max-width: 620px) {
     padding: 6px;
@@ -130,7 +140,8 @@ export const UserEmail = styled.span`
 
 export const LogoutButton = styled.button`
   min-height: 34px;
-  display: inline-flex;
+  width: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
@@ -143,7 +154,6 @@ export const LogoutButton = styled.button`
   font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
   &:hover {
     background: #653007b3;
   }
@@ -151,6 +161,7 @@ export const LogoutButton = styled.button`
     outline: 3px solid #f1c27d;
     outline-offset: 2px;
   }
+
   @media (max-width: 390px) {
     padding: 0 8px;
     span {
@@ -173,13 +184,17 @@ export const OutOfStockCard = styled.section`
   color: #653007;
   box-shadow: 0 5px 16px #38200d18;
   @media (max-width: 620px) {
+    align-items: stretch;
+    flex-direction: column;
     padding: 10px 12px;
   }
 `;
 
 export const SettingCopy = styled.div`
-  min-width: 70%;
-  max-width: 70%;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  overflow-wrap: anywhere;
 
   h2 {
     margin: 0;
@@ -203,6 +218,7 @@ export const SettingControl = styled.button<{ $enabled: boolean }>`
   flex: 0 0 auto;
   min-width: 122px;
   min-height: 42px;
+  max-width: 100%;
   padding: 6px 8px 6px 11px;
   border: 1px solid ${({ $enabled }) => ($enabled ? "#287447" : "#9b8067")};
   border-radius: 999px;
@@ -228,6 +244,9 @@ export const SettingControl = styled.button<{ $enabled: boolean }>`
     flex: 0 0 38px;
     border-radius: 99px;
     background: ${({ $enabled }) => ($enabled ? "#287447" : "#a99a8c")};
+  }
+  @media (max-width: 620px) {
+    align-self: flex-start;
   }
   .switch::after {
     content: "";
@@ -399,8 +418,9 @@ export const WorkflowSteps = styled.div`
   gap: clamp(6px, 1.5vw, 16px);
   @media (max-width: 620px) {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px 8px;
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+    gap: 7px;
   }
 `;
 
@@ -411,7 +431,8 @@ export const WorkflowStep = styled.div`
   color: #653007;
   font-size: 0.68rem;
   font-weight: 700;
-  white-space: nowrap;
+  white-space: normal;
+  min-width: 0;
   @media (max-width: 620px) {
     font-size: 0.65rem;
   }
@@ -513,5 +534,113 @@ export const Tip = styled.div`
   }
   @media (max-height: 620px) {
     display: none;
+  }
+`;
+
+export const ActivityButton = styled.button`
+  width: min(100%, 1500px);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 10px 16px;
+  border: 1px solid #c29e7066;
+  border-radius: 12px;
+  background: #fff9f1;
+  color: #653007;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+
+  svg {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+  }
+  span {
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+  small {
+    margin-left: auto;
+    color: #80664e;
+    font-size: 0.7rem;
+  }
+  &:hover {
+    background: #f4e9d8;
+    transform: translateY(-1px);
+  }
+  &:focus-visible {
+    outline: 3px solid #c29e70;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 520px) {
+    flex-wrap: wrap;
+    small {
+      width: 100%;
+      margin-left: 26px;
+    }
+  }
+`;
+
+export const ActivityModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  height: min(62dvh, 560px);
+  min-height: 220px;
+
+  .activity-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 0 12px;
+    color: #653007;
+    border-bottom: 1px solid #c29e7044;
+    flex-shrink: 0;
+  }
+
+  .activity-summary strong {
+    font-size: 0.9rem;
+  }
+  .activity-summary span {
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #f4e9d8;
+    color: #653007;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  ${ActivityList} {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 5px;
+  }
+
+  ${ActivityRow} {
+    grid-template-columns: minmax(80px, 0.65fr) minmax(0, 2fr) auto;
+    padding: 12px 4px;
+    font-size: 0.76rem;
+  }
+
+  @media (max-width: 600px) {
+    height: min(65dvh, 520px);
+    ${ActivityRow} {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    ${ActivityRow} span {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
   }
 `;
