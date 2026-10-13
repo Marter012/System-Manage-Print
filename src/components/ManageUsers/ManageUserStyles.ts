@@ -755,6 +755,14 @@ export const FormGroup = styled.div`
   flex-direction: column;
 
   gap: 5px;
+  div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    svg{
+     width: 50px;
+    }
+  }
 `;
 
 export const Label = styled.label`

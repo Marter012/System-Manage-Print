@@ -137,10 +137,6 @@ const OrderForm = ({ order, onSuccess }: OrderFormProps) => {
           error.message ??
           "Ocurrió un error al actualizar la comanda.";
 
-        console.log("STATUS:", error.response?.status);
-        console.log("DATA:", error.response?.data);
-        console.log("ERROR:", message);
-
         setError(
           typeof message === "string"
             ? message
@@ -394,7 +390,6 @@ const OrderForm = ({ order, onSuccess }: OrderFormProps) => {
                       (product) => product.id === item.product_id,
                     )
                   : undefined;
-                console.log(item);
                 return (
                   <ProductRow key={item.id ?? index}>
                     <FormGroup>

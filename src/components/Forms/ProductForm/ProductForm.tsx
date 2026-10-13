@@ -11,9 +11,7 @@ import {
 
 import { useDispatch } from "react-redux";
 
-import type {
-  ProductFormProps,
-} from "../../../interfaces/Product.ts";
+import type { ProductFormProps } from "../../../interfaces/Product.ts";
 
 import type { AppDispatch } from "../../../store/store.ts";
 
@@ -27,7 +25,10 @@ import {
   updateProductApi,
 } from "../../../services/productService.ts";
 
-import { getProductInitialValues, ProductSchema } from "../../Schemas/ProductSchema.tsx";
+import {
+  getProductInitialValues,
+  ProductSchema,
+} from "../../Schemas/ProductSchema.tsx";
 
 const ProductForm = ({
   mode,
@@ -35,10 +36,8 @@ const ProductForm = ({
   onSuccess,
   categories,
 }: ProductFormProps) => {
-
   const dispatch = useDispatch<AppDispatch>();
 
- 
   const formatCategory = (category: string) => {
     const trimmed = category.trim();
 
@@ -61,7 +60,12 @@ const ProductForm = ({
           const formattedValues = {
             ...values,
             category: formatCategory(values.category),
-            garnish_options: values.has_garnish ? String(values.garnish_options ?? "").split(",").map((item) => item.trim()).filter(Boolean) : [],
+            garnish_options: values.has_garnish
+              ? String(values.garnish_options ?? "")
+                  .split(",")
+                  .map((item) => item.trim())
+                  .filter(Boolean)
+              : [],
           };
 
           if (mode === "create") {
@@ -120,7 +124,9 @@ const ProductForm = ({
                 />
                 <span className="garnish-toggle-copy">
                   <strong>Incluye guarnición sin costo</strong>
-                  <small>El cliente podrá elegir una opción al pedir este producto.</small>
+                  <small>
+                    El cliente podrá elegir una opción al pedir este producto.
+                  </small>
                 </span>
               </label>
 
@@ -147,6 +153,9 @@ const ProductForm = ({
                 type="number"
                 min="0"
                 step="0.01"
+                onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
+                  e.target.select();
+                }}
               />
 
               <ErrorMessage name="price" component={ErrorText} />

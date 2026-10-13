@@ -30,12 +30,16 @@ export const HomeHeader = styled.section`
 
 export const HeaderContent = styled.div`
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(280px, 1.2fr) minmax(
-      220px,
-      0.85fr
-    );
   align-items: center;
   gap: clamp(12px, 2vw, 26px);
+
+  grid-template-columns: 20% 40% 20%;
+  justify-content: space-between;
+
+  &:has(> :nth-child(2):last-child) {
+    grid-template-columns: 30% 30%;
+    justify-content: space-between;
+  }
 
   @media (max-width: 1100px) {
     grid-template-columns: minmax(0, 1fr);
@@ -89,7 +93,6 @@ export const UserBadge = styled.div`
     justify-content: center;
     gap: 9px;
     width: 100%;
-
   }
   @media (max-width: 1100px) {
     flex-direction: row;
@@ -183,10 +186,28 @@ export const OutOfStockCard = styled.section`
   background: #fff8ec;
   color: #653007;
   box-shadow: 0 5px 16px #38200d18;
+
+  /* Primer hijo: 50% */
+  > :first-child {
+    width: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Segundo hijo: 40% */
+  > :nth-child(2) {
+    width: 40%;
+    flex-shrink: 0;
+  }
+
   @media (max-width: 620px) {
     align-items: stretch;
     flex-direction: column;
     padding: 10px 12px;
+
+    > :first-child,
+    > :nth-child(2) {
+      width: 100%;
+    }
   }
 `;
 
@@ -195,7 +216,6 @@ export const SettingCopy = styled.div`
   min-width: 0;
   max-width: none;
   overflow-wrap: anywhere;
-
   h2 {
     margin: 0;
     color: #653007;
@@ -623,7 +643,7 @@ export const ActivityModalContent = styled.div`
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    overscroll-behavior: contain;
+    scrollbar-width: none;
     padding-right: 5px;
   }
 

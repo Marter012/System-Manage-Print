@@ -11,19 +11,20 @@ const spin = keyframes`
 `;
 
 export const Container = styled.div`
-  position: fixed;
-  inset: 0;
+  position: relative;
 
   width: 100%;
-  height: 100vh;
+  min-height: 0;
+  flex: 1;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  background: #f3eadb;
+  box-sizing: border-box;
+  overflow-y: auto;
 
-  z-index: 99999;
+  background: #f3eadb;
 `;
 
 export const Content = styled.div`
@@ -163,8 +164,7 @@ export const StatusItem = styled.div<StatusProps>`
 
   gap: 10px;
 
-  color: ${({ $completed }) =>
-    $completed ? "#685847" : "#a99b8a"};
+  color: ${({ $completed }) => ($completed ? "#685847" : "#a99b8a")};
 
   font-size: 14px;
 
@@ -187,11 +187,9 @@ export const StatusIcon = styled.span<StatusProps>`
 
   border-radius: 50%;
 
-  color: ${({ $completed }) =>
-    $completed ? "#ffffff" : "#b5a694"};
+  color: ${({ $completed }) => ($completed ? "#ffffff" : "#b5a694")};
 
-  background: ${({ $completed }) =>
-    $completed ? "#9b876e" : "transparent"};
+  background: ${({ $completed }) => ($completed ? "#9b876e" : "transparent")};
 
   font-size: 13px;
 

@@ -9,6 +9,16 @@ import {
   stopTokenRefresh,
 } from "../../services/authRefresh.ts";
 
+import {
+  SessionContainer,
+  SessionCard,
+  SessionLogo,
+  SessionTitle,
+  SessionDescription,
+  SpinnerContainer,
+  Spinner,
+} from "./PrivateLayoutStyles.ts";
+
 const PrivateLayout = () => {
   const navigate = useNavigate();
 
@@ -18,53 +28,70 @@ const PrivateLayout = () => {
     let mounted = true;
 
     const initializeSession = async () => {
-      const isValid = await ensureValidAccessToken();
+      try {
+        const isValid = await ensureValidAccessToken();
 
-      if (!isValid) {
-        stopTokenRefresh();
+        if (!mounted) {
+          return;
+        }
 
-        if (mounted) {
+        if (!isValid) {
+          stopTokenRefresh();
+
           navigate("/login", {
             replace: true,
           });
+
+          return;
         }
 
-        return;
+        startTokenRefresh();
+
+        setAuthReady(true);
+      } catch {
+        if (!mounted) {
+          return;
+        }
+
+        stopTokenRefresh();
+
+        navigate("/login", {
+          replace: true,
+        });
       }
-
-      if (!mounted) {
-        return;
-      }
-
-      startTokenRefresh();
-
-      setAuthReady(true);
     };
 
     void initializeSession();
 
     return () => {
       mounted = false;
-
       stopTokenRefresh();
     };
   }, [navigate]);
 
   if (!authReady) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "24px",
-          fontFamily: "inherit",
-          color: "#653007",
-        }}
-      >
-        Verificando sesión...
-      </div>
+      <SessionContainer>
+        <SessionCard>
+          <SessionLogo>BS</SessionLogo>
+
+          <SessionTitle>Boutique de Sabores</SessionTitle>
+
+          <SessionDescription>
+            Estamos preparando todo para vos
+          </SessionDescription>
+
+          <SpinnerContainer>
+            <Spinner />
+          </SpinnerContainer>
+
+          <span>Verificando tu sesión...</span>
+
+          <SessionDescription>
+            Un momento, por favor.
+          </SessionDescription>
+        </SessionCard>
+      </SessionContainer>
     );
   }
 

@@ -115,7 +115,8 @@ export const OrderSection = styled.section`
   border-radius: 10px;
   overflow: hidden;
   .mobile-order-steps,
-  .mobile-continue-button {
+  .mobile-continue-button,
+  .mobile-optional-button {
     display: none;
   }
 
@@ -199,9 +200,11 @@ export const OrderSection = styled.section`
     padding: 12px;
 
     .mobile-order-steps {
+      height: 40px;
+      overflow: hidden;
       grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
       padding: 4px;
       border-radius: 10px;
@@ -210,8 +213,7 @@ export const OrderSection = styled.section`
 
     .mobile-order-steps button {
       min-width: 0;
-      min-height: 38px;
-      padding: 7px 8px;
+      height: 100%;
       border: 1px solid transparent;
       border-radius: 7px;
       background: transparent;
@@ -223,6 +225,7 @@ export const OrderSection = styled.section`
     }
 
     .mobile-order-steps button.active {
+      height: 100%;
       background: #fff8ef;
       color: #653007;
       border-color: rgba(101, 48, 7, 0.15);
@@ -235,7 +238,22 @@ export const OrderSection = styled.section`
     }
 
     &.step-products .order-options-column,
-    &.step-details .order-summary-column {
+    &.step-payment .order-summary-column,
+    &.step-optional .order-summary-column {
+      display: none;
+    }
+
+    &.step-payment .details-nav,
+    &.step-payment .details-panel {
+      display: none;
+    }
+
+    &.step-optional .payment-section {
+      display: none;
+    }
+
+    &.step-payment .order-header-row input,
+    &.step-optional .order-header-row input {
       display: none;
     }
 
@@ -245,26 +263,47 @@ export const OrderSection = styled.section`
       gap: 7px;
     }
 
-    .mobile-continue-button {
-      display: block;
+    .mobile-continue-button,
+    .mobile-optional-button {
       width: 100%;
       min-height: 42px;
       padding: 9px 12px;
       border: 0;
       border-radius: 8px;
-      background: #fff8ef;
-      color: #653007;
       font: inherit;
       font-weight: 800;
       cursor: pointer;
+    }
+
+    .mobile-continue-button {
+      display: block;
+      background: #fff8ef;
+      color: #653007;
+    }
+
+    .mobile-optional-button {
+      display: none;
+      background: rgba(255, 248, 239, 0.18);
+      color: #fff8ef;
+      border: 1px solid rgba(255, 248, 239, 0.45);
     }
 
     &.step-products .order-footer .desktop-create-order-button {
       display: none;
     }
 
-    &.step-details .order-footer .mobile-continue-button {
+    &.step-payment .order-footer .mobile-continue-button,
+    &.step-optional .order-footer .mobile-continue-button {
       display: none;
+    }
+
+    &.step-payment .order-footer .mobile-optional-button {
+      display: block;
+    }
+
+    &.step-payment .order-footer .desktop-create-order-button,
+    &.step-optional .order-footer .desktop-create-order-button {
+      display: flex;
     }
 
     .order-summary-column,
@@ -823,6 +862,10 @@ export const OrderData = styled.div`
   overflow: hidden;
   box-sizing: border-box;
 
+  .details-nav.desktop-details-nav {
+    display: none;
+  }
+
   .details-nav {
     width: fit-content;
     max-width: 100%;
@@ -897,6 +940,10 @@ export const OrderData = styled.div`
 
   .payment-section {
     flex-shrink: 0;
+    height: 100%;
+
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
   }
 
   .details-panel > .data-section {
@@ -905,6 +952,7 @@ export const OrderData = styled.div`
 
   .data-section {
     width: 100%;
+    height: 100%;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -913,6 +961,8 @@ export const OrderData = styled.div`
     border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 10px;
     background: rgba(255, 250, 244, 0.12);
+    overflow-y: auto;
+    scrollbar-width: none;
   }
 
   .data-section-heading {
@@ -955,7 +1005,7 @@ export const OrderData = styled.div`
 
   .fields-grid input:not(.date-display),
   .combined-payment-row input {
-    width: 100%;
+    width: 90%;
     min-width: 0;
     height: 31px;
     padding: 0 8px;
@@ -1187,6 +1237,44 @@ export const OrderData = styled.div`
     }
     .combined-payment-row button {
       padding: 0 6px;
+    }
+  }
+
+
+  /* Ajuste exclusivo para pantallas grandes: no altera tablet ni móvil. */
+  @media (min-width: 1401px) {
+    /* En escritorio, el navbar vive debajo de Tipo de pago. */
+    .payment-section {
+      height: auto;
+      flex: 0 0 auto;
+      overflow: visible !important;
+    }
+
+    .details-nav.desktop-details-nav {
+      display: flex;
+      width: fit-content;
+      max-width: 100%;
+      flex-shrink: 0;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+
+    .details-nav:not(.desktop-details-nav) {
+      display: none;
+    }
+
+    /* Reserva espacio para renderizar el contenido de la opción activa. */
+    .details-panel {
+      display: block;
+      flex: 1 1 0;
+      min-height: 120px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .details-panel > .data-section {
+      height: auto;
+      min-height: 120px;
     }
   }
 `;

@@ -1282,25 +1282,28 @@ const ManageUser = ({ isOpen, onClose }: ManageUserProps) => {
                                 <PasswordArea>
                                   <FormGroup>
                                     <Label>Nueva contraseña</Label>
-
-                                    <PasswordInput
-                                      type={showPassword ? "text" : "password"}
-                                      value={password}
-                                      onChange={(event) =>
-                                        setPassword(event.target.value)
-                                      }
-                                      placeholder="Ingresá la nueva contraseña"
-                                    />
-
-                                    {showPassword ? (
-                                      <IoEyeSharp
-                                        onClick={() => setShowPassword(false)}
+                                    <div>
+                                      <PasswordInput
+                                        type={
+                                          showPassword ? "text" : "password"
+                                        }
+                                        value={password}
+                                        onChange={(event) =>
+                                          setPassword(event.target.value)
+                                        }
+                                        placeholder="Ingresá la nueva contraseña"
                                       />
-                                    ) : (
-                                      <FaEyeSlash
-                                        onClick={() => setShowPassword(true)}
-                                      />
-                                    )}
+
+                                      {showPassword ? (
+                                        <IoEyeSharp
+                                          onClick={() => setShowPassword(false)}
+                                        />
+                                      ) : (
+                                        <FaEyeSlash
+                                          onClick={() => setShowPassword(true)}
+                                        />
+                                      )}
+                                    </div>
                                   </FormGroup>
 
                                   <PasswordState>

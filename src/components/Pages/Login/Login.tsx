@@ -17,14 +17,22 @@ import {
 
 import { getAxiosErrorMessage } from "../../Utils/ErrorAxios.tsx";
 import { login } from "../../../services/authService.ts";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../../store/store.ts";
+import { loginUser } from "../../../store/slices/userSlice.ts";
+import { IoEyeSharp } from "react-icons/io5";
+import { FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const navigate = useNavigate();
+
+  const dispatch = useDispatch<AppDispatch>();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,7 +43,9 @@ const Login = () => {
     try {
       const response = await login(username, password);
 
-      console.log("Login exitoso:", response);
+      if (response) {
+        dispatch(loginUser());
+      }
 
       navigate("/", { replace: true });
     } catch (error) {
@@ -52,14 +62,10 @@ const Login = () => {
 
         <LoginTitle>Boutique de Sabores</LoginTitle>
 
-        <LoginSubtitle>
-          Acceso exclusivo para administradores
-        </LoginSubtitle>
+        <LoginSubtitle>Acceso exclusivo para administradores</LoginSubtitle>
 
         <LoginForm onSubmit={handleSubmit}>
-          <LoginLabel htmlFor="username">
-            Usuario
-          </LoginLabel>
+          <LoginLabel htmlFor="username">Usuario</LoginLabel>
 
           <LoginInput
             id="username"
@@ -74,21 +80,26 @@ const Login = () => {
             autoFocus
           />
 
-          <LoginLabel htmlFor="password">
-            Contraseña
-          </LoginLabel>
+          <LoginLabel htmlFor="password">Contraseña</LoginLabel>
 
-          <LoginInput
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => {
-              setPassword(event.target.value);
-              setError("");
-            }}
-            placeholder="Ingresá tu contraseña"
-            autoComplete="current-password"
-          />
+          <div className="passwordShow">
+            <LoginInput
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setError("");
+              }}
+              placeholder="Ingresá tu contraseña"
+              autoComplete="current-password"
+            />
+            {showPassword ? (
+              <IoEyeSharp onClick={() => setShowPassword(false)} />
+            ) : (
+              <FaEyeSlash onClick={() => setShowPassword(true)} />
+            )}
+          </div>
 
           {error && <LoginError>{error}</LoginError>}
 

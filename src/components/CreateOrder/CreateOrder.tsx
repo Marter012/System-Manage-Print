@@ -54,7 +54,7 @@ export default function CreateOrder({
   setFieldValue,
 }: CreateOrderProps) {
   const [showPromotions, setShowPromotions] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"products" | "details">("products");
+  const [currentStep, setCurrentStep] = useState<"products" | "payment" | "optional">("products");
   const [activeDetails, setActiveDetails] = useState<
     "delivery" | "discount" | "extra"
   >("delivery");
@@ -165,8 +165,30 @@ export default function CreateOrder({
     <OrderSection className={`create-order-form step-${currentStep}`}>
       {/* Navegación por pasos: solo se muestra en tablet y móvil */}
       <nav className="mobile-order-steps" aria-label="Pasos de la comanda">
-        <button type="button" className={currentStep === "products" ? "active" : ""} onClick={() => setCurrentStep("products")} aria-current={currentStep === "products" ? "step" : undefined}>1. Productos</button>
-        <button type="button" className={currentStep === "details" ? "active" : ""} onClick={() => setCurrentStep("details")} aria-current={currentStep === "details" ? "step" : undefined}>2. Pago y detalles</button>
+        <button
+          type="button"
+          className={currentStep === "products" ? "active" : ""}
+          onClick={() => setCurrentStep("products")}
+          aria-current={currentStep === "products" ? "step" : undefined}
+        >
+          1. Productos
+        </button>
+        <button
+          type="button"
+          className={currentStep === "payment" ? "active" : ""}
+          onClick={() => setCurrentStep("payment")}
+          aria-current={currentStep === "payment" ? "step" : undefined}
+        >
+          2. Pago
+        </button>
+        <button
+          type="button"
+          className={currentStep === "optional" ? "active" : ""}
+          onClick={() => setCurrentStep("optional")}
+          aria-current={currentStep === "optional" ? "step" : undefined}
+        >
+          3. Opcionales
+        </button>
       </nav>
       {/* Fila 1: encabezado y cliente, ancho completo */}
       <OrderHeader className="order-header-row">
@@ -269,6 +291,7 @@ export default function CreateOrder({
                 <ErrorMessage name="status_payment" component="span" />
               </label>
             </div>
+
             <div className="combined-payments">
               <div className="combined-payments-heading">
                 <span>Pago combinado</span>
@@ -342,6 +365,37 @@ export default function CreateOrder({
               ))}
             </div>
           </section>
+
+          {/* En escritorio, el navbar queda fuera del panel Tipo de pago. */}
+          <nav
+            className="details-nav desktop-details-nav"
+            aria-label="Opciones de la comanda"
+          >
+            <button
+              type="button"
+              className={activeDetails === "delivery" ? "active" : ""}
+              onClick={() => setActiveDetails("delivery")}
+              aria-pressed={activeDetails === "delivery"}
+            >
+              Entrega
+            </button>
+            <button
+              type="button"
+              className={activeDetails === "discount" ? "active" : ""}
+              onClick={() => setActiveDetails("discount")}
+              aria-pressed={activeDetails === "discount"}
+            >
+              Descuento
+            </button>
+            <button
+              type="button"
+              className={activeDetails === "extra" ? "active" : ""}
+              onClick={() => setActiveDetails("extra")}
+              aria-pressed={activeDetails === "extra"}
+            >
+              Extra
+            </button>
+          </nav>
 
           <nav className="details-nav" aria-label="Opciones de la comanda">
             <button
@@ -564,7 +618,13 @@ export default function CreateOrder({
           )}
         </TotalSection>
 
-        <button className="mobile-continue-button" type="button" onClick={() => setCurrentStep("details")}>Continuar a pago y detalles →</button>
+        <button
+          className="mobile-continue-button"
+          type="button"
+          onClick={() => setCurrentStep("payment")}
+        >
+          Continuar a pago →
+        </button>
         <CreateOrderButton
           className="desktop-create-order-button"
           type="submit"
